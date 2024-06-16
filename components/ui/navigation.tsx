@@ -54,7 +54,7 @@ export default function Navigation({ children }: NavbarProps) {
                 </div>
             </div>
 
-            <div className="mt-20">
+            <div className="mt-[4rem]">
                 {children}
             </div>
             
