@@ -31,9 +31,9 @@ export default function Navigation({ children }: NavbarProps) {
                                 About
                             </NavigationMenuLink>
                         </Link>
-                        <Link href="/game" legacyBehavior passHref>
+                        <Link href="/challenges" legacyBehavior passHref>
                             <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                                Game
+                                Challenges
                             </NavigationMenuLink>
                         </Link>
                     </NavigationMenu>
@@ -53,9 +53,11 @@ export default function Navigation({ children }: NavbarProps) {
                     </Button>
                 </div>
             </div>
+
             <div className="mt-20">
                 {children}
             </div>
+            
             {/* <footer className="mb-10">
                 <div className="mx-auto w-full max-w-screen-xl p-4 py-2 lg:py-4">
                     <hr className="my-0 border-gray-200 sm:mx-auto dark:border-gray-700 lg:my-4" />
