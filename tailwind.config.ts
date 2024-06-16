@@ -52,10 +52,9 @@ const config = {
           DEFAULT: "hsl(var(--popover))",
           foreground: "hsl(var(--popover-foreground))",
         },
-        card: {
-          DEFAULT: "hsl(var(--card))",
-          foreground: "hsl(var(--card-foreground))",
-        },
+        card: "#03091C",
+        homeInfoCardsBg: "#080C14", 
+        homeAboutUsBg: "#0C121E"
       },
       borderRadius: {
         lg: "var(--radius)",
