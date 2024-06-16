@@ -14,7 +14,7 @@ interface NavbarProps {
 export default function Navigation({ children }: NavbarProps) {
     return (
         <>
-            <div className="fixed top-0 left-0 right-0 flex justify-between px-16 items-center bg-slate-950/[.85] backdrop-blur h-16 shadow-sm shadow-slate-900">
+            <div className="fixed top-0 left-0 right-0 flex justify-between px-16 items-center bg-slate-950/[.85] backdrop-blur h-16 shadow-sm shadow-slate-900 z-[1]">
                 <div className="flex items-center">
                     <div className="flex gap-1 mr-9">
                         <GalleryThumbnailsIcon />
