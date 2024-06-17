@@ -54,7 +54,8 @@ const config = {
         },
         card: "#03091C",
         homeInfoCardsBg: "#080C14", 
-        homeAboutUsBg: "#0C121E"
+        homeAboutUsBg: "#0C121E", 
+        aboutUsOfficersBg: "#181818"
       },
       borderRadius: {
         lg: "var(--radius)",
