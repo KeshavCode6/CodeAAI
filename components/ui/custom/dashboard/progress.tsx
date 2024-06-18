@@ -25,7 +25,8 @@ const DoughnutChart: React.FC<DoughnutChartProps> = ({ value, label }) => {
         backgroundColor: ['rgba(0, 192, 192, 1)', 'rgba(192, 192, 192, 0.3)'],
         hoverBackgroundColor: ['rgba(75, 192, 192, 1)', 'rgba(192, 192, 192, 0.3)'],
         borderWidth:1,
-        borderColor:"black"
+        borderColor:"black", 
+        borderRadius: 30
       },
     ],
   };
