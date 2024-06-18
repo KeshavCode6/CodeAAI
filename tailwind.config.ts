@@ -53,6 +53,9 @@ const config = {
           foreground: "hsl(var(--popover-foreground))",
         },
         card: "#03091C",
+        homeEmphasizedText: "#0083CD",
+        homeGradientStart: "rgba(66,57,169,.5)",
+        homePlayButton: "#03091C",
         homeInfoCardsBg: "#080C14", 
         homeAboutUsBg: "#0C121E", 
         aboutUsOfficersBg: "#181818"
