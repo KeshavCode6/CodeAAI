@@ -1,7 +1,7 @@
 "use client"
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import Navigation from "@/components/ui/navigation";
+import Navigation from "@/components/ui/custom/navigation";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Editor, loader } from "@monaco-editor/react";
 import { useState } from "react";
@@ -35,7 +35,7 @@ export default function Challenge() {
   }
 
   return (
-    <Navigation>
+    <Navigation path={"/challenge"}>
       <div className="flex justify-center items-center gap-1" style={{marginTop:"80px"}}>
         <Card className="p-2">
           <Editor
@@ -70,7 +70,7 @@ export default function Challenge() {
             <TabsContent value="description"></TabsContent>
           </Tabs>
           <div className="w-full flex justify-center" style={{flexGrow:1, }}>
-            <div className="flex absolute gap-1 bottom-10">
+            <div className="flex absolute gap-1 bottom-20">
               <Button className="gap-1 text-xs" size={"sm"} onClick={submitCode}><PlayIcon size={15}/> Run</Button>
               <Button className="gap-1 text-xs" size={"sm"} onClick={submitCode}><HelpCircle size={15}/> Help</Button>
             </div>

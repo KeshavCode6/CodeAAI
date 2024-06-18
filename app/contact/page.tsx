@@ -1,12 +1,12 @@
 "use client"
 
 import OfficerAbout from "@/components/ui/custom/officer-about"
-import Navigation from "@/components/ui/navigation"
+import Navigation from "@/components/ui/custom/navigation"
 
-export default function About() {
+export default function Contact() {
 
     return (
-        <Navigation>
+        <Navigation path={"/contact"}>
 
             <div className="h-screen">
                 {/* idk if we need smt to go here */}
