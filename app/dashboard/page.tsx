@@ -15,7 +15,7 @@ import Leaderboard, {
 import HeaderCard from "@/components/custom/card/HeaderCard";
 import PointsTracker from "@/components/custom/charts/PointsTracker";
 import useWindowSize from "@/lib/useWindowSize";
-import { Avatar, AvatarImage } from "@radix-ui/react-avatar";
+import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { DialogFooter, DialogHeader } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";

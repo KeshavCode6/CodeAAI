@@ -3,9 +3,7 @@ import { Button } from "../../ui/button";
 import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
-  TableFooter,
   TableHead,
   TableHeader,
   TableRow,
@@ -25,18 +23,32 @@ export function ChallengeListItem({
   points,
 }: ChallengeListItemProps) {
   const lowerCaseDifficulty = difficulty?.toLowerCase();
+  //@ts-ignore
+  const bgColor = customColors[`${lowerCaseDifficulty}Bg`];
+  //@ts-ignore
+  const fgColor = customColors[`${lowerCaseDifficulty}Fg`];
   return (
     <TableRow className="w-full">
       <TableCell className="text-center">{name}</TableCell>
       <TableCell className="text-center">{status}</TableCell>
       <TableCell className="text-center">
-        <span className={`bg-${lowerCaseDifficulty}Bg text-${lowerCaseDifficulty}Fg p-2 rounded-lg`}>
+        <span
+          className="p-2 rounded-lg"
+          style={{ backgroundColor: bgColor, color: fgColor }}
+        >
           {difficulty}
         </span>
       </TableCell>
       <TableCell className="text-center">{points}</TableCell>
       <TableCell className="flex">
-        <Button variant={"outline"} className="m-auto" size={"icon"} onClick={() => {location.href = "/challenge"}}>
+        <Button
+          variant={"outline"}
+          className="m-auto"
+          size={"icon"}
+          onClick={() => {
+            location.href = "/challenge";
+          }}
+        >
           <ChevronRight size={15} />
         </Button>
       </TableCell>
@@ -60,9 +72,7 @@ export function ChallengeList({ children }: ChallengeListProps) {
           <TableHead className="text-center">Play</TableHead>
         </TableRow>
       </TableHeader>
-      <TableBody className="w-full">
-        {children}
-      </TableBody>
+      <TableBody className="w-full">{children}</TableBody>
     </Table>
   );
 }
@@ -79,9 +89,7 @@ export function DailyChallengeList({ children }: ChallengeListProps) {
           <TableHead className="text-center">Play</TableHead>
         </TableRow>
       </TableHeader>
-      <TableBody className="w-full">
-        {children}
-      </TableBody>
+      <TableBody className="w-full">{children}</TableBody>
     </Table>
   );
 }
@@ -93,6 +101,15 @@ interface DailyChallengeListItemProps {
   points?: string;
 }
 
+var customColors = {
+  easyBg: "#c9ffe2",
+  easyFg: "#285a3f",
+  mediumBg: "#f7e877",
+  mediumFg: "#73691d",
+  hardBg: "#e37474",
+  hardFg: "#611010",
+};
+
 export function DailyChallengeListItem({
   name,
   solves,
@@ -100,19 +117,35 @@ export function DailyChallengeListItem({
   points,
 }: DailyChallengeListItemProps) {
   const lowerCaseDifficulty = difficulty?.toLowerCase();
-  console.log(lowerCaseDifficulty)
+
+  // TODO: FIX TSX ERROR, FOR NOW JUST IGNORING
+  //@ts-ignore
+  const bgColor = customColors[`${lowerCaseDifficulty}Bg`];
+  //@ts-ignore
+  const fgColor = customColors[`${lowerCaseDifficulty}Fg`];
+
   return (
     <TableRow className="w-full">
       <TableCell className="text-center">{name}</TableCell>
       <TableCell className="text-center">{solves}</TableCell>
       <TableCell className="text-center">
-        <span className={`bg-${lowerCaseDifficulty}Bg text-${lowerCaseDifficulty}Fg p-2 rounded-lg`}>
+        <span
+          className="p-2 rounded-lg"
+          style={{ backgroundColor: bgColor, color: fgColor }}
+        >
           {difficulty}
         </span>
       </TableCell>
       <TableCell className="text-center">{points}</TableCell>
       <TableCell className="flex">
-        <Button variant={"outline"} className="m-auto" size={"icon"} onClick={() => {location.href = "/challenge"}}>
+        <Button
+          variant={"outline"}
+          className="m-auto"
+          size={"icon"}
+          onClick={() => {
+            location.href = "/challenge";
+          }}
+        >
           <ChevronRight size={15} />
         </Button>
       </TableCell>
