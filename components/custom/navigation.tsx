@@ -12,7 +12,7 @@ export const links: { [key: string]: string } = {
     Home: "/",
     Dashboard: "/dashboard",
     Contact: "/contact",
-    FAQs:"/faq"
+    FAQs:"/faq",
 };
 
 interface NavbarProps {
