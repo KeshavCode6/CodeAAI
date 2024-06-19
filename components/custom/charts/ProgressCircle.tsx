@@ -1,5 +1,4 @@
-// DoughnutChart.tsx
-import React from 'react';
+import React from 'react'
 import { Doughnut } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -11,12 +10,12 @@ import {
 
 ChartJS.register(ArcElement, Tooltip, Title, Legend);
 
-interface DoughnutChartProps {
+interface ProgressCircleProps {
   value: number;
   label: string;
 }
 
-const DoughnutChart: React.FC<DoughnutChartProps> = ({ value, label }) => {
+const ProgressCircle: React.FC<ProgressCircleProps> = ({ value, label }) => {
   const doughnutData = {
     labels: ['Progress', 'Remaining'],
     datasets: [
@@ -52,4 +51,4 @@ const DoughnutChart: React.FC<DoughnutChartProps> = ({ value, label }) => {
   return <Doughnut data={doughnutData} options={doughnutOptions} />;
 };
 
-export default DoughnutChart;
+export default ProgressCircle;

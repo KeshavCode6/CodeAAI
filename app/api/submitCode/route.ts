@@ -3,14 +3,16 @@ import path from 'path';
 import { execSync } from 'child_process';
 import { NextRequest, NextResponse } from 'next/server';
 
+// debug get request
 export async function GET(request:NextRequest) {
   console.log("hello", request.body);
   return new Response("hello");
 }
 
+// handling code submission
 export async function POST(request:NextRequest) {
   try {
-    const data = await request.json();
+    const data = await request.json(); // getting code
 
     // Define the file path within the tmp directory in the root of the app
     const tmpDir = path.join(process.cwd(), 'tmp');
@@ -24,8 +26,8 @@ export async function POST(request:NextRequest) {
 
     // Execute the Python file synchronously
     const output = execSync(`python ${filePath}`, { encoding: 'utf-8' });
-
-    console.log(`Execution output: ${output}`);
+    
+    // sending back output
     return NextResponse.json({ result: output });
  } catch (error:any) {
     console.error("Error:", error);

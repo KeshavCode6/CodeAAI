@@ -1,4 +1,4 @@
-import { Card, CardContent, CardHeader, CardTitle } from "../../card";
+import { Card, CardContent, CardHeader, CardTitle } from "../../ui/card";
 
 export default function HomeInfoCard(props: any) {
 

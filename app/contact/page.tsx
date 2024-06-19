@@ -1,7 +1,7 @@
 "use client"
 
-import OfficerAbout from "@/components/ui/custom/officer-about"
-import Navigation from "@/components/ui/custom/navigation"
+import OfficerAbout from "@/components/custom/officer-about"
+import Navigation from "@/components/custom/navigation"
 
 export default function Contact() {
 

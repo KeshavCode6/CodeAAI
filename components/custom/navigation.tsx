@@ -3,12 +3,12 @@ import {
     NavigationMenu,
     NavigationMenuLink,
     navigationMenuTriggerStyle
-} from "../navigation-menu";
+} from "../ui/navigation-menu";
 import React from 'react';
 import { Bell, Settings, User, GalleryThumbnailsIcon } from "lucide-react";
-import { Button } from "../button";
+import { Button } from "../ui/button";
 
-const links: { [key: string]: string } = {
+export const links: { [key: string]: string } = {
     Home: "/",
     Dashboard: "/dashboard",
     Contact: "/contact",

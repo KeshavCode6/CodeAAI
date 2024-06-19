@@ -15,7 +15,7 @@ import {
 // Register necessary components with Chart.js
 ChartJS.register(CategoryScale, Filler, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
-const LineChart = () => {
+const PointsTracker = () => {
   const data = {
     labels: ['6/16', '6/17', '6/18', '6/19', '6/20', '6/21', '6/22', '6/23', '6/24', '6/25'],
     datasets: [
@@ -81,5 +81,5 @@ const LineChart = () => {
   return <Line data={data} options={options} />;
 };
 
-export default LineChart;
+export default PointsTracker;
 
