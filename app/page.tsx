@@ -1,7 +1,7 @@
 "use client"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import HomeInfoCard from "@/components/custom/card/home-info-card"
+import HomeInfoCard from "@/components/custom/home/HomeInfoCard"
 import Footer from "@/components/custom/footer"
 import Navigation from "@/components/custom/navigation"
 
@@ -29,16 +29,23 @@ export default function Home() {
       </div>
 
       {/* About us Section */}
-      <div className="bg-homeAboutUsBg p-14 sawtooth">
-        <span></span>
-        <img src="/assets/home/about-us.png" className="w-[30rem] rounded-2xl object-cover"/>
+      <div className="bg-homeAboutUsBg p-14 sawtooth flex justify-center items-center">
+        <div className="mb-20 flex flex-row gap-20 m-12">
+          <div className="flex flex-col w-[30vw] gap-5">
+            <span className="text-4xl mt-4">What do we do?</span>
+            <span className="text-lg mt-[-12px]">
+              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+            </span>
+          </div>
+          <iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ" className="rounded-2xl aspect-video w-[40vw]"/>
+        </div>
       </div>
 
       {/* Features/What we do section */}
       <div className="bg-homeInfoCardsBg sawtooth2 pb-12">
         <div className="p-14">
           <div className="flex justify-center mb-4">
-            <span className="text-3xl">What do we do?</span>
+            <span className="text-3xl mb-12">Our mission</span>
           </div>
           <div className="flex flex-row mb-12">
 

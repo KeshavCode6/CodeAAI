@@ -1,46 +1,58 @@
 "use client";
-import { Card } from "@/components/ui/card";
+import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import Navigation from "@/components/custom/navigation";
 import React, { useEffect } from "react";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   ChallengeList,
   ChallengeListItem,
+  DailyChallengeList,
+  DailyChallengeListItem,
 } from "@/components/custom/dashboard/challenge";
 import Leaderboard, {
   LeaderboardItem,
 } from "@/components/custom/dashboard/leaderboard";
-import HeaderCard from "@/components/custom/card/headercard";
-import CardWithProgressionChart from "@/components/custom/card/cardWithProgressionChart";
+import HeaderCard from "@/components/custom/card/HeaderCard";
 import PointsTracker from "@/components/custom/charts/PointsTracker";
 import useWindowSize from "@/lib/useWindowSize";
+import { Avatar, AvatarImage } from "@radix-ui/react-avatar";
+import { Button } from "@/components/ui/button";
+import { DialogFooter, DialogHeader } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Edit, EditIcon } from "lucide-react";
+import {MultipleSectionsCircleWithText, ProgressCircleWithText} from "@/components/custom/charts/ProgressCircle";
+import ProfileCard from "@/components/custom/dashboard/ProfileCard";
 
 export default function Dashboard() {  
   return (
-    <Navigation path={"/dashboard"}>
-      <div className="h-[92vh] w-screen flex gap-2 justify-center py-8 px-4">
+    <Navigation path="/dashboard">
+      <div className="h-[92vh] w-screen flex gap-2 justify-center py-8 px-4 overflow-hidden">
         <div className="flex flex-col h-full gap-1">
-          <div className="flex  gap-1 h-[27vh]">
+          <div className="flex gap-3 h-[27vh]">
             <div className="flex gap-1 ">
-              <CardWithProgressionChart text="Compleition" value={80.9} />
-              <CardWithProgressionChart text="Compleition" value={80.9} />
-              <CardWithProgressionChart text="Points" value={80.9} />
+              <ProfileCard avatar="/assets/avatar/image.png" name="Keshav" points="100k" ranking="Top 1% - #1/4000"/>
             </div>
-            <Card className="p-4 w-[25vw]">
-              <PointsTracker />
+            <Card className="flex p-4 gap-4 px-8 animate-flyBottom">
+              <ProgressCircleWithText value={50.5} className="w-40" title="Completion"/>
+              <MultipleSectionsCircleWithText values={[10, 30, 40]} className="w-40" title="Points" labels={["Easy", "Medium", "Hard"]}/>
+            </Card>
+            <Card className="p-2 w-[25vw] flex flex-col animate-flyBottom">
+              <span className="mb-[-1rem] text-sm self-center mt-3">Points Over Time</span>
+              <PointsTracker className="self-center"/>
             </Card>
           </div>
-          <div className="flex mt-2 gap-1 justify-center items-center grow">
+          <div className="flex mt-2 gap-3 justify-center items-center grow">
             <HeaderCard
               header="Challenges"
-              className="h-full"
+              className="h-full animate-flyRight"
               footer={
                 <Tabs defaultValue="easy" className="absolute right-2 bottom-2">
                   <TabsList>
                     <TabsTrigger value="easy">Easy</TabsTrigger>
                     <TabsTrigger value="medium">Medium</TabsTrigger>
                     <TabsTrigger value="hard">Hard</TabsTrigger>
-                    <TabsTrigger value="pinned">Pinned</TabsTrigger>
+                    <TabsTrigger value="favorited">Favorited</TabsTrigger>
                   </TabsList>
                 </Tabs>
               }
@@ -56,10 +68,31 @@ export default function Dashboard() {
                 </ChallengeList>
               </div>
             </HeaderCard>
-            <HeaderCard className="h-full w-[20vw]"></HeaderCard>
+            <HeaderCard className="h-full w-[20vw] animate-flyTop" header="Daily Challenges">
+              <DailyChallengeList>
+                  <DailyChallengeListItem
+                    name="Merge Sort"
+                    solves="100k"
+                    difficulty="Easy"
+                    points="100k"
+                  />
+                  <DailyChallengeListItem
+                    name="Merge Sort"
+                    solves="100k"
+                    difficulty="Medium"
+                    points="100k"
+                  />
+                  <DailyChallengeListItem
+                    name="Merge Sort"
+                    solves="100k"
+                    difficulty="Hard"
+                    points="100k"
+                  />
+                </DailyChallengeList>
+            </HeaderCard>
           </div>
         </div>
-        <HeaderCard header="Leaderboard">
+        <HeaderCard header="Leaderboard" className="w-30 max-w-96 animate-flyLeft ml-1">
           <Leaderboard>
             <LeaderboardItem name="Keshav Shah" points="100k" place="#1" />
           </Leaderboard>

@@ -12,7 +12,7 @@ import {
   LightbulbIcon,
   PlayIcon,
 } from "lucide-react";
-import HeaderCard from "@/components/custom/card/headercard";
+import HeaderCard from "@/components/custom/card/HeaderCard";
 
 export default function Challenge() {
   const [code, setCode] = useState<string>(""); // code from the editor
@@ -45,11 +45,11 @@ export default function Challenge() {
   return (
     <Navigation path={"/challenge"}>
       <div
-        className="flex justify-center items-center gap-1"
+        className="flex gap-3"
         style={{ marginTop: "80px" }}
       >
         {/*Editor Section*/}
-        <Card className="p-2">
+        <Card className="p-2 ml-[10vw]">
           <Editor
             height="85vh"
             width="60vw"
@@ -80,34 +80,31 @@ export default function Challenge() {
             }
           >
             <TabsContent value="description" className="px-4">
-              <h5>Sally Sue's Skibidi toilet</h5>
+              <h5>Sally Sues Skibidi toilet</h5>
               <p className="text-xs text-gray-300">
                 Write a program to solve sally sues spedness
               </p>
             </TabsContent>
-            <TabsContent className="h-[70vh]" value="result">
+            <TabsContent className="h-[73vh]" value="result">
               <textarea
-                className={`w-full text-sm bg-card h-full border-card p-[10px] resize-none resize-none focus:outline-none focus:bg-card`}
+                className={`w-full text-sm bg-card h-full border-card p-[10px] resize-none resize-none focus:outline-none focus:bg-card font-mono`}
                 readOnly
                 placeholder="Click run to test out your code"
                 value={result}
               />
+              {/*Run and Help buttons*/}
+              <div className="flex gap-1 justify-center">
+                <Button className="gap-1 text-xs" size={"sm"} onClick={submitCode}>
+                  <PlayIcon size={15} /> Run
+                </Button>
+                <Button className="gap-1 text-xs" size={"sm"} onClick={submitCode}>
+                  <HelpCircle size={15} /> Help
+                </Button>
+              </div>
             </TabsContent>
             <TabsContent value="description"></TabsContent>
           </HeaderCard>
         </Tabs>
-
-        {/*Code execution buttons*/}
-        <div className="w-full flex justify-center" style={{ flexGrow: 1 }}>
-          <div className="flex absolute gap-1 bottom-20">
-            <Button className="gap-1 text-xs" size={"sm"} onClick={submitCode}>
-              <PlayIcon size={15} /> Run
-            </Button>
-            <Button className="gap-1 text-xs" size={"sm"} onClick={submitCode}>
-              <HelpCircle size={15} /> Help
-            </Button>
-          </div>
-        </div>
       </div>
     </Navigation>
   );

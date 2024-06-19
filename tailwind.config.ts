@@ -58,7 +58,13 @@ const config = {
         homePlayButton: "#03091C",
         homeInfoCardsBg: "#080C14", 
         homeAboutUsBg: "#0C121E", 
-        aboutUsOfficersBg: "#181818"
+        aboutUsOfficersBg: "#181818", 
+        easyBg: "#c9ffe2", 
+        easyFg: "#285a3f", 
+        mediumBg: "#f7e877", 
+        mediumFg: "#73691d", 
+        hardBg: "#e37474", 
+        hardFg: "#611010"
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -74,10 +80,35 @@ const config = {
           from: { height: "var(--radix-accordion-content-height)" },
           to: { height: "0" },
         },
+        flyInFromTop: {
+          '0%': { transform: 'translateY(-1000px)' },
+          '100%': { transform: 'translateY(0px)' },
+        },
+        flyInFromBottom: {
+          '0%': { transform: 'translateY(1000px)' },
+          '100%': { transform: 'translateY(0px)' },
+        },
+        flyInFromLeft: {
+          '0%': { transform: 'translateX(-1000px)' },
+          '100%': { transform: 'translateX(0px)' },
+        },
+        flyInFromRight: {
+          '0%': { transform: 'translateX(1000px)' },
+          '100%': { transform: 'translateX(0px)' },
+        },
+        flyInFromTopLeft: {
+          '0%': { transform: 'translateX(-1000px) translateY(-200px)' },
+          '100%': { transform: 'translateX(0px) translateY(0px)' },
+        }
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        "flyTop": 'flyInFromBottom 0.75s',
+        "flyBottom": 'flyInFromTop 0.75s',
+        "flyRight": 'flyInFromLeft 0.75s',
+        "flyLeft": 'flyInFromRight 0.75s',
+        "flyTopLeft": "flyInFromTopLeft 0.75s"
       },
     },
   },
