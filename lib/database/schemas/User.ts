@@ -7,17 +7,26 @@ const userSchema : Schema = new mongoose.Schema({
     }, 
     id: {
         type: String,
-        required: true
+        required: true,
+        unique:true
     }, 
     challenges: {
         type: Array, 
-        required: true
+        required: true,
+        default: []
     }, 
     points: {
         type: Number, 
-        required: true
+        required: true,
+        default: 0
     }
 })
 
-export const User = mongoose.models.User || mongoose.model('User', userSchema);
+export interface IUser {
+    name: string;
+    id: string;
+    challenges: string[];
+    points: number;
+}
+export const User = mongoose.models.User || mongoose.model<IUser>('User', userSchema);
 export default User;

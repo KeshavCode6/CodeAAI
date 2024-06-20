@@ -1,7 +1,7 @@
 "use client";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import Navigation from "@/components/custom/navigation";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   ChallengeList,
@@ -14,22 +14,28 @@ import Leaderboard, {
 } from "@/components/custom/dashboard/leaderboard";
 import HeaderCard from "@/components/custom/card/HeaderCard";
 import PointsTracker from "@/components/custom/charts/PointsTracker";
-import useWindowSize from "@/lib/useWindowSize";
-import { Avatar, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
-import { DialogFooter, DialogHeader } from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import { Edit, EditIcon } from "lucide-react";
 import {MultipleSectionsCircleWithText, ProgressCircleWithText} from "@/components/custom/charts/ProgressCircle";
 import ProfileCard from "@/components/custom/dashboard/ProfileCard";
-import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
 import { protectedRoute } from "@/lib/protectedRoute";
+import axios from "axios";
+import { IUser } from "@/lib/database/schemas/User";
 
 export default function Dashboard() {  
   const {session, status} = protectedRoute();
+  const [userData, setUserData] = useState<IUser | undefined>(undefined);
 
+  useEffect(()=>{
+    if(status=="loading"){
+      return;
+    }
+    axios.post('/api/getUser', session?.user)
+    .then(function (response:any) {
+      setUserData(response.data);
+    })
+    .catch(function (error:any) {
+      console.log(error);
+    });
+  }, [status])
 
   return (
     <Navigation path="/dashboard">
@@ -37,7 +43,7 @@ export default function Dashboard() {
         <div className="flex flex-col h-full gap-1">
           <div className="flex gap-3 h-[27vh]">
             <div className="flex gap-1 ">
-            <ProfileCard status={status} avatar={session?.user?.image ||"/assets/avatar/image.png" } name={session?.user?.name || ""} points="100k" ranking="Top 1% - #1/4000"/>
+            <ProfileCard status={status} avatar={session?.user?.image ||"/assets/avatar/image.png" } name={session?.user?.name || ""} points={`${userData?.points}`} ranking="Top 1% - #1/4000"/>
             </div>
             <Card className="flex p-4 gap-4 px-8 animate-flyBottom">
               <ProgressCircleWithText value={50.5} className="w-40" title="Completion"/>
@@ -58,7 +64,7 @@ export default function Dashboard() {
                     <TabsTrigger value="easy">Easy</TabsTrigger>
                     <TabsTrigger value="medium">Medium</TabsTrigger>
                     <TabsTrigger value="hard">Hard</TabsTrigger>
-                    <TabsTrigger value="favorited">Favorited</TabsTrigger>
+                    <TabsTrigger value="favorited">Favorites</TabsTrigger>
                   </TabsList>
                 </Tabs>
               }

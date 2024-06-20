@@ -40,10 +40,10 @@ export default function Login() {
                         <Button className="w-full">Sign in</Button>
                         <p className="my-4 font-semibold text-slate-400">or continue with</p>
                         <div className="flex gap-1">
-                            <Button onClick={()=>{signIn("google")}} className="text-lg flex gap-2 p-1 rounded-full" size={"icon"} variant="outline">
+                            <Button onClick={()=>{signIn("google", { callbackUrl: '/dashboard' })}} className="text-lg flex gap-2 p-1 rounded-full" size={"icon"} variant="outline">
                                 <img src="/assets/login/google.png" className="w-6" />
                             </Button>
-                            <Button onClick={()=>{signIn("github")}} className="text-lg flex gap-2 p-1 rounded-full" size={"icon"} variant="outline">
+                            <Button onClick={()=>{signIn("github", { callbackUrl: '/dashboard' })}} className="text-lg flex gap-2 p-1 rounded-full" size={"icon"} variant="outline">
                                 <img src="/assets/login/github.png" className="w-6" />
                             </Button>
                         </div>
