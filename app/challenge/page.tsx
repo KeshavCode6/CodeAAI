@@ -13,6 +13,7 @@ import {
   PlayIcon,
 } from "lucide-react";
 import HeaderCard from "@/components/custom/card/HeaderCard";
+const axios = require('axios').default;
 
 export default function Challenge() {
   const [code, setCode] = useState<string>(""); // code from the editor
@@ -41,6 +42,9 @@ export default function Challenge() {
         setResult("Your code caused an error");
       });
   };
+
+  axios
+.get("/api/dbtest");
 
   return (
     <Navigation path={"/challenge"}>

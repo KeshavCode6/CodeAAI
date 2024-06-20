@@ -42,7 +42,12 @@ export function LeaderboardItem({place, name, points}:LeaderboardItemProps) {
   return (
     <TableRow className="w-full">
       <TableCell className="text-center">{place}</TableCell>
-      <TableCell className="text-center">{name}</TableCell>
+      <TableCell className="text-center">
+        <div className="flex flex-row gap-2">
+          <img src="/assets/avatar/image.png" className="w-7 rounded-full"/>
+          <span className="mt-1">{name}</span>
+        </div>
+      </TableCell>
       <TableCell className="text-center">{points}</TableCell>
     </TableRow>
   );

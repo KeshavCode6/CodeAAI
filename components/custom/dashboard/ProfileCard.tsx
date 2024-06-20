@@ -1,84 +1,92 @@
 import { Card } from "@/components/ui/card";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
-import { AlertDialog, AlertDialogContent, AlertDialogTitle, AlertDialogTrigger, AlertDialogFooter, AlertDialogHeader } from "@/components/ui/alert-dialog";
-import { AlertDialogAction, AlertDialogCancel } from "@/components/ui/alert-dialog";
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+  AlertDialogFooter,
+  AlertDialogHeader,
+} from "@/components/ui/alert-dialog";
+import {
+  AlertDialogAction,
+  AlertDialogCancel,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { EditIcon } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { Skeleton } from "@/components/ui/skeleton";
 
-function EditProfileDialog() {
+function EditProfileDialog(props: any) {
+  const { name } = props;
+
   return (
     <AlertDialog>
       <AlertDialogTrigger className="absolute bottom-0 right-0 m-2" asChild>
         <Button variant="outline">
           <EditIcon />
-          <span className="ml-3">
-            Edit Profile
-          </span>
+          <span className="ml-3">Edit profile</span>
         </Button>
       </AlertDialogTrigger>
       <AlertDialogContent className="w-96">
-
         <AlertDialogHeader>
-          <AlertDialogTitle>
-            Edit profile
-          </AlertDialogTitle>
+          <AlertDialogTitle>Edit profile</AlertDialogTitle>
         </AlertDialogHeader>
 
-        <Label>
-          Name
-        </Label>
-        <Input defaultValue="Keshav Shah" />
+        <Label>Name</Label>
+        <Input defaultValue={name} />
 
-        <Label>
-          Picture
-        </Label>
+        <Label>Picture</Label>
         <Input type="file" />
 
         <AlertDialogFooter>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
 
-          <AlertDialogCancel>
-            <Button variant="outline">
-              Cancel
-            </Button>
-          </AlertDialogCancel>
-
-          <AlertDialogAction>
-            <Button>
-              Save
-            </Button>
-          </AlertDialogAction>
-
+          <AlertDialogAction>Save</AlertDialogAction>
         </AlertDialogFooter>
-
       </AlertDialogContent>
     </AlertDialog>
-  )
+  );
 }
 
 interface ProfileProps {
-  name: string,
-  points: string,
-  ranking: string,
-  avatar: string
+  name: string;
+  points: string;
+  ranking: string;
+  avatar: string;
+  status: "authenticated" | "loading";
 }
-export default function ProfileCard({ name, avatar, points, ranking }: ProfileProps) {
+export default function ProfileCard({
+  name,
+  status,
+  avatar,
+  points,
+  ranking,
+}: ProfileProps) {
+  const firstName = name.split(" ")[0];
 
   return (
     <Card className="flex relative animate-flyTopLeft">
-      <div className="mt-10 ml-10 w-[30rem]">
-        <Avatar className="flex flex-row gap-7">
-          <AvatarImage src={avatar} className="rounded-full w-36 h-36" />
-          <div className="flex flex-col justify-start mt-7 gap-3">
-            <span className="text-2xl">Welcome back, {name}!</span>
-            <span className="text-lg mt-[-12px] text-gray-300">{points} points</span>
-            <span className="text-md mt-[-7px] text-gray-400">{ranking}</span>
-          </div>
-        </Avatar>
+      <div className="w-[34rem] flex flex-row p-5 gap-5">
+        {status === "loading" ? (
+          <>
+            Processing...
+          </>
+        ) : (
+          <>
+            <img src={avatar} className="w-36 rounded-full h-36" />
+            <div className="flex flex-col justify-start mt-7 gap-3">
+              <span className="text-2xl">Welcome back, {firstName}!</span>
+              <span className="text-lg mt-[-12px] text-gray-300">
+                {points} points
+              </span>
+              <span className="text-md mt-[-7px] text-gray-400">{ranking}</span>
+            </div>
+          </>
+        )}
       </div>
-      <EditProfileDialog />
+      <EditProfileDialog name={name} />
     </Card>
-  )
-
+  );
 }

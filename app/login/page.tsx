@@ -43,7 +43,7 @@ export default function Login() {
                             <Button onClick={()=>{signIn("google")}} className="text-lg flex gap-2 p-1 rounded-full" size={"icon"} variant="outline">
                                 <img src="/assets/login/google.png" className="w-6" />
                             </Button>
-                            <Button className="text-lg flex gap-2 p-1 rounded-full" size={"icon"} variant="outline">
+                            <Button onClick={()=>{signIn("github")}} className="text-lg flex gap-2 p-1 rounded-full" size={"icon"} variant="outline">
                                 <img src="/assets/login/github.png" className="w-6" />
                             </Button>
                         </div>

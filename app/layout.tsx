@@ -4,6 +4,7 @@ import "@/css/globals.css";
 import { Inter as FontSans } from "next/font/google"
 import { cn } from "@/lib/utils"
 import { ThemeProvider } from "next-themes";
+import AuthProvider from "@/components/custom/AuthProvider";
 
 const fontSans = FontSans({
   subsets: ["latin"],
@@ -29,6 +30,8 @@ export default function RootLayout({
           fontSans.variable
         )}
       >
+        <AuthProvider>
+
         <ThemeProvider
           attribute="class"
           defaultTheme="dark"
@@ -37,6 +40,7 @@ export default function RootLayout({
         >
           {children}
         </ThemeProvider>
+        </AuthProvider>
       </body>
     </html>
   );

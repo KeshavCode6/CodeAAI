@@ -23,15 +23,21 @@ import { Input } from "@/components/ui/input";
 import { Edit, EditIcon } from "lucide-react";
 import {MultipleSectionsCircleWithText, ProgressCircleWithText} from "@/components/custom/charts/ProgressCircle";
 import ProfileCard from "@/components/custom/dashboard/ProfileCard";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { protectedRoute } from "@/lib/protectedRoute";
 
 export default function Dashboard() {  
+  const {session, status} = protectedRoute();
+
+
   return (
     <Navigation path="/dashboard">
       <div className="h-[92vh] w-screen flex gap-2 justify-center py-8 px-4 overflow-hidden">
         <div className="flex flex-col h-full gap-1">
           <div className="flex gap-3 h-[27vh]">
             <div className="flex gap-1 ">
-              <ProfileCard avatar="/assets/avatar/image.png" name="Keshav" points="100k" ranking="Top 1% - #1/4000"/>
+            <ProfileCard status={status} avatar={session?.user?.image ||"/assets/avatar/image.png" } name={session?.user?.name || ""} points="100k" ranking="Top 1% - #1/4000"/>
             </div>
             <Card className="flex p-4 gap-4 px-8 animate-flyBottom">
               <ProgressCircleWithText value={50.5} className="w-40" title="Completion"/>
