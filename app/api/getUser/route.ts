@@ -1,5 +1,5 @@
 import dbConnect from '@/lib/database/dbConnect';
-import User from '@/lib/database/schemas/User';
+import {User} from '@/lib/database/schemas/User';
 import { NextRequest, NextResponse } from 'next/server';
 
 // handling code submission

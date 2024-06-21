@@ -30,7 +30,7 @@ export function ChallengeListItem({
   return (
     <TableRow className="w-full">
       <TableCell className="text-center">{name}</TableCell>
-      <TableCell className="text-center">{status}</TableCell>
+      <TableCell className="text-center font-normal">{status}</TableCell>
       <TableCell className="text-center">
         <span
           className="p-2 rounded-lg"

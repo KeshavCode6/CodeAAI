@@ -12,7 +12,7 @@ import {
 import Leaderboard, {
   LeaderboardItem,
 } from "@/components/custom/dashboard/leaderboard";
-import HeaderCard from "@/components/custom/card/HeaderCard";
+import HeaderCard from "@/components/custom/card/headercard";
 import PointsTracker from "@/components/custom/charts/PointsTracker";
 import {MultipleSectionsCircleWithText, ProgressCircleWithText} from "@/components/custom/charts/ProgressCircle";
 import ProfileCard from "@/components/custom/dashboard/ProfileCard";

@@ -6,7 +6,7 @@ import {
   navigationMenuTriggerStyle,
 } from "../ui/navigation-menu";
 import React from "react";
-import { Bell, Settings, User, GalleryThumbnailsIcon } from "lucide-react";
+import { Bell, Settings, GalleryThumbnailsIcon } from "lucide-react";
 import { Button } from "../ui/button";
 
 import {
@@ -15,7 +15,6 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { signOut, useSession } from "next-auth/react";
-import { Avatar, AvatarImage } from "@/components/ui/avatar";
 
 export const links: { [key: string]: string } = {
   Home: "/",
@@ -57,7 +56,7 @@ export default function Navigation({ children, path }: NavbarProps) {
           </NavigationMenu>
         </div>
         {status === "authenticated" ? (
-        <div className="flex items-center gap-2">
+        <div className="flex items-center justify-center gap-2">
           <Button
             variant="secondary"
             size="icon"
@@ -75,25 +74,25 @@ export default function Navigation({ children, path }: NavbarProps) {
             <span className="sr-only">Settings</span>
           </Button>
           <Popover>
-            <PopoverTrigger>
+            <PopoverTrigger className="flex items-center">
               <Button
                 variant="secondary"
                 size="icon"
                 className="rounded-full w-9 h-9"
               >
-                <User fill="white" className="h-5 w-5" />
+                <img src={session?.user?.image || "/assets/avatar/image.png"} className="rounded-full" />
                 <span className="sr-only">User menu</span>
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="z-[1] flex flex-col items-center mr-5">
-                <div className="flex flex-row gap-3">
-                    <img src={session?.user?.image || "/assets/avatar/image.png"} className="rounded-full w-20" />
+            <PopoverContent className="relative z-[1] flex flex-col items-center mr-5">
+                <div className="flex flex-row gap-3 mb-12">
+                    <img src={session?.user?.image || "/assets/avatar/image.png"} className="rounded-full w-12" />
                     <div className="flex flex-col">
-                        <span className="text-xl w-40">{session?.user?.name || "/assets/avatar/image.png" }</span>
-                        <span className="text-lg w-40">{session?.user?.email || "/assets/avatar/image.png" }</span>
+                        <span className="text-lg w-40">{session?.user?.name || "/assets/avatar/image.png" }</span>
+                        <span className="text-xs w-40">{session?.user?.email || "/assets/avatar/image.png" }</span>
                     </div>
                 </div>
-              <Button onClick={() => {signOut()}} className="w-20">Sign out</Button>
+              <Button className="absolute right-2 bottom-2 text-xs" size={"sm"} onClick={() => {signOut()}}>Sign out</Button>
             </PopoverContent>
           </Popover>
         </div>

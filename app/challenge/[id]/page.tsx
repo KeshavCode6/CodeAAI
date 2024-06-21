@@ -1,10 +1,11 @@
 "use client";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import HeaderCard from "@/components/custom/card/headercard";
 import Navigation from "@/components/custom/navigation";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Editor, loader } from "@monaco-editor/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   BookCheck,
   Clipboard,
@@ -12,29 +13,32 @@ import {
   LightbulbIcon,
   PlayIcon,
 } from "lucide-react";
-import HeaderCard from "@/components/custom/card/HeaderCard";
-const axios = require('axios').default;
+import axios from 'axios';
+import { protectedRoute } from "@/lib/protectedRoute";
+import { IChallenge } from "@/lib/database/schemas/Challenge";
 
-export default function Challenge() {
+export default function Challenge({params} : {params : {id:string}}) {
   const [code, setCode] = useState<string>(""); // code from the editor
   const [result, setResult] = useState<string>(""); // output from executing the code
+  const {session, status} = protectedRoute();
+  const [challengeData, setChallengeData] = useState<IChallenge | undefined>(undefined);
 
-  // updating code state variable has text h
-  function handleEditorChange(value: any, event: any) {
-    setCode(value);
+  // updating code state variable has text
+  function handleEditorChange(value: string | undefined) {
+    if (typeof value === 'string') {
+      setCode(value);
+    } else {
+      console.error("Editor value is not a string:", value);
+    }
   }
 
   // submitting code via post request
   const submitCode = function () {
-    fetch("/api/submitCode", {
-      method: "POST",
-      headers: { "Content-type": "application/json" },
-      body: JSON.stringify({ code }),
-    })
-      .then((response) => response.json())
-      .then((data) => {
+    //@ts-ignore
+    axios.post("/api/submitCode", {code:code, challengeId:params.id, userId:session?.user?.id })
+      .then((response) => {
         // setting terminal output
-        setResult(data.result);
+        setResult(response.data.result);
       })
       .catch((error) => {
         // printing out errors
@@ -42,9 +46,22 @@ export default function Challenge() {
         setResult("Your code caused an error");
       });
   };
+  
+  useEffect(() => {
+    if (status === "loading") {
+      return;
+    }
 
-  axios
-.get("/api/dbtest");
+    axios.post("/api/getChallenge", { id: params.id })
+      .then((response) => {
+        const data = response.data;
+        setChallengeData(data);
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      });
+  }, [status]);
+  
 
   return (
     <Navigation path={"/challenge"}>
@@ -53,7 +70,7 @@ export default function Challenge() {
         style={{ marginTop: "80px" }}
       >
         {/*Editor Section*/}
-        <Card className="p-2 ml-[10vw]">
+        <Card className="p-2 ml-[10vw] animate-flyBottom">
           <Editor
             height="85vh"
             width="60vw"
@@ -61,16 +78,16 @@ export default function Challenge() {
             value={code}
             onChange={handleEditorChange}
             defaultLanguage="python"
-            defaultValue="# Print out hello world!"
+            defaultValue="# Print out 'Hello world!'"
           />
         </Card>
 
         {/*Output Section*/}
         <Tabs defaultValue="description" className="w-[400px] h-full">
           <HeaderCard
-            className="w-[400px] h-[87vh]"
+            className="w-[400px] h-[87vh] animate-flyTop"
             header={
-              <TabsList className="px-4 w-full">
+              <TabsList className="px-4 h-full rounded-tl-2xl rounded-tr-2xl w-full">
                 <TabsTrigger className="gap-1 flex" value="description">
                   <Clipboard size={15} /> Description
                 </TabsTrigger>
@@ -84,14 +101,14 @@ export default function Challenge() {
             }
           >
             <TabsContent value="description" className="px-4">
-              <h5>Sally Sues Skibidi toilet</h5>
+              <h5>{challengeData?.name}</h5>
               <p className="text-xs text-gray-300">
-                Write a program to solve sally sues spedness
+                {challengeData?.description}
               </p>
             </TabsContent>
             <TabsContent className="h-[73vh]" value="result">
               <textarea
-                className={`w-full text-sm bg-card h-full border-card p-[10px] resize-none resize-none focus:outline-none focus:bg-card font-mono`}
+                className={`w-full text-sm bg-card h-full border-card p-[10px] resize-none focus:outline-none focus:bg-card font-mono`}
                 readOnly
                 placeholder="Click run to test out your code"
                 value={result}
@@ -113,7 +130,6 @@ export default function Challenge() {
     </Navigation>
   );
 }
-
 
 // editor customs styling called 'moon'
 loader.init().then((monaco) => {
