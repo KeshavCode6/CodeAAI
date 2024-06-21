@@ -19,6 +19,11 @@ const userSchema : Schema = new mongoose.Schema({
         type: Number, 
         required: true,
         default: 0
+    },
+    image: {
+        type: String, 
+        required: true,
+        default: ""
     }
 })
 
@@ -27,6 +32,7 @@ export interface IUser {
     id: string;
     challenges: string[];
     points: number;
+    image: string;
 }
 export const User = mongoose.models.User || mongoose.model<IUser>('User', userSchema);
 export default User;

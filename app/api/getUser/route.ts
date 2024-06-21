@@ -11,14 +11,17 @@ export async function POST(request: NextRequest) {
 
     // Check if user already exists by id
     const existingUser = await User.findOne({ id: data.id });
+
     if (existingUser) {
+
       return NextResponse.json(existingUser);
+
     } else {
       // User does not exist, create a new user
       const newUser = new User({
         name: data.name,
         email: data.email,
-        avatar: data.image,
+        image: data.image,
         id: data.id,
       });
 

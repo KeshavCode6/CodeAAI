@@ -12,6 +12,7 @@ import {
 import Leaderboard, {
   LeaderboardItem,
 } from "@/components/custom/dashboard/leaderboard";
+//@ts-ignore
 import HeaderCard from "@/components/custom/card/headercard";
 import PointsTracker from "@/components/custom/charts/PointsTracker";
 import {MultipleSectionsCircleWithText, ProgressCircleWithText} from "@/components/custom/charts/ProgressCircle";
@@ -21,13 +22,17 @@ import axios from "axios";
 import { IUser } from "@/lib/database/schemas/User";
 
 export default function Dashboard() {  
+
   const {session, status} = protectedRoute();
   const [userData, setUserData] = useState<IUser | undefined>(undefined);
+  const [leaderboardData, setLeaderboardData] = useState<IUser[] | undefined>(undefined);
 
-  useEffect(()=>{
-    if(status=="loading"){
+  useEffect(() => {
+
+    if(status == "loading") {
       return;
     }
+
     axios.post('/api/getUser', session?.user)
     .then(function (response:any) {
       setUserData(response.data);
@@ -35,6 +40,16 @@ export default function Dashboard() {
     .catch(function (error:any) {
       console.log(error);
     });
+
+    axios.get('/api/getLeaderboard')
+    .then(function (response:any) {
+      console.log(response.data);
+      setLeaderboardData(response.data);
+    })
+    .catch(function (error:any) {
+      console.log(error);
+    });
+
   }, [status])
 
   return (
@@ -106,7 +121,9 @@ export default function Dashboard() {
         </div>
         <HeaderCard header="Leaderboard" className="w-30 max-w-96 animate-flyLeft ml-1">
           <Leaderboard>
-            <LeaderboardItem name="Keshav Shah" points="100k" place="#1" />
+            {leaderboardData?.map((user, place) => (
+              <LeaderboardItem name={user.name} points={user.points.toLocaleString()} place={`#${place + 1}`} avatar={user.image}/>
+            ))}
           </Leaderboard>
         </HeaderCard>
       </div>

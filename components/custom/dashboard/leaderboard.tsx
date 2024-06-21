@@ -35,16 +35,17 @@ export default function Leaderboard({children}:LeaderboardProps) {
 interface LeaderboardItemProps{
   place?:string,
   name?:string,
-  points?:string
+  points?:string, 
+  avatar?: string
 }
 
-export function LeaderboardItem({place, name, points}:LeaderboardItemProps) {
+export function LeaderboardItem({place, name, points, avatar}:LeaderboardItemProps) {
   return (
     <TableRow className="w-full">
       <TableCell className="text-center">{place}</TableCell>
-      <TableCell className="text-center">
-        <div className="flex flex-row gap-2">
-          <img src="/assets/avatar/image.png" className="w-7 rounded-full"/>
+      <TableCell>
+        <div className="flex flex-row gap-2 ml-7">
+          <img src={avatar} className="w-7 h-7 rounded-full"/>
           <span className="mt-1">{name}</span>
         </div>
       </TableCell>
