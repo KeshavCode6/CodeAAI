@@ -52,9 +52,9 @@ export default function Faqs() {
         <Navigation path={"/faqs"}>
 
             <div className="flex justify-center">
-                <div className="flex flex-col gap-10 mt-10">
+                <div className="flex flex-col gap-10 mt-10 w-[60vw]">
                     <span className="text-3xl text-center">Frequently Asked Questions</span>
-                    <Accordion type="multiple" className="w-[60rem] grid grid-cols-2 gap-x-10">
+                    <Accordion type="multiple" className="grid grid-cols-2 gap-x-20">
                         {faqs.map((faq, index) => (
                             <div>
                                 <AccordionItem value={`item-${index + 1}`}>
