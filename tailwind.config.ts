@@ -58,13 +58,7 @@ const config = {
         homePlayButton: "#03091C",
         homeInfoCardsBg: "#080C14", 
         homeAboutUsBg: "#0C121E", 
-        aboutUsOfficersBg: "#181818", 
-        easyBg: "#c9ffe2", 
-        easyFg: "#285a3f", 
-        mediumBg: "#f7e877", 
-        mediumFg: "#73691d", 
-        hardBg: "#e37474", 
-        hardFg: "#611010"
+        aboutUsOfficersBg: "#181818"
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -108,7 +102,8 @@ const config = {
         "flyBottom": 'flyInFromTop 0.75s',
         "flyRight": 'flyInFromLeft 0.75s',
         "flyLeft": 'flyInFromRight 0.75s',
-        "flyTopLeft": "flyInFromTopLeft 0.75s"
+        "flyTopLeft": "flyInFromTopLeft 0.75s",
+        "rotate-y-180": "rotateY(180deg)"
       },
     },
   },
