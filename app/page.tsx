@@ -5,6 +5,7 @@ import HomeInfoCard from "@/components/custom/home/HomeInfoCard"
 import Footer from "@/components/custom/footer"
 import Navigation from "@/components/custom/navigation"
 
+// Home/Landing page
 export default function Home() {
 
   return (

@@ -2,20 +2,17 @@ import dbConnect from '@/lib/database/dbConnect';
 import {User} from '@/lib/database/schemas/User';
 import { NextRequest, NextResponse } from 'next/server';
 
-// handling code submission
+// Getting leaderboard
 export async function GET(request: NextRequest) {
-
   try {
+    await dbConnect(); // connecting to mongodb
 
-    await dbConnect();
-
+    // Getting all users; TODO: Optimize
     const allUsers = await User.find({});
+    // sorting users by greatest to least
     allUsers.sort((a, b) => b.points - a.points);
-
     return NextResponse.json(allUsers);
-
   }
-
   catch (error: any) {
     console.error("Error:", error);
     return new Response(`Error processing request: ${error.message}`, { status: 500 });

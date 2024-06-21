@@ -12,8 +12,6 @@ import {
 import Leaderboard, {
   LeaderboardItem,
 } from "@/components/custom/dashboard/leaderboard";
-//@ts-ignore
-import HeaderCard from "@/components/custom/card/headercard";
 import PointsTracker from "@/components/custom/charts/PointsTracker";
 import {MultipleSectionsCircleWithText, ProgressCircleWithText} from "@/components/custom/charts/ProgressCircle";
 import ProfileCard from "@/components/custom/dashboard/ProfileCard";
@@ -21,29 +19,35 @@ import { protectedRoute } from "@/lib/protectedRoute";
 import axios from "axios";
 import { IUser } from "@/lib/database/schemas/User";
 
+//@ts-ignore : has an import error for some reason, TODO: Fix
+import HeaderCard from "@/components/custom/card/headercard";
+
 export default function Dashboard() {  
+  const {session, status} = protectedRoute(); // auth data
+  const [userData, setUserData] = useState<IUser | undefined>(undefined); // logged in users data
+  const [leaderboardData, setLeaderboardData] = useState<IUser[] | undefined>(undefined); // leaderboard data
 
-  const {session, status} = protectedRoute();
-  const [userData, setUserData] = useState<IUser | undefined>(undefined);
-  const [leaderboardData, setLeaderboardData] = useState<IUser[] | undefined>(undefined);
-
+  // getting leaderboard error
   useEffect(() => {
-
+    // making sure auth has loaded
     if(status == "loading") {
       return;
     }
 
+    // getting logged in users data
     axios.post('/api/getUser', session?.user)
     .then(function (response:any) {
+      // TODO: Type check
       setUserData(response.data);
     })
     .catch(function (error:any) {
       console.log(error);
     });
 
+    // getting leaderboard data
     axios.get('/api/getLeaderboard')
     .then(function (response:any) {
-      console.log(response.data);
+      // TODO: Type check
       setLeaderboardData(response.data);
     })
     .catch(function (error:any) {
@@ -52,6 +56,8 @@ export default function Dashboard() {
 
   }, [status])
 
+
+  // UI
   return (
     <Navigation path="/dashboard">
       <div className="h-[92vh] w-screen flex gap-2 justify-center py-8 px-4 overflow-hidden">

@@ -17,11 +17,12 @@ import axios from 'axios';
 import { protectedRoute } from "@/lib/protectedRoute";
 import { IChallenge } from "@/lib/database/schemas/Challenge";
 
+// challenge page, params.id is the id of the challenge
 export default function Challenge({params} : {params : {id:string}}) {
   const [code, setCode] = useState<string>(""); // code from the editor
   const [result, setResult] = useState<string>(""); // output from executing the code
-  const {session, status} = protectedRoute();
-  const [challengeData, setChallengeData] = useState<IChallenge | undefined>(undefined);
+  const {session, status} = protectedRoute(); // auth data
+  const [challengeData, setChallengeData] = useState<IChallenge | undefined>(undefined); // loaded challenge data
 
   // updating code state variable has text
   function handleEditorChange(value: string | undefined) {
@@ -34,11 +35,17 @@ export default function Challenge({params} : {params : {id:string}}) {
 
   // submitting code via post request
   const submitCode = function () {
-    //@ts-ignore
+    //@ts-ignore : have to tsx ignore because nextauth doesnt know we added a custom id param on login
     axios.post("/api/submitCode", {code:code, challengeId:params.id, userId:session?.user?.id })
       .then((response) => {
-        // setting terminal output
-        setResult(response.data.result);
+        // getting execution result and making sure its a string
+        let execResult = response.data.result;
+        if(typeof execResult == "string"){
+          setResult(execResult);
+        }
+        else{
+          console.error("[challenge/[id]/page.tsx] Code execution is not a string..")
+        }
       })
       .catch((error) => {
         // printing out errors
@@ -47,13 +54,17 @@ export default function Challenge({params} : {params : {id:string}}) {
       });
   };
   
+  // getting challenge data
   useEffect(() => {
+    // ensuring authentication has loaded
     if (status === "loading") {
       return;
     }
 
+    // getting challenge data via post request
     axios.post("/api/getChallenge", { id: params.id })
       .then((response) => {
+        // TODO: Interface type checking
         const data = response.data;
         setChallengeData(data);
       })
@@ -63,6 +74,7 @@ export default function Challenge({params} : {params : {id:string}}) {
   }, [status]);
   
 
+  // UI
   return (
     <Navigation path={"/challenge"}>
       <div
