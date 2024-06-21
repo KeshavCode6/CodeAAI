@@ -2,14 +2,13 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import { execSync } from 'child_process';
 import { NextRequest, NextResponse } from 'next/server';
-
-
+import { v4 as uuidv4 } from 'uuid';
+import { exec } from 'child_process';
 
 const Paths: Record<string, string> = {
   "challenge_1": "Challenge1.py"
 };
 
-// debug get request
 export async function GET(request: NextRequest) {
   console.log("hello", request.body);
   return new Response("hello");
@@ -17,33 +16,38 @@ export async function GET(request: NextRequest) {
 
 interface PostData {
   challengeId: keyof typeof Paths;
-  userID:string,
+  userID: string,
   code: string;
 }
 
-// handling code submission
 export async function POST(request: NextRequest) {
   try {
-    const data: PostData = await request.json(); // getting code
+    const data: PostData = await request.json();
 
-    // Define the file path within the tmp directory in the root of the app
     const tmpDir = path.join(process.cwd(), 'ChallengeCode/tmp');
-    const filePath = path.join(tmpDir, 'output.py');
+    const userDir = path.join(tmpDir, uuidv4());
+    const filePath = path.join(userDir, 'user_code.py');
 
-    // Ensure the tmp directory exists
-    await fs.mkdir(tmpDir, { recursive: true });
-
-    // Write the received code to the file
+    await fs.mkdir(userDir, { recursive: true });
     await fs.writeFile(filePath, data.code);
 
-    // Execute the Python file synchronously
-    const output = execSync(`python ${filePath}`, { encoding: 'utf-8' });
-    const checkOutput = execSync(`python ChallengeCode/${Paths[data.challengeId]}`, { encoding: 'utf-8' });
+    const challengeFilePath = path.join(process.cwd(), `ChallengeCode/${Paths[data.challengeId]}`);
 
-    if(output==checkOutput){
+    // Docker command to execute the user code safely
+    const command = `docker run --rm -v ${userDir}:/code -v ${challengeFilePath}:/challenge_code:ro python:3.9 python /code/user_code.py`;
+    const output = execSync(command, { encoding: 'utf-8' });
+
+    const checkCommand = `docker run --rm -v ${challengeFilePath}:/challenge_code:ro python:3.9 python /challenge_code`;
+    const checkOutput = execSync(checkCommand, { encoding: 'utf-8' });
+
+    console.log(checkOutput, output)
+
+    await fs.rm(userDir, { recursive: true, force: true });
+
+    if (output === checkOutput) {
       return NextResponse.json({ result: "success" });
     }
-    // sending back output
+
     return NextResponse.json({ result: "failure" });
   } catch (error: any) {
     console.error("Error:", error);
