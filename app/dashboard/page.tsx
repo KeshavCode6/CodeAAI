@@ -13,7 +13,10 @@ import Leaderboard, {
   LeaderboardItem,
 } from "@/components/custom/dashboard/leaderboard";
 import PointsTracker from "@/components/custom/charts/PointsTracker";
-import { MultipleSectionsCircleWithText, ProgressCircleWithText } from "@/components/custom/charts/ProgressCircle";
+import {
+  MultipleSectionsCircleWithText,
+  ProgressCircleWithText,
+} from "@/components/custom/charts/ProgressCircle";
 import ProfileCard from "@/components/custom/dashboard/ProfileCard";
 import { protectedRoute } from "@/lib/protectedRoute";
 import axios from "axios";
@@ -26,8 +29,12 @@ import HeaderCard from "@/components/custom/card/headercard";
 export default function Dashboard() {
   const { session, status } = protectedRoute(); // auth data
   const [userData, setUserData] = useState<IUser | undefined>(undefined); // logged in users data
-  const [leaderboardData, setLeaderboardData] = useState<IUser[] | undefined>(undefined); // leaderboard data
-  const [challenges, setChallenges] = useState<IChallenge[] | undefined>(undefined); // leaderboard data
+  const [leaderboardData, setLeaderboardData] = useState<IUser[] | undefined>(
+    undefined
+  ); // leaderboard data
+  const [challenges, setChallenges] = useState<IChallenge[] | undefined>(
+    undefined
+  ); // leaderboard data
   const [selectedTab, setSelectedTab] = useState("easy"); // selected tab for filtering challenges
 
   // getting leaderboard error
@@ -38,7 +45,7 @@ export default function Dashboard() {
     }
 
     // getting logged in users data
-    axios.post('/api/getUser', session?.user)
+    axios.post("/api/getUser", { withCredentials: true })
       .then(function (response: any) {
         // TODO: Type check
         setUserData(response.data);
@@ -48,7 +55,8 @@ export default function Dashboard() {
       });
 
     // getting leaderboard data
-    axios.get('/api/getLeaderboard')
+    axios
+      .get("/api/getLeaderboard")
       .then(function (response: any) {
         // TODO: Type check
         setLeaderboardData(response.data);
@@ -57,7 +65,8 @@ export default function Dashboard() {
         console.log(error);
       });
 
-    axios.get('/api/getChallengeList')
+    axios
+      .get("/api/getChallengeList")
       .then(function (response: any) {
         // TODO: Type check
         setChallenges(response.data);
@@ -65,7 +74,7 @@ export default function Dashboard() {
       .catch(function (error: any) {
         console.log(error);
       });
-  }, [status])
+  }, [status]);
 
   const handleTabChange = (value: string) => {
     setSelectedTab(value);
@@ -77,14 +86,31 @@ export default function Dashboard() {
         <div className="flex flex-col h-full gap-1">
           <div className="flex gap-3 h-[27vh]">
             <div className="flex gap-1 ">
-              <ProfileCard status={status} avatar={session?.user?.image || "/assets/avatar/image.png"} name={session?.user?.name || ""} points={`${userData?.points}`} ranking="Top 1% - #1/4000" />
+              <ProfileCard
+                status={status}
+                avatar={userData?.image || "/assets/avatar/image.png"}
+                name={userData?.name || ""}
+                points={`${userData?.points}`}
+                ranking="Top 1% - #1/4000"
+              />
             </div>
             <Card className="flex p-4 gap-4 px-8 animate-flyBottom">
-              <ProgressCircleWithText value={50.5} className="w-40" title="Completion" />
-              <MultipleSectionsCircleWithText values={[10, 30, 40]} className="w-40" title="Points" labels={["Easy", "Medium", "Hard"]} />
+              <ProgressCircleWithText
+                value={50.5}
+                className="w-40"
+                title="Completion"
+              />
+              <MultipleSectionsCircleWithText
+                values={[10, 30, 40]}
+                className="w-40"
+                title="Points"
+                labels={["Easy", "Medium", "Hard"]}
+              />
             </Card>
             <Card className="p-2 w-[25vw] flex flex-col animate-flyBottom">
-              <span className="mb-[-1rem] text-sm self-center mt-3">Points Over Time</span>
+              <span className="mb-[-1rem] text-sm self-center mt-3">
+                Points Over Time
+              </span>
               <PointsTracker className="self-center" />
             </Card>
           </div>
@@ -93,7 +119,11 @@ export default function Dashboard() {
               header="Challenges"
               className="h-full animate-flyRight"
               footer={
-                <Tabs defaultValue="easy" className="absolute right-2 bottom-2" onValueChange={handleTabChange}>
+                <Tabs
+                  defaultValue="easy"
+                  className="absolute right-2 bottom-2"
+                  onValueChange={handleTabChange}
+                >
                   <TabsList>
                     <TabsTrigger value="easy">Easy</TabsTrigger>
                     <TabsTrigger value="medium">Medium</TabsTrigger>
@@ -106,13 +136,19 @@ export default function Dashboard() {
               <div className="relative w-full border-t-2 border-slate-900">
                 <ChallengeList>
                   {challenges?.map((value, index) => {
-                    if (value.difficulty.toLowerCase() == selectedTab.toLowerCase()) {
+                    if (
+                      value.difficulty.toLowerCase() ==
+                      selectedTab.toLowerCase()
+                    ) {
+                      //@ts-ignore TODO: Fix
+                      let status = userData?.challenges[value.id] || "unopened";
+                      status = status[0].toUpperCase() + status.slice(1);
                       return (
                         <ChallengeListItem
                           id={value.id}
                           key={value.id}
                           name={value.name}
-                          status={"Open"}
+                          status={status}
                           difficulty={value.difficulty}
                           points={value.points.toString()}
                         />
@@ -122,7 +158,10 @@ export default function Dashboard() {
                 </ChallengeList>
               </div>
             </HeaderCard>
-            <HeaderCard className="h-full w-[20vw] animate-flyTop" header="Daily Challenges">
+            <HeaderCard
+              className="h-full w-[20vw] animate-flyTop"
+              header="Daily Challenges"
+            >
               <DailyChallengeList>
                 <DailyChallengeListItem
                   name="Merge Sort"
@@ -146,10 +185,18 @@ export default function Dashboard() {
             </HeaderCard>
           </div>
         </div>
-        <HeaderCard header="Leaderboard" className="w-30 max-w-96 animate-flyLeft ml-1">
+        <HeaderCard
+          header="Leaderboard"
+          className="w-30 max-w-96 animate-flyLeft ml-1"
+        >
           <Leaderboard>
             {leaderboardData?.map((user, place) => (
-              <LeaderboardItem name={user.name} points={user.points.toLocaleString()} place={`#${place + 1}`} avatar={user.image} />
+              <LeaderboardItem
+                name={user.name}
+                points={user.points.toLocaleString()}
+                place={`#${place + 1}`}
+                avatar={user.image}
+              />
             ))}
           </Leaderboard>
         </HeaderCard>

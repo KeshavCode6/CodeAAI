@@ -16,10 +16,28 @@ import { Button } from "@/components/ui/button";
 import { EditIcon } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { Skeleton } from "@/components/ui/skeleton";
+import axios from "axios";
+import { useState } from "react";
 
 function EditProfileDialog(props: any) {
   const { name } = props;
+  const [updatedName, setUpdatedName] = useState(name);
+
+  const onNameChange = (event: any) => {
+    setUpdatedName(event.target.value);
+  }
+
+  const updateUserProfile = () => {
+    axios.post('/api/updateUserProfile', {
+      name: updatedName
+    }, {withCredentials: true})
+      .then(function (response: any) {
+        location.reload();
+      })
+      .catch(function (error: any) {
+        console.log(error);
+      });
+  }
 
   return (
     <AlertDialog>
@@ -35,15 +53,14 @@ function EditProfileDialog(props: any) {
         </AlertDialogHeader>
 
         <Label>Name</Label>
-        <Input defaultValue={name} />
+        <Input defaultValue={name} onChange={onNameChange}/>
 
         <Label>Picture</Label>
         <Input type="file" />
 
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
-
-          <AlertDialogAction>Save</AlertDialogAction>
+          <AlertDialogAction onClick={updateUserProfile}>Save</AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

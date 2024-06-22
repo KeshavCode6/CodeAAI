@@ -86,10 +86,10 @@ export default function Navigation({ children, path }: NavbarProps) {
             </PopoverTrigger>
             <PopoverContent className="relative z-[1] flex flex-col items-center mr-5">
                 <div className="flex flex-row gap-3 mb-12">
-                    <img src={session?.user?.image || "/assets/avatar/image.png"} className="rounded-full w-12" />
+                    <img src={session?.user?.image || "..."} className="rounded-full w-12 h-12 aspect-square" />
                     <div className="flex flex-col">
-                        <span className="text-lg w-40">{session?.user?.name || "/assets/avatar/image.png" }</span>
-                        <span className="text-xs w-40">{session?.user?.email || "/assets/avatar/image.png" }</span>
+                        <span className="text-lg w-40">{session?.user?.name || "..." }</span>
+                        <span className="text-xs w-40">{session?.user?.email || "..." }</span>
                     </div>
                 </div>
               <Button className="absolute right-2 bottom-2 text-xs" size={"sm"} onClick={() => {signOut()}}>Sign out</Button>

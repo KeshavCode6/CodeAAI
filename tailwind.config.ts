@@ -58,7 +58,7 @@ const config = {
         homePlayButton: "#03091C",
         homeInfoCardsBg: "#080C14", 
         homeAboutUsBg: "#0C121E", 
-        aboutUsOfficersBg: "#181818"
+        aboutUsOfficersBg: "#00071c"
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -102,8 +102,7 @@ const config = {
         "flyBottom": 'flyInFromTop 0.75s',
         "flyRight": 'flyInFromLeft 0.75s',
         "flyLeft": 'flyInFromRight 0.75s',
-        "flyTopLeft": "flyInFromTopLeft 0.75s",
-        "rotate-y-180": "rotateY(180deg)"
+        "flyTopLeft": "flyInFromTopLeft 0.75s"
       },
     },
   },

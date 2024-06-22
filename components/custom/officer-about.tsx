@@ -8,7 +8,7 @@ export default function OfficerAbout(props: any) {
         <div>
             {(!right) ? (
                 <div className="flex flex-row p-5 w-1/2">
-                    <img src={icon} className="w-48 h-48 rounded-full border-4 border-white border-double"/>
+                    <img src={icon} className="w-48 h-48 rounded-full aspect-square object-cover"/>
 
                     <div className="flex flex-col ml-5 gap-2">
                         <span className="text-4xl">{name}</span>
@@ -26,7 +26,7 @@ export default function OfficerAbout(props: any) {
                             <span className="text-xl">{children}</span>
                         </div>
 
-                        <img src={icon} className="w-48 h-48 rounded-full border-4 border-white border-double"/>
+                        <img src={icon} className="w-48 h-48 rounded-full"/>
 
                     </div>
                 </div>

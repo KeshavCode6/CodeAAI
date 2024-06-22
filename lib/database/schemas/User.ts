@@ -1,6 +1,6 @@
 import mongoose, { Schema } from "mongoose";
 
-const userSchema : Schema = new mongoose.Schema({
+const userSchema = new mongoose.Schema({
     name: {
         type: String,
         required: true
@@ -8,12 +8,13 @@ const userSchema : Schema = new mongoose.Schema({
     id: {
         type: String,
         required: true,
-        unique:true
+        unique: true
     }, 
     challenges: {
-        type: Object, 
+        type: Map, 
+        of: String,
         required: true,
-        default: {"challenge_1":"unopened"}
+        default: {}
     }, 
     points: {
         type: Number, 
@@ -25,15 +26,15 @@ const userSchema : Schema = new mongoose.Schema({
         required: true,
         default: ""
     }
-})
-
+});
 
 export interface IUser {
     name: string;
     id: string;
-    challenges: object;
+    challenges: Map<string, string>;
     points: number;
     image: string;
 }
+
 export const User = mongoose.models.User || mongoose.model<IUser>('User', userSchema);
 export default User;

@@ -6,11 +6,11 @@ import { v4 as uuidv4 } from 'uuid';
 import dbConnect from '@/lib/database/dbConnect';
 import User from '@/lib/database/schemas/User';
 import Challenge from '@/lib/database/schemas/Challenge';
+import { getUserFromToken } from '@/lib/getUserFromToken';
 
 // making sure code submission is of this type
 interface PostData {
   challengeId: keyof typeof Paths;
-  userId: string,
   code: string;
 }
 
@@ -23,11 +23,19 @@ export async function POST(request: NextRequest) {
   try {
     const data: PostData = await request.json(); // getting data
 
-    // ensuring challenge exists
-    let challenge = await Challenge.findOne({ id: data.challengeId });
+    //@ts-ignore
+    const userId = (await getUserFromToken(request.cookies)).user.id;
 
-    if(!challenge){
-      return NextResponse.json({ result: "Invalid Challenge ID"});
+    let challenge = await Challenge.findOne({ id: data.challengeId });
+    let user = await User.findOne({ id: userId });
+
+    // ensuring challenge and user exists
+    if(!challenge || !user){
+      return NextResponse.json({ result: "Invalid Challenge or user ID"});
+    }
+    
+    if (user.challenges.has(data.challengeId) && user.challenges.get(data.challengeId) == "solved") {
+      return NextResponse.json({ result: "You solved this challenge already!"});
     }
 
     // creating directory to store user provided code
@@ -55,16 +63,14 @@ export async function POST(request: NextRequest) {
 
       await dbConnect();
 
-      try {
-        let user = await User.findOne({ id: data.userId });
-      
-        if (user) {
-          user.points += challenge.points;
-
-          await user.save();
-        } else {
-          console.log("User not found");
+      try {      
+        user.points += challenge.points;
+        if (user.challenges.has(data.challengeId) && user.challenges.get(data.challengeId) == "open") {
+          user.challenges.set(data.challengeId, "solved");
+          user.markModified('challenges'); // Mark the nested field as modified
         }
+
+        await user.save();
       } catch (error) {
         console.error("Error finding or updating user:", error);
       }

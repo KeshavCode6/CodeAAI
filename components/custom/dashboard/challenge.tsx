@@ -41,7 +41,7 @@ export function ChallengeListItem({
           {difficulty}
         </span>
       </TableCell>
-      <TableCell className="text-center">{points}</TableCell>
+      <TableCell className="text-center">{points.toLocaleString()}</TableCell>
       <TableCell className="flex">
         <Button
           variant={"outline"}

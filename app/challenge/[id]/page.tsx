@@ -1,32 +1,36 @@
 "use client";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import HeaderCard from "@/components/custom/card/headercard";
 import Navigation from "@/components/custom/navigation";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Editor, loader } from "@monaco-editor/react";
 import { useEffect, useState } from "react";
 import {
   BookCheck,
+  CircleX,
   Clipboard,
   HelpCircle,
   LightbulbIcon,
   PlayIcon,
 } from "lucide-react";
-import axios from 'axios';
+import axios from "axios";
 import { protectedRoute } from "@/lib/protectedRoute";
 import { IChallenge } from "@/lib/database/schemas/Challenge";
 
+//@ts-ignore
+import HeaderCard from "@/components/custom/card/headercard";
+
 // challenge page, params.id is the id of the challenge
-export default function Challenge({params} : {params : {id:string}}) {
+export default function Challenge({ params }: { params: { id: string } }) {
   const [code, setCode] = useState<string>(""); // code from the editor
   const [result, setResult] = useState<string>(""); // output from executing the code
-  const {session, status} = protectedRoute(); // auth data
+  const { session, status } = protectedRoute(); // auth data
   const [challengeData, setChallengeData] = useState<IChallenge | undefined>(undefined); // loaded challenge data
+  const [challengeDescription, setChallengeDescription] = useState<string>(""); // loaded challenge data
 
   // updating code state variable has text
   function handleEditorChange(value: string | undefined) {
-    if (typeof value === 'string') {
+    if (typeof value === "string") {
       setCode(value);
     } else {
       console.error("Editor value is not a string:", value);
@@ -36,15 +40,15 @@ export default function Challenge({params} : {params : {id:string}}) {
   // submitting code via post request
   const submitCode = function () {
     //@ts-ignore : have to tsx ignore because nextauth doesnt know we added a custom id param on login
-    axios.post("/api/submitCode", {code:code, challengeId:params.id, userId:session?.user?.id })
-      .then((response) => {
+    axios.post("/api/submitCode", {code: code, challengeId: params.id,}, {withCredentials:true}).then((response) => {
         // getting execution result and making sure its a string
         let execResult = response.data.result;
-        if(typeof execResult == "string"){
+        if (typeof execResult == "string") {
           setResult(execResult);
-        }
-        else{
-          console.error("[challenge/[id]/page.tsx] Code execution is not a string..")
+        } else {
+          console.error(
+            "[challenge/[id]/page.tsx] Code execution is not a string.."
+          );
         }
       })
       .catch((error) => {
@@ -53,7 +57,7 @@ export default function Challenge({params} : {params : {id:string}}) {
         setResult("Your code caused an error");
       });
   };
-  
+
   // getting challenge data
   useEffect(() => {
     // ensuring authentication has loaded
@@ -61,26 +65,43 @@ export default function Challenge({params} : {params : {id:string}}) {
       return;
     }
 
-    // getting challenge data via post request
-    axios.post("/api/getChallenge", { id: params.id })
-      .then((response) => {
-        // TODO: Interface type checking
-        const data = response.data;
-        setChallengeData(data);
-      })
-      .catch((error) => {
-        console.error("Error:", error);
-      });
-  }, [status]);
+    //@ts-ignore getting challenge data via post request
+    axios.post("/api/getChallenge", { challengeId: params.id }, { withCredentials: true })
+    .then((response) => {
+      // Extracting and formatting description
+      //@ts-ignore
+      setChallengeData(response.data);
+      
+      let desc = response.data.description;
+      // Splitting the description into words
+      let words = desc.split(/\s+/);
   
+      // Adding a new line every 10 words
+      let formattedDescription = '';
+      for (let i = 0; i < words.length; i++) {
+        formattedDescription += words[i] + ' ';
+        if ((i + 1) % 10 === 0) {
+          formattedDescription += '\n ';
+        }
+      }
+  
+      // Setting the formatted description in state
+      setChallengeDescription(formattedDescription);
+    })
+    .catch((error) => {
+      console.error("Error:", error);
+    });
+  }, [status]);
 
+  const resetCode = () => {
+    setCode(`''' \nChallenge Description: \n ${challengeDescription}\n'''`);
+  }
+
+  if(challengeDescription==""){return;}
   // UI
   return (
     <Navigation path={"/challenge"}>
-      <div
-        className="flex gap-3"
-        style={{ marginTop: "80px" }}
-      >
+      <div className="flex gap-3" style={{ marginTop: "80px" }}>
         {/*Editor Section*/}
         <Card className="p-2 ml-[10vw] animate-flyBottom">
           <Editor
@@ -90,7 +111,7 @@ export default function Challenge({params} : {params : {id:string}}) {
             value={code}
             onChange={handleEditorChange}
             defaultLanguage="python"
-            defaultValue="# Print out 'Hello world!'"
+            defaultValue={`''' \n\nChallenge Description: \n ${challengeDescription}\n\n'''`}
           />
         </Card>
 
@@ -98,44 +119,31 @@ export default function Challenge({params} : {params : {id:string}}) {
         <Tabs defaultValue="description" className="w-[400px] h-full">
           <HeaderCard
             className="w-[400px] h-[87vh] animate-flyTop"
-            header={
-              <TabsList className="px-4 h-full rounded-tl-2xl rounded-tr-2xl w-full">
-                <TabsTrigger className="gap-1 flex" value="description">
-                  <Clipboard size={15} /> Description
-                </TabsTrigger>
-                <TabsTrigger className="gap-1 flex" value="result">
-                  <BookCheck size={15} /> Test
-                </TabsTrigger>
-                <TabsTrigger className="gap-1 flex" value="12">
-                  <LightbulbIcon fill="white" size={15} /> Hints
-                </TabsTrigger>
-              </TabsList>
-            }
+            header={challengeData?.name}
           >
-            <TabsContent value="description" className="px-4">
-              <h5>{challengeData?.name}</h5>
-              <p className="text-xs text-gray-300">
-                {challengeData?.description}
-              </p>
-            </TabsContent>
-            <TabsContent className="h-[73vh]" value="result">
-              <textarea
-                className={`w-full text-sm bg-card h-full border-card p-[10px] resize-none focus:outline-none focus:bg-card font-mono`}
-                readOnly
-                placeholder="Click run to test out your code"
-                value={result}
-              />
-              {/*Run and Help buttons*/}
-              <div className="flex gap-1 justify-center">
-                <Button className="gap-1 text-xs" size={"sm"} onClick={submitCode}>
-                  <PlayIcon size={15} /> Run
-                </Button>
-                <Button className="gap-1 text-xs" size={"sm"} onClick={submitCode}>
-                  <HelpCircle size={15} /> Help
-                </Button>
-              </div>
-            </TabsContent>
-            <TabsContent value="description"></TabsContent>
+            <textarea
+              className={`w-full text-sm bg-card h-full border-card p-[10px] resize-none focus:outline-none focus:bg-card font-mono`}
+              readOnly
+              placeholder="Click run to test out your code"
+              value={result}
+            />
+            {/*Run and Help buttons*/}
+            <div className="flex gap-1 justify-center">
+              <Button
+                className="gap-1 text-xs"
+                size={"sm"}
+                onClick={submitCode}
+              >
+                <PlayIcon size={15} /> Run
+              </Button>
+              <Button
+                className="gap-1 text-xs"
+                size={"sm"}
+                onClick={resetCode}
+              >
+                <CircleX size={15} /> Reset Code
+              </Button>
+            </div>
           </HeaderCard>
         </Tabs>
       </div>
