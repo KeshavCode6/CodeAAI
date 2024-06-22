@@ -10,10 +10,11 @@ import {
 } from "@/components/ui/table";
 
 interface ChallengeListItemProps {
-  name?: string;
-  status?: string;
-  difficulty?: string;
-  points?: string;
+  name: string;
+  status: string;
+  difficulty: string;
+  points: string;
+  id:string;
 }
 
 export function ChallengeListItem({
@@ -21,6 +22,7 @@ export function ChallengeListItem({
   status,
   difficulty,
   points,
+  id,
 }: ChallengeListItemProps) {
   const lowerCaseDifficulty = difficulty?.toLowerCase();
   //@ts-ignore
@@ -46,7 +48,7 @@ export function ChallengeListItem({
           className="m-auto"
           size={"icon"}
           onClick={() => {
-            location.href = "/challenge";
+            location.href = `/challenge/${id}`;
           }}
         >
           <ChevronRight size={15} />

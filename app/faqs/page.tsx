@@ -8,6 +8,7 @@ import {
 
 import Navigation from '@/components/custom/navigation'
 import React from 'react'
+//@ts-ignore
 import FAQ from "@/components/custom/faqs/FAQ"
 
 const faqs = [
@@ -66,7 +67,6 @@ export default function Faqs() {
                         ))}
                     </Accordion>
                 </div>
-                
             </div>
             
         </Navigation>

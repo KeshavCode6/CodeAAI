@@ -2,7 +2,7 @@ import dbConnect from '@/lib/database/dbConnect';
 import {Challenge} from '@/lib/database/schemas/Challenge';
 import { NextRequest, NextResponse } from 'next/server';
 
-// handling code submission
+// getting challenge data
 export async function POST(request: NextRequest) {
   try {
     await dbConnect(); // Connect to MongoDB

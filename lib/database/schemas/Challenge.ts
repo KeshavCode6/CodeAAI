@@ -9,6 +9,10 @@ const challengeSchema : Schema = new mongoose.Schema({
         type: String,
         required: true
     }, 
+    difficulty: {
+        type: String,
+        required: true
+    }, 
     id: {
         type: String,
         required: true,
@@ -31,6 +35,7 @@ export interface IChallenge {
     id: string;
     description: string;
     hints?: [];
+    difficulty:string;
     points: number;
 }
 export const Challenge = mongoose.models.Challenge || mongoose.model<IChallenge>('Challenge', challengeSchema);

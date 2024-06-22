@@ -18,6 +18,7 @@ import ProfileCard from "@/components/custom/dashboard/ProfileCard";
 import { protectedRoute } from "@/lib/protectedRoute";
 import axios from "axios";
 import { IUser } from "@/lib/database/schemas/User";
+import { IChallenge } from "@/lib/database/schemas/Challenge";
 
 //@ts-ignore : has an import error for some reason, TODO: Fix
 import HeaderCard from "@/components/custom/card/headercard";
@@ -26,6 +27,7 @@ export default function Dashboard() {
   const {session, status} = protectedRoute(); // auth data
   const [userData, setUserData] = useState<IUser | undefined>(undefined); // logged in users data
   const [leaderboardData, setLeaderboardData] = useState<IUser[] | undefined>(undefined); // leaderboard data
+  const [challenges, setChallenges] = useState<IChallenge[] | undefined>(undefined); // leaderboard data
 
   // getting leaderboard error
   useEffect(() => {
@@ -54,8 +56,17 @@ export default function Dashboard() {
       console.log(error);
     });
 
+    axios.get('/api/getChallengeList')
+    .then(function (response:any) {
+      // TODO: Type check
+      setChallenges(response.data);
+    })
+    .catch(function (error:any) {
+      console.log(error);
+    });
   }, [status])
 
+  console.log(challenges)
 
   // UI
   return (
@@ -92,12 +103,18 @@ export default function Dashboard() {
             >
               <div className="relative w-full border-t-2 border-slate-900">
                 <ChallengeList>
-                  <ChallengeListItem
-                    name="Merge Sort"
-                    status="Opened"
-                    difficulty="Easy"
-                    points="100k"
-                  />
+                  {challenges?.map((value, index)=>{
+                    return (
+                      <ChallengeListItem
+                        id = {value.id}
+                        key = {value.id}
+                        name={value.name}
+                        status={"Open"}
+                        difficulty={value.difficulty}
+                        points={value.points.toString()}
+                      />
+                    );
+                  })}
                 </ChallengeList>
               </div>
             </HeaderCard>
