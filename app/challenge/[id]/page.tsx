@@ -2,31 +2,29 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import Navigation from "@/components/custom/navigation";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Editor, loader } from "@monaco-editor/react";
 import { useEffect, useState } from "react";
 import {
-  BookCheck,
   CircleX,
-  Clipboard,
-  HelpCircle,
-  LightbulbIcon,
   PlayIcon,
+  ArrowLeft,
 } from "lucide-react";
 import axios from "axios";
 import { protectedRoute } from "@/lib/protectedRoute";
 import { IChallenge } from "@/lib/database/schemas/Challenge";
-
-//@ts-ignore
-import HeaderCard from "@/components/custom/card/headercard";
+import { useToast } from "@/components/ui/use-toast"
+import { Accordion } from "@radix-ui/react-accordion";
+import TestCase from "@/components/custom/challenge/testcase";
 
 // challenge page, params.id is the id of the challenge
 export default function Challenge({ params }: { params: { id: string } }) {
   const [code, setCode] = useState<string>(""); // code from the editor
-  const [result, setResult] = useState<string>(""); // output from executing the code
   const { session, status } = protectedRoute(); // auth data
   const [challengeData, setChallengeData] = useState<IChallenge | undefined>(undefined); // loaded challenge data
   const [challengeDescription, setChallengeDescription] = useState<string>(""); // loaded challenge data
+  const [challengeArguments, setChallengeArguments] = useState<string>(""); // loaded challenge data
+  const { toast } = useToast()
+  const defaultCode = `''' \nChallenge Description: \n ${challengeDescription}\n'''\nimport sys\n${challengeArguments}`;
 
   // updating code state variable has text
   function handleEditorChange(value: string | undefined) {
@@ -40,21 +38,43 @@ export default function Challenge({ params }: { params: { id: string } }) {
   // submitting code via post request
   const submitCode = function () {
     //@ts-ignore : have to tsx ignore because nextauth doesnt know we added a custom id param on login
-    axios.post("/api/submitCode", {code: code, challengeId: params.id,}, {withCredentials:true}).then((response) => {
-        // getting execution result and making sure its a string
-        let execResult = response.data.result;
-        if (typeof execResult == "string") {
-          setResult(execResult);
-        } else {
-          console.error(
-            "[challenge/[id]/page.tsx] Code execution is not a string.."
-          );
+    axios.post("/api/submitCode", { code: code, challengeId: params.id, }, { withCredentials: true }).then((response) => {
+      // getting execution result and making sure its a string
+      let execResult = response.data.result;
+      let variant: "default" | "destructive" | "success" = "destructive"
+
+      if (typeof execResult == "string") {
+        let description = "Your code failed 1/1000 test cases, try again"
+
+        if (execResult == "passed") {
+          description = "Your code passed all test cases, well done!"
+          variant = "success"
         }
-      })
+        else {
+          description = "Try another challenge!"
+          variant = "success"
+        }
+
+        toast({
+          variant: variant,
+          title: `${execResult}`,
+          description: description,
+        })
+
+      } else {
+        console.error(
+          "[challenge/[id]/page.tsx] Code execution is not a string.."
+        );
+      }
+    })
       .catch((error) => {
         // printing out errors
         console.error("Error:", error);
-        setResult("Your code caused an error");
+        toast({
+          variant: "destructive",
+          title: `Something went wrong!`,
+          description: "Your code caused an error or it was an internal issue",
+        })
       });
   };
 
@@ -67,90 +87,98 @@ export default function Challenge({ params }: { params: { id: string } }) {
 
     //@ts-ignore getting challenge data via post request
     axios.post("/api/getChallenge", { challengeId: params.id }, { withCredentials: true })
-    .then((response) => {
-      // Extracting and formatting description
-      //@ts-ignore
-      setChallengeData(response.data);
-      
-      let desc = response.data.description;
-      // Splitting the description into words
-      let words = desc.split(/\s+/);
-  
-      // Adding a new line every 10 words
-      let formattedDescription = '';
-      for (let i = 0; i < words.length; i++) {
-        formattedDescription += words[i] + ' ';
-        if ((i + 1) % 10 === 0) {
-          formattedDescription += '\n ';
+      .then((response) => {
+        // Extracting and formatting description
+        //@ts-ignore
+        setChallengeData(response.data);
+
+        let desc = response.data.description;
+        // Splitting the description into words
+        let words = desc.split(/\s+/);
+
+        // Adding a new line every 10 words
+        let formattedDescription = ' ';
+        for (let i = 0; i < words.length; i++) {
+          formattedDescription += words[i] + ' ';
+          if ((i + 1) % 10 === 0) {
+            formattedDescription += '\n  ';
+          }
         }
-      }
-  
-      // Setting the formatted description in state
-      setChallengeDescription(formattedDescription);
-    })
-    .catch((error) => {
-      console.error("Error:", error);
-    });
+
+        let args = "\n# <- Challenge Arguments Go Here -> \n"
+        response.data.arguments.forEach((element: string, index: number) => {
+          args += `${element} = sys.argv[${index}]\n`
+        });
+        console.log(args)
+        setChallengeArguments(args + "\n")
+
+        // Setting the formatted description in state
+        setChallengeDescription(formattedDescription);
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      });
   }, [status]);
 
   const resetCode = () => {
-    setCode(`''' \nChallenge Description: \n ${challengeDescription}\n'''`);
+    setCode(defaultCode);
   }
 
-  if(challengeDescription==""){return;}
+  if (challengeDescription == "") { return; }
   // UI
   return (
-    <Navigation path={"/challenge"}>
-      <div className="flex gap-3" style={{ marginTop: "80px" }}>
-        {/*Editor Section*/}
-        <Card className="p-2 ml-[10vw] animate-flyBottom">
-          <Editor
-            height="85vh"
-            width="60vw"
-            theme="moon"
-            value={code}
-            onChange={handleEditorChange}
-            defaultLanguage="python"
-            defaultValue={`''' \n\nChallenge Description: \n ${challengeDescription}\n\n'''`}
-          />
-        </Card>
-
-        {/*Output Section*/}
-        <Tabs defaultValue="description" className="w-[400px] h-full">
-          <HeaderCard
-            className="w-[400px] h-[87vh] animate-flyTop"
-            header={challengeData?.name}
-          >
-            <textarea
-              className={`w-full text-sm bg-card h-full border-card p-[10px] resize-none focus:outline-none focus:bg-card font-mono`}
-              readOnly
-              placeholder="Click run to test out your code"
-              value={result}
+    <Navigation path={"/dashboard"} marginTop="0">
+      <div className="overflow-hidden h-screen">
+        <div className="flex gap-2 w-screen items-center justify-center" style={{ marginTop: "80px" }}>
+          {/*Editor Section*/}
+          <Card className="p-2 animate-flyBottom">
+            <Editor
+              height="85vh"
+              width="60vw"
+              theme="moon"
+              value={code}
+              onChange={handleEditorChange}
+              defaultLanguage="python"
+              defaultValue={defaultCode}
             />
+          </Card>
+          {/*Challenge Info Section*/}
+          <Card className="w-[23vw] p-4 h-[87vh] animate-flyTop relative">
+            <div className="flex flex-col items-center gap-3">
+              <Button className="absolute left-3 top-3 w-6 h-6" size={"icon"} onClick={() => window.history.back()}>
+                <ArrowLeft size={15} />
+              </Button>
+              <p className="text-center font-light">
+                <h1 className="text-xl font-bold underline underline-offset-7">{challengeData?.name}</h1>
+                <span className="font-semibold">Difficulty: </span>{challengeData?.difficulty}<br />
+                <span className="font-semibold">Points: </span>{challengeData?.points}<br />
+              </p>
+            </div>
+
+            <div className="mt-4 flex flex-col h-fit items-center">
+              <div className="w-5/6">
+              <Accordion type="single" collapsible>
+                <TestCase position={1} inputs="None" expectedOutput="Hello Sam" recievedOuput="Bye Sam" result="Fail"/>
+              </Accordion>
+              </div>
+            </div>
+            <p className="w-full text-center font-normal text-xs mt-4">1 out of 1000 test cases shown. Rest hidden.</p>
+
             {/*Run and Help buttons*/}
-            <div className="flex gap-1 justify-center">
-              <Button
-                className="gap-1 text-xs"
-                size={"sm"}
-                onClick={submitCode}
-              >
+            <div className="flex gap-1 justify-center items-center absolute bottom-5 left-0 right-0">
+              <Button className="gap-1 text-xs" size={"sm"} onClick={submitCode}>
                 <PlayIcon size={15} /> Run
               </Button>
-              <Button
-                className="gap-1 text-xs"
-                size={"sm"}
-                onClick={resetCode}
-              >
-                <CircleX size={15} /> Reset Code
+              <Button className="gap-1 text-xs" size={"sm"} onClick={resetCode}>
+                <CircleX size={15} /> Reset
               </Button>
             </div>
-          </HeaderCard>
-        </Tabs>
+          </Card>
+        </div>
       </div>
     </Navigation>
   );
 }
-
 // editor customs styling called 'moon'
 loader.init().then((monaco) => {
   monaco.editor.defineTheme("moon", {

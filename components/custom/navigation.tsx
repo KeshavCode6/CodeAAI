@@ -25,10 +25,11 @@ export const links: { [key: string]: string } = {
 
 interface NavbarProps {
   path?: string;
+  marginTop?:string;
   children?: React.ReactNode;
 }
 
-export default function Navigation({ children, path }: NavbarProps) {
+export default function Navigation({ children, path, marginTop="-[4rem]" }: NavbarProps) {
   const { data: session, status } = useSession();
   
   return (
@@ -57,22 +58,6 @@ export default function Navigation({ children, path }: NavbarProps) {
         </div>
         {status === "authenticated" ? (
         <div className="flex items-center justify-center gap-2">
-          <Button
-            variant="secondary"
-            size="icon"
-            className="rounded-full w-9 h-9"
-          >
-            <Bell className="h-5 w-5" />
-            <span className="sr-only">Toggle notifications</span>
-          </Button>
-          <Button
-            variant="secondary"
-            size="icon"
-            className="rounded-full w-9 h-9"
-          >
-            <Settings className="h-5 w-5" />
-            <span className="sr-only">Settings</span>
-          </Button>
           <Popover>
             <PopoverTrigger className="flex items-center">
               <Button
@@ -103,7 +88,7 @@ export default function Navigation({ children, path }: NavbarProps) {
         )}
       </div>
 
-      <div className="mt-[4rem]">{children}</div>
+      <div className={`mt${marginTop}`}>{children}</div>
     </>
   );
 }

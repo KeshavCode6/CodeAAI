@@ -27,9 +27,6 @@ export async function POST(request: NextRequest) {
 
     // if it exists, return challenge data
     if (challenge && user) {
-      const plainChallenge = challenge.toObject();
-      delete plainChallenge.hints; // make sure user does not have access to the hints
-
       // Check if the challenge is not yet solved and update the status
       if (!user.challenges.has(data.challengeId) || user.challenges.get(data.challengeId) !== "solved") {
         user.challenges.set(data.challengeId, "open");
@@ -37,7 +34,7 @@ export async function POST(request: NextRequest) {
         await user.save();
       }
 
-      return NextResponse.json(plainChallenge);
+      return NextResponse.json(challenge);
     } else {
       return NextResponse.json({ result: "Invalid Challenge Id" });
     }

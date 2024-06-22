@@ -187,7 +187,7 @@ export default function Dashboard() {
         </div>
         <HeaderCard
           header="Leaderboard"
-          className="w-30 max-w-96 animate-flyLeft ml-1"
+          className="w-30 max-w-[25vw] animate-flyLeft ml-1"
         >
           <Leaderboard>
             {leaderboardData?.map((user, place) => (
