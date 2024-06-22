@@ -1,5 +1,5 @@
 "use client";
-import { Card, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import Navigation from "@/components/custom/navigation";
 import React, { useEffect, useState } from "react";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -26,8 +26,21 @@ import { IChallenge } from "@/lib/database/schemas/Challenge";
 //@ts-ignore : has an import error for some reason, TODO: Fix
 import HeaderCard from "@/components/custom/card/headercard";
 
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import { Monitor, ArrowLeft, RefreshCw } from "lucide-react";
+import { Button } from "@/components/ui/button";
+
 export default function Dashboard() {
-  const { session, status } = protectedRoute(); // auth data
+
+  const { status } = protectedRoute(); // auth data
   const [userData, setUserData] = useState<IUser | undefined>(undefined); // logged in users data
   const [leaderboardData, setLeaderboardData] = useState<IUser[] | undefined>(
     undefined
@@ -36,6 +49,8 @@ export default function Dashboard() {
     undefined
   ); // leaderboard data
   const [selectedTab, setSelectedTab] = useState("easy"); // selected tab for filtering challenges
+  const [leaderboardFilterSet, setLeaderboardFilterSet] = useState(false);
+  const [displayedOnLeaderboard, setDisplayedOnLeaderboard] = useState([]);
 
   // getting leaderboard error
   useEffect(() => {
@@ -79,6 +94,94 @@ export default function Dashboard() {
   const handleTabChange = (value: string) => {
     setSelectedTab(value);
   };
+
+  const handleLeaderboardFilterChange = (value: string) => {
+
+    setLeaderboardFilterSet(true);
+
+    switch (value) {
+
+      case "all":
+        setDisplayedOnLeaderboard(
+          //@ts-ignore
+          leaderboardData.map((user, index) => (
+            <LeaderboardItem
+              name={user.name}
+              points={user.points.toLocaleString()}
+              place={`#${index + 1}`}
+              avatar={user.image}
+            />
+          ))
+        )
+        break;
+
+      case "around":
+        var myPlace: Number;
+        leaderboardData?.forEach((user, index) => {
+          if (user.id == userData?.id) {
+            myPlace = index;
+          }
+        })
+        setDisplayedOnLeaderboard(
+          //@ts-ignore
+          leaderboardData.map((user, index) => (
+            //@ts-ignore
+             (Math.abs(index - myPlace) < 3) ? <LeaderboardItem
+              name={user.name}
+              points={user.points.toLocaleString()}
+              place={`#${index + 1}`}
+              avatar={user.image}
+            /> : ""
+          ))
+        )
+        break;
+
+      default:
+        setDisplayedOnLeaderboard(
+          //@ts-ignore
+          leaderboardData.map((user, index) => (
+            (parseInt(value) > index) ? <LeaderboardItem
+              name={user.name}
+              points={user.points.toLocaleString()}
+              place={`#${index + 1}`}
+              avatar={user.image}
+            /> : ""
+          ))
+        )
+        break;
+    }
+
+  }
+
+
+  if (window.innerWidth < 1680) {
+    return (
+      <div className="flex flex-col mt-24 p-5 gap-10">
+        <Monitor size={200} className="self-center"/>
+        <div className="flex flex-col">
+          <span className="text-center text-3xl">STOP!</span>
+          <span className="text-center mt-3 text-xl w-96 self-center font-thin">This part of the website is best experienced on larger screens.</span>
+        </div>
+        <div className="flex flex-col gap-3">
+          <a href="/" className="self-center">
+            <Button className="w-56 flex gap-2">
+              <ArrowLeft />
+              <span>Return to Home</span>
+            </Button>
+          </a>
+          <a href="/" className="self-center">
+            <Button className="w-40 flex gap-2" variant="outline" onClick={() => {
+              location.reload();
+            }}>
+              <RefreshCw/>
+              <span>Retry</span>
+            </Button>
+          </a>
+        </div>
+      </div>
+    )
+  }
+
   // UI
   return (
     <Navigation path="/dashboard">
@@ -187,19 +290,42 @@ export default function Dashboard() {
         </div>
         <HeaderCard
           header="Leaderboard"
-          className="w-30 max-w-96 animate-flyLeft ml-1"
+          className="w-30 max-w-96 animate-flyLeft ml-1 h-full"
+          footer={
+            <Select onValueChange={handleLeaderboardFilterChange}>
+            <SelectTrigger className="absolute bottom-0 right-0 w-40 m-2">
+              <SelectValue placeholder="Select a filter" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                <SelectLabel>Filters</SelectLabel>
+                <SelectItem value="all">All</SelectItem>
+                <SelectItem value="around">Around me</SelectItem>
+                <SelectItem value="5">Top 5</SelectItem>
+                <SelectItem value="20">Top 20</SelectItem>
+                <SelectItem value="50">Top 50</SelectItem>
+                <SelectItem value="100">Top 100</SelectItem>
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+          }
         >
           <Leaderboard>
-            {leaderboardData?.map((user, place) => (
-              <LeaderboardItem
-                name={user.name}
-                points={user.points.toLocaleString()}
-                place={`#${place + 1}`}
-                avatar={user.image}
-              />
-            ))}
+            {(leaderboardFilterSet) ? displayedOnLeaderboard : (
+              leaderboardData?.map((user, index) => (
+                <LeaderboardItem
+                  name={user.name}
+                  points={user.points.toLocaleString()}
+                  place={`#${index + 1}`}
+                  avatar={user.image}
+                />
+              ))
+            )
+            }
           </Leaderboard>
+
         </HeaderCard>
+
       </div>
     </Navigation>
   );
