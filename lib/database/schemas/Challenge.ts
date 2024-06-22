@@ -18,7 +18,7 @@ const challengeSchema : Schema = new mongoose.Schema({
         required: true,
         unique:true
     }, 
-    hints: {
+    arguments: {
         type: Array, 
         required: true,
         default: []
@@ -34,7 +34,7 @@ export interface IChallenge {
     name: string;
     id: string;
     description: string;
-    hints?: [];
+    arguments?: string[];
     difficulty:string;
     points: number;
 }
