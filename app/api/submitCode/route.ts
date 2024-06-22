@@ -60,6 +60,7 @@ export async function POST(request: NextRequest) {
       
         if (user) {
           user.points += challenge.points;
+
           await user.save();
         } else {
           console.log("User not found");

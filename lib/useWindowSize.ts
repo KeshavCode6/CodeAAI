@@ -9,6 +9,7 @@ function useWindowSize() {
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
+      //@ts-ignore
       function handleResize() {
         setWindowSize({
           width: window.innerWidth,

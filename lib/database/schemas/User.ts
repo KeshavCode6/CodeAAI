@@ -11,9 +11,9 @@ const userSchema : Schema = new mongoose.Schema({
         unique:true
     }, 
     challenges: {
-        type: Array, 
+        type: Object, 
         required: true,
-        default: []
+        default: {"challenge_1":"unopened"}
     }, 
     points: {
         type: Number, 
@@ -27,10 +27,11 @@ const userSchema : Schema = new mongoose.Schema({
     }
 })
 
+
 export interface IUser {
     name: string;
     id: string;
-    challenges: string[];
+    challenges: object;
     points: number;
     image: string;
 }
