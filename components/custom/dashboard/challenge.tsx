@@ -15,9 +15,11 @@ interface ChallengeListItemProps {
   difficulty: string;
   points: string;
   id:string;
+  index:number;
 }
 
 export function ChallengeListItem({
+  index,
   name,
   status,
   difficulty,
@@ -30,7 +32,7 @@ export function ChallengeListItem({
   //@ts-ignore
   const fgColor = customColors[`${lowerCaseDifficulty}Fg`];
   return (
-    <TableRow className="w-full">
+    <TableRow className="w-full animate-fade opacity-0" style={{ animationFillMode: "forwards", animationDelay:`${0.5*index}s`}}>
       <TableCell className="text-center">{name}</TableCell>
       <TableCell className="text-center font-normal">{status}</TableCell>
       <TableCell className="text-center">

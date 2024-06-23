@@ -93,6 +93,10 @@ const config = {
         flyInFromTopLeft: {
           '0%': { transform: 'translateX(-1000px) translateY(-200px)' },
           '100%': { transform: 'translateX(0px) translateY(0px)' },
+        },
+        fadeIn:{
+          '0%':{opacity:"0"},
+          "100%":{opacity:"100"}
         }
       },
       animation: {
@@ -102,7 +106,8 @@ const config = {
         "flyBottom": 'flyInFromTop 0.75s',
         "flyRight": 'flyInFromLeft 0.75s',
         "flyLeft": 'flyInFromRight 0.75s',
-        "flyTopLeft": "flyInFromTopLeft 0.75s"
+        "flyTopLeft": "flyInFromTopLeft 0.75s",
+        "fade":"fadeIn 0.5s"
       },
     },
   },

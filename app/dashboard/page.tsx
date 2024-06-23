@@ -44,7 +44,8 @@ export default function Dashboard() {
   const [selectedTab, setSelectedTab] = useState("easy"); // selected tab for filtering challenges
   const [leaderboardFilterSet, setLeaderboardFilterSet] = useState(false); // settings filters
   const [displayedOnLeaderboard, setDisplayedOnLeaderboard] = useState([]); 
-  
+  const [completionPercentage, setCompletionPercentage] = useState(0.0);
+
   // getting leaderboard error
   useEffect(() => {
     // making sure auth has loaded
@@ -82,6 +83,7 @@ export default function Dashboard() {
       .catch(function (error: any) {
         console.log(error);
       });
+
   }, [status]);
 
   // Handling the challenge filter changes
@@ -145,11 +147,41 @@ export default function Dashboard() {
 
   }
 
+  const getCompletionPercentage = ()=>{
+    let solves = 0;
+
+    if(typeof userData?.challenges === "undefined"){
+      return;
+    }
+
+    Object.keys(userData?.challenges).forEach((element:any)  => {
+      //@ts-ignore
+      if(userData?.challenges[element] == "solved"){
+        solves +=1
+      }
+    });
+    
+    if(typeof challenges?.length!=="undefined"){
+      if(challenges?.length>0){
+        setCompletionPercentage((solves/challenges?.length)*100)
+      }
+      else{
+        setCompletionPercentage(0);
+      }
+    }
+  }
+  
 
   // If screen is too small
   if(window.innerWidth<1680){
     return <ScreenTooSmall/>
   }
+
+  // setting up charts to work
+  useEffect(()=>{
+    getCompletionPercentage();
+  }, [userData, challenges])
+
 
   // UI
   return (
@@ -168,7 +200,7 @@ export default function Dashboard() {
             </div>
             <Card className="flex p-4 gap-4 px-8 animate-flyBottom">
               <ProgressCircleWithText
-                value={50.5}
+                value={completionPercentage}
                 className="w-40"
                 title="Completion"
               />
@@ -183,7 +215,7 @@ export default function Dashboard() {
               <span className="mb-[-1rem] text-sm self-center mt-3">
                 Points Over Time
               </span>
-              <PointsTracker className="self-center" />
+              <PointsTracker pointData={userData?.pointsOverTime} className="self-center" />
             </Card>
           </div>
           <div className="flex mt-2 gap-3 justify-center items-center grow">
@@ -217,6 +249,7 @@ export default function Dashboard() {
                       status = status[0].toUpperCase() + status.slice(1);
                       return (
                         <ChallengeListItem
+                          index = {index}
                           id={value.id}
                           key={value.id}
                           name={value.name}

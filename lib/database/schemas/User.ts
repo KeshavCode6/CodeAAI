@@ -16,6 +16,12 @@ const userSchema = new mongoose.Schema({
         required: true,
         default: {}
     }, 
+    pointsOverTime: {
+        type: Map, 
+        of: Number,
+        required: true,
+        default: {}
+    }, 
     points: {
         type: Number, 
         required: true,
@@ -34,6 +40,7 @@ export interface IUser {
     challenges: Map<string, string>;
     points: number;
     image: string;
+    pointsOverTime: Map<string, number>;
 }
 
 export const User = mongoose.models.User || mongoose.model<IUser>('User', userSchema);

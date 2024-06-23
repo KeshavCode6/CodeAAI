@@ -15,14 +15,88 @@ import {
 // Register necessary components with Chart.js
 ChartJS.register(CategoryScale, Filler, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
-const PointsTracker = (props: any) => {
-  const {className} = props;
+interface PointsTrackerProps{
+  className?:string,
+  pointData:any
+}
+const PointsTracker = ({className, pointData}:PointsTrackerProps) => {
+  // making sure point data is defined
+  if(pointData == undefined){return;}
+  let totalKeys = Object.keys(pointData);
+  if (!pointData || totalKeys.length === 0) {
+    return null; // or some fallback UI
+  }
+
+  // Get the last ten keys from 
+  let keys:string[] = []
+  if(totalKeys.length<=7){
+    keys = totalKeys
+  } else if (totalKeys.length % 7 !== 0) {
+    let numsOfTimesIn = Math.floor(totalKeys.length/7)
+    let n = totalKeys.length - numsOfTimesIn * 7
+
+    keys= Object.keys(pointData).slice(-n);
+  }
+  else{
+    keys= Object.keys(pointData).slice(-7);
+  }
+
+
+  // returning labels in m/d format
+  let labels = keys.map(label => {
+      let parts = label.split("/");
+      let month = parseInt(parts[0]).toString();
+      let day = parts[1];
+      return `${month}/${day}`;
+  });
+  
+  // date values in integer form
+  let dayMonth = 0;
+  let dayNumber = 0;
+  let dayYear = 0;
+  
+  // getting the last day with data in raw format
+  let lastDay = Object.keys(pointData)[Object.keys(pointData).length-1]
+  try {
+      // Getting day, month, and year by splitting string at the slash of the last day
+      let dateParts = lastDay.split("/");
+      dayMonth = parseInt(dateParts[0]);
+      dayNumber = parseInt(dateParts[1]);
+      dayYear = parseInt(dateParts[2]);
+  } catch {
+      console.log("Failed to parse string as integer in Points Tracker");
+      return;
+  }
+  
+  // calculating how many extra days to add
+  let daysWithData = labels.length;
+  let emptyDays = 7 - daysWithData;
+  
+  // adding labels
+  for (let x = 0; x < emptyDays; x++) {
+      dayNumber += 1;
+
+      // making sure date is valid
+      let daysInMonth = new Date(dayYear, dayMonth, 0).getDate(); // Correct placement of `daysInMonth`
+      if (dayNumber > daysInMonth) {
+          dayNumber = 1;
+          dayMonth += 1;
+  
+          if (dayMonth > 12) {
+              dayYear += 1;
+              dayMonth = 1;
+          }
+      }
+  
+      labels.push(`${dayMonth}/${dayNumber}`);
+  }
+  
   const data = {
-    labels: ['6/16', '6/17', '6/18', '6/19', '6/20', '6/21', '6/22', '6/23', '6/24', '6/25'],
+    labels: labels,
     datasets: [
       {
         label: '',
-        data: [0, 100, 120, 150, 150, 100, 110, 120, 123, 138],
+        data: Object.values(pointData),
         fill: true,
         backgroundColor: (context:any) => {
           const chart = context.chart;

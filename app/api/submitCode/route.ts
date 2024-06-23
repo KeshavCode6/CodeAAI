@@ -68,7 +68,7 @@ export async function POST(request: NextRequest) {
       let output: string;
       try {
         output = execSync(command, { encoding: 'utf-8' }); // code output
-      } catch (error:any) {
+      } catch (error: any) {
         //@ts-ignore
         output = error.stdout ? error.stdout.toString() : error.message;
       }
@@ -83,8 +83,8 @@ export async function POST(request: NextRequest) {
       } else {
         failed += 1;
       }
-      
-      if(index<2){
+
+      if (index < 2) {
         visibleTestCases.push({
           input: value.args,
           expected: value.output,
@@ -92,7 +92,7 @@ export async function POST(request: NextRequest) {
           result: !fail
         });
       }
-      index+=1;
+      index += 1;
     }
 
     let finalResult = "Failed";
@@ -101,7 +101,25 @@ export async function POST(request: NextRequest) {
       await dbConnect();
 
       try {
-        user.points += challenge.points;
+        let change = challenge.points;
+        // Create a new Date object
+        const currentDate = new Date();
+        const month = String(currentDate.getMonth() + 1).padStart(2, '0'); // getMonth() is zero-based
+        const day = String(currentDate.getDate()).padStart(2, '0');
+        const year = currentDate.getFullYear();
+
+        // Format the date as month/day/year
+        const formattedDate = `${month}/${day}/${year}`;
+        user.points += change;
+        
+        // Check if the formattedDate key exists in pointsOverTime
+        if (user.pointsOverTime.has(formattedDate)) {
+            user.pointsOverTime.set(formattedDate, user.pointsOverTime.get(formattedDate) + change);
+        } else {
+            user.pointsOverTime.set(formattedDate, change);
+        }
+        user.markModified('pointsOverTime');
+
         if (user.challenges.has(data.challengeId) && user.challenges.get(data.challengeId) === "open") {
           user.challenges.set(data.challengeId, "solved");
           user.markModified('challenges');

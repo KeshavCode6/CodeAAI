@@ -21,7 +21,7 @@ export default function Challenge({ params }: { params: { id: string } }) {
   const [challengeData, setChallengeData] = useState<IChallenge | undefined>(undefined); // loaded challenge data
   const [challengeDescription, setChallengeDescription] = useState<string>(""); // loaded challenge data
   const [challengeArguments, setChallengeArguments] = useState<string>(""); // loaded challenge data
-  const [visibleTestCases, setvisibleTestCases] = useState<VisibleTestCase[]>([]) // visisble test cases
+  const [visibleTestCases, setVisibleTestCases] = useState<VisibleTestCase[]>([]) // visisble test cases
   const [totalCases, setTotalCases] = useState<number>(0) // visisble test cases
 
   const { toast } = useToast();
@@ -47,7 +47,7 @@ export default function Challenge({ params }: { params: { id: string } }) {
       let total = response.data.total;
 
       if(typeof response.data.visibleTestCases !== "undefined"){
-        setvisibleTestCases(response.data.visibleTestCases)
+        setVisibleTestCases(response.data.visibleTestCases)
       }
       setTotalCases(total);
 
@@ -62,6 +62,7 @@ export default function Challenge({ params }: { params: { id: string } }) {
         } else if(execResult.toLocaleLowerCase()!=="failed"){
           description = "Try another challenge!";
           variant = "success";
+          setVisibleTestCases([])
         }
 
         toast({
