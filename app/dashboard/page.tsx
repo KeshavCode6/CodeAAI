@@ -22,21 +22,29 @@ import { protectedRoute } from "@/lib/protectedRoute";
 import axios from "axios";
 import { IUser } from "@/lib/database/schemas/User";
 import { IChallenge } from "@/lib/database/schemas/Challenge";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 
 //@ts-ignore : has an import error for some reason, TODO: Fix
 import HeaderCard from "@/components/custom/card/headercard";
+import ScreenTooSmall from "@/components/custom/ScreenTooSmall";
 
 export default function Dashboard() {
   const { session, status } = protectedRoute(); // auth data
   const [userData, setUserData] = useState<IUser | undefined>(undefined); // logged in users data
-  const [leaderboardData, setLeaderboardData] = useState<IUser[] | undefined>(
-    undefined
-  ); // leaderboard data
-  const [challenges, setChallenges] = useState<IChallenge[] | undefined>(
-    undefined
-  ); // leaderboard data
+  const [leaderboardData, setLeaderboardData] = useState<IUser[] | undefined>(undefined); // leaderboard data
+  const [challenges, setChallenges] = useState<IChallenge[] | undefined>(undefined); // leaderboard data
   const [selectedTab, setSelectedTab] = useState("easy"); // selected tab for filtering challenges
-
+  const [leaderboardFilterSet, setLeaderboardFilterSet] = useState(false); // settings filters
+  const [displayedOnLeaderboard, setDisplayedOnLeaderboard] = useState([]); 
+  
   // getting leaderboard error
   useEffect(() => {
     // making sure auth has loaded
@@ -76,9 +84,73 @@ export default function Dashboard() {
       });
   }, [status]);
 
+  // Handling the challenge filter changes
   const handleTabChange = (value: string) => {
     setSelectedTab(value);
   };
+
+  // Filters
+  const handleLeaderboardFilterChange = (value: string) => {
+    setLeaderboardFilterSet(true);
+    switch (value) {
+      case "all":
+        setDisplayedOnLeaderboard(
+          //@ts-ignore
+          leaderboardData.map((user, index) => (
+            <LeaderboardItem
+              name={user.name}
+              points={user.points.toLocaleString()}
+              place={`#${index + 1}`}
+              avatar={user.image}
+            />
+          ))
+        )
+        break;
+
+      case "around":
+        var myPlace: Number;
+        leaderboardData?.forEach((user, index) => {
+          if (user.id == userData?.id) {
+            myPlace = index;
+          }
+        })
+        setDisplayedOnLeaderboard(
+          //@ts-ignore
+          leaderboardData.map((user, index) => (
+            //@ts-ignore
+            (Math.abs(index - myPlace) < 3) ? <LeaderboardItem
+              name={user.name}
+              points={user.points.toLocaleString()}
+              place={`#${index + 1}`}
+              avatar={user.image}
+            /> : ""
+          ))
+        )
+        break;
+
+      default:
+        setDisplayedOnLeaderboard(
+          //@ts-ignore
+          leaderboardData.map((user, index) => (
+            (parseInt(value) > index) ? <LeaderboardItem
+              name={user.name}
+              points={user.points.toLocaleString()}
+              place={`#${index + 1}`}
+              avatar={user.image}
+            /> : ""
+          ))
+        )
+        break;
+    }
+
+  }
+
+
+  // If screen is too small
+  if(window.innerWidth<1680){
+    return <ScreenTooSmall/>
+  }
+
   // UI
   return (
     <Navigation path="/dashboard">
@@ -159,7 +231,7 @@ export default function Dashboard() {
               </div>
             </HeaderCard>
             <HeaderCard
-              className="h-full w-[20vw] animate-flyTop"
+              className="w-30 animate-flyTop ml-1 h-full"
               header="Daily Challenges"
             >
               <DailyChallengeList>
@@ -188,16 +260,37 @@ export default function Dashboard() {
         <HeaderCard
           header="Leaderboard"
           className="w-30 max-w-[25vw] animate-flyLeft ml-1"
+          footer={
+            <Select onValueChange={handleLeaderboardFilterChange}>
+              <SelectTrigger className="absolute bottom-0 right-0 w-40 m-2">
+                <SelectValue placeholder="Select a filter" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  <SelectLabel>Filters</SelectLabel>
+                  <SelectItem value="all">All</SelectItem>
+                  <SelectItem value="around">Around me</SelectItem>
+                  <SelectItem value="5">Top 5</SelectItem>
+                  <SelectItem value="20">Top 20</SelectItem>
+                  <SelectItem value="50">Top 50</SelectItem>
+                  <SelectItem value="100">Top 100</SelectItem>
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+          }
         >
           <Leaderboard>
-            {leaderboardData?.map((user, place) => (
-              <LeaderboardItem
-                name={user.name}
-                points={user.points.toLocaleString()}
-                place={`#${place + 1}`}
-                avatar={user.image}
-              />
-            ))}
+          {(leaderboardFilterSet) ? displayedOnLeaderboard : (
+              leaderboardData?.map((user, index) => (
+                <LeaderboardItem
+                  name={user.name}
+                  points={user.points.toLocaleString()}
+                  place={`#${index + 1}`}
+                  avatar={user.image}
+                />
+              ))
+            )
+            }
           </Leaderboard>
         </HeaderCard>
       </div>

@@ -8,16 +8,17 @@ import User from '@/lib/database/schemas/User';
 import Challenge from '@/lib/database/schemas/Challenge';
 import { getUserFromToken } from '@/lib/getUserFromToken';
 
-// making sure code submission is of this type
 interface PostData {
-  challengeId: keyof typeof Paths;
+  challengeId: string;
   code: string;
 }
 
-// map of challenge ids to challenge solutions 
-const Paths: Record<string, string> = {
-  "challenge_1": "Challenge1.py"
-};
+export interface VisibleTestCase {
+  input: any,
+  expected: string,
+  received: string,
+  result: boolean
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -30,44 +31,80 @@ export async function POST(request: NextRequest) {
     let user = await User.findOne({ id: userId });
 
     // ensuring challenge and user exists
-    if(!challenge || !user){
-      return NextResponse.json({ result: "Invalid Challenge or user ID"});
+    if (!challenge || !user) {
+      return NextResponse.json({ result: "Invalid Challenge or user ID" });
     }
-    
+
     if (user.challenges.has(data.challengeId) && user.challenges.get(data.challengeId) == "solved") {
-      return NextResponse.json({ result: "You solved this challenge already!"});
+      return NextResponse.json({ result: "You solved this challenge already!" });
+    }
+    // getting test cases
+    const file = await fs.readFile(process.cwd() + '/solutions/challenges.json', 'utf8');
+    const testCases = JSON.parse(file)[data.challengeId];
+    let visibleTestCases: VisibleTestCase[] = [];
+    let passed = 0;
+    let failed = 0;
+    let index = 0;
+
+    // Use for..of loop to handle async/await correctly
+    for (const value of testCases) {
+      // creating directory to store user provided code
+      const tmpDir = path.join(process.cwd(), 'tmp');
+      const userDir = path.join(tmpDir, uuidv4());
+      await fs.mkdir(userDir, { recursive: true });
+
+      // writing user code within that directory
+      const filePath = path.join(userDir, 'user_code.py');
+      await fs.writeFile(filePath, data.code);
+
+      // Prepare the arguments string
+      let args = "";
+      challenge.arguments.forEach((argument: string) => {
+        args += `${value.args[argument]} `;
+      });
+
+      // Using Docker and a Python sandbox to execute the user code safely
+      const command = `docker run --rm -v ${userDir}:/code python:3.9 python /code/user_code.py ${args}`;
+      let output: string;
+      try {
+        output = execSync(command, { encoding: 'utf-8' }); // code output
+      } catch (error:any) {
+        //@ts-ignore
+        output = error.stdout ? error.stdout.toString() : error.message;
+      }
+
+      // deleting the Docker directory after execution
+      await fs.rm(userDir, { recursive: true, force: true });
+
+      // Check the output against expected output
+      const fail = output.trim() !== value.output.trim();
+      if (!fail) {
+        passed += 1;
+      } else {
+        failed += 1;
+      }
+      
+      if(index<2){
+        visibleTestCases.push({
+          input: value.args,
+          expected: value.output,
+          received: output.trim(),
+          result: !fail
+        });
+      }
+      index+=1;
     }
 
-    // creating directory to store user provided code
-    const tmpDir = path.join(process.cwd(), 'tmp');
-    const userDir = path.join(tmpDir, uuidv4());
-    await fs.mkdir(userDir, { recursive: true });
-
-    // writing user code within that directory
-    const filePath = path.join(userDir, 'user_code.py');
-    await fs.writeFile(filePath, data.code);
-
-    // Using dockers and a python sandbox to execute the user code safely 
-    const command = `docker run --rm -v ${userDir}:/code python:3.9 python /code/user_code.py`;
-    const output = execSync(command, { encoding: 'utf-8' }); // code output
-
-    // executing challenge solution. not using a docker because this is our code; not users
-    const challengeFilePath = path.join(process.cwd(), `solutions/${Paths[data.challengeId]}`);
-    const checkOutput = execSync(`python ${challengeFilePath}`, { encoding: 'utf-8' });
-    
-
-    let result = "Failed"
-    // checking if output equals solution
-    if (output.trim() === checkOutput.trim()) {
-      result = "Passed"
-
+    let finalResult = "Failed";
+    if (failed === 0) {
+      finalResult = "Passed";
       await dbConnect();
 
-      try {      
+      try {
         user.points += challenge.points;
-        if (user.challenges.has(data.challengeId) && user.challenges.get(data.challengeId) == "open") {
+        if (user.challenges.has(data.challengeId) && user.challenges.get(data.challengeId) === "open") {
           user.challenges.set(data.challengeId, "solved");
-          user.markModified('challenges'); // Mark the nested field as modified
+          user.markModified('challenges');
         }
 
         await user.save();
@@ -76,11 +113,8 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // deleting the docker directory after execution
-    await fs.rm(userDir, { recursive: true, force: true });
-    
     // returning data
-    return NextResponse.json({ result: result, output:output });
+    return NextResponse.json({ result: finalResult, failed: failed, total: passed + failed, visibleTestCases: visibleTestCases });
   } catch (error: any) {
     console.error("Error:", error);
     return new Response(`Error processing request: ${error.message}`, { status: 500 });

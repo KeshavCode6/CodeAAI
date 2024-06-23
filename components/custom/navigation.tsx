@@ -29,7 +29,7 @@ interface NavbarProps {
   children?: React.ReactNode;
 }
 
-export default function Navigation({ children, path, marginTop="-[4rem]" }: NavbarProps) {
+export default function Navigation({ children, path, marginTop="4rem" }: NavbarProps) {
   const { data: session, status } = useSession();
   
   return (
@@ -88,7 +88,7 @@ export default function Navigation({ children, path, marginTop="-[4rem]" }: Navb
         )}
       </div>
 
-      <div className={`mt${marginTop}`}>{children}</div>
+      <div style={{marginTop:marginTop}}>{children}</div>
     </>
   );
 }
