@@ -1,5 +1,5 @@
 "use client";
-import { Card } from "@/components/ui/card";
+import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import Navigation from "@/components/custom/navigation";
 import React, { useEffect, useState } from "react";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -37,8 +37,7 @@ import HeaderCard from "@/components/custom/card/headercard";
 import ScreenTooSmall from "@/components/custom/ScreenTooSmall";
 
 export default function Dashboard() {
-
-  const { status } = protectedRoute(); // auth data
+  const { session, status } = protectedRoute(); // auth data
   const [userData, setUserData] = useState<IUser | undefined>(undefined); // logged in users data
   const [leaderboardData, setLeaderboardData] = useState<IUser[] | undefined>(undefined); // leaderboard data
   const [challenges, setChallenges] = useState<IChallenge[] | undefined>(undefined); // leaderboard data
@@ -293,9 +292,7 @@ export default function Dashboard() {
             )
             }
           </Leaderboard>
-
         </HeaderCard>
-
       </div>
     </Navigation>
   );
