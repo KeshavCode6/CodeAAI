@@ -9,6 +9,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import axios from "axios";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface ChallengeListProps {
   children?: React.ReactNode;
@@ -16,20 +17,24 @@ interface ChallengeListProps {
 
 export function ChallengeList({ children }: ChallengeListProps) {
   return (
-    <Table className="w-full">
-      <TableHeader className="w-full">
-        <TableRow className="w-full">
-          <TableHead className="text-center">Name</TableHead>
-          <TableHead className="text-center">Status</TableHead>
-          <TableHead className="text-center">Difficulty</TableHead>
-          <TableHead className="text-center">Solves</TableHead>
-          <TableHead className="text-center">Points</TableHead>
-          <TableHead className="text-center">Play</TableHead>
-          <TableHead className="text-center">Favorited</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody className="w-full max-h-[30px] overflow-y-scroll">{children}</TableBody>
-    </Table>
+    <ScrollArea className="h-full w-full rounded-md border">
+      <Table className="w-full">
+        <TableHeader className="w-full">
+          <TableRow className="w-full">
+            <TableHead className="text-center">Name</TableHead>
+            <TableHead className="text-center">Status</TableHead>
+            <TableHead className="text-center">Difficulty</TableHead>
+            <TableHead className="text-center">Solves</TableHead>
+            <TableHead className="text-center">Points</TableHead>
+            <TableHead className="text-center">Play</TableHead>
+            <TableHead className="text-center">Favorited</TableHead>
+          </TableRow>
+        </TableHeader>
+          <TableBody>
+            {children}
+          </TableBody>
+      </Table>
+    </ScrollArea>
   );
 }
 
@@ -39,10 +44,10 @@ interface ChallengeListItemProps {
   status: string;
   difficulty: string;
   points: string;
-  id:string;
-  index:number;
-  favorited: boolean
-  favoriteCallback: (id:string) => void;
+  id: string;
+  index: number;
+  favorited: boolean;
+  favoriteCallback: (id: string) => void;
 }
 
 export function ChallengeListItem({
@@ -63,7 +68,13 @@ export function ChallengeListItem({
   const fgColor = customColors[`${lowerCaseDifficulty}Fg`];
 
   return (
-    <TableRow className="w-full animate-fade opacity-0" style={{ animationFillMode: "forwards", animationDelay:`${0.25*index}s`}}>
+    <TableRow
+      className="w-full animate-fade opacity-0 h-fit"
+      style={{
+        animationFillMode: "forwards",
+        animationDelay: `${0.25 * index}s`,
+      }}
+    >
       <TableCell className="text-center">{name}</TableCell>
       <TableCell className="text-center font-normal">{status}</TableCell>
       <TableCell className="text-center">
@@ -76,7 +87,7 @@ export function ChallengeListItem({
       </TableCell>
       <TableCell className="text-center font-normal">{solves}</TableCell>
       <TableCell className="text-center">{points.toLocaleString()}</TableCell>
-      
+
       <TableCell className="flex">
         <Button
           variant={"outline"}
@@ -91,8 +102,14 @@ export function ChallengeListItem({
       </TableCell>
 
       <TableCell>
-        <Button onClick={()=>{favoriteCallback(id)}} variant="ghost" className="ml-[15%] hover:cursor-pointer">
-          <Star fill={favorited ? "#ffffff" : ""}/>
+        <Button
+          onClick={() => {
+            favoriteCallback(id);
+          }}
+          variant="ghost"
+          className="ml-[15%] hover:cursor-pointer"
+        >
+          <Star fill={favorited ? "#ffffff" : ""} />
         </Button>
       </TableCell>
     </TableRow>
@@ -120,12 +137,13 @@ export function DailyChallengeList({ children }: ChallengeListProps) {
 
 interface DailyChallengeListItemProps {
   name?: string;
-  status?: string
+  status?: string;
   solves?: number;
   difficulty?: string;
   points?: string;
   expires?: string;
-  id?: string
+  id?: string;
+  index:number
 }
 
 var customColors = {
@@ -144,7 +162,8 @@ export function DailyChallengeListItem({
   difficulty,
   points,
   expires,
-  id
+  id,
+  index
 }: DailyChallengeListItemProps) {
   const lowerCaseDifficulty = difficulty?.toLowerCase();
 
@@ -155,7 +174,13 @@ export function DailyChallengeListItem({
   const fgColor = customColors[`${lowerCaseDifficulty}Fg`];
 
   return (
-    <TableRow className="w-full">
+    <TableRow
+      className="w-full animate-fade opacity-0 h-fit"
+      style={{
+        animationFillMode: "forwards",
+        animationDelay: `${0.25 * index}s`,
+      }}
+    >
       <TableCell className="text-center">{name}</TableCell>
       <TableCell className="text-center">{status}</TableCell>
       <TableCell className="text-center">

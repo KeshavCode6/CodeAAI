@@ -4,7 +4,7 @@ import { Card } from "@/components/ui/card";
 import Navigation from "@/components/custom/navigation";
 import { Editor, loader } from "@monaco-editor/react";
 import { useEffect, useState } from "react";
-import { CircleX, PlayIcon, ArrowLeft } from "lucide-react";
+import { RefreshCcw, PlayIcon, ArrowLeft } from "lucide-react";
 import axios from "axios";
 import { protectedRoute } from "@/lib/protectedRoute";
 import { IChallenge } from "@/lib/database/schemas/Challenge";
@@ -12,6 +12,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { Accordion } from "@radix-ui/react-accordion";
 import TestCase from "@/components/custom/challenge/testcase";
 import { VisibleTestCase } from "@/app/api/submitCode/route";
+import { Separator } from "@/components/ui/separator";
 
 // challenge page, params.id is the id of the challenge
 export default function Challenge({ params }: { params: { id: string } }) {
@@ -21,6 +22,7 @@ export default function Challenge({ params }: { params: { id: string } }) {
   const [challengeData, setChallengeData] = useState<IChallenge | undefined>(undefined); // loaded challenge data
   const [challengeDescription, setChallengeDescription] = useState<string>(""); // loaded challenge data
   const [challengeArguments, setChallengeArguments] = useState<string>(""); // loaded challenge data
+  const [author, setAuthor] = useState<string>(""); // loaded challenge data
   const [visibleTestCases, setVisibleTestCases] = useState<VisibleTestCase[]>([]) // visisble test cases
   const [totalCases, setTotalCases] = useState<number>(0) // visisble test cases
 
@@ -158,6 +160,15 @@ export default function Challenge({ params }: { params: { id: string } }) {
     };
   }, [isDirty]);
 
+  useEffect(()=>{
+    if(typeof challengeData == "undefined"){return;}
+    axios.post("/api/getUserById", {id:challengeData?.authorId}).then(response=>{
+      setAuthor(response.data.name || "")
+    }).catch((error:any)=>{
+      console.error(error)
+    })
+  }, [challengeData])
+
   const resetCode = () => {
     setCode(defaultCode);
     setIsDirty(false); // mark form as clean
@@ -183,18 +194,23 @@ export default function Challenge({ params }: { params: { id: string } }) {
           </Card>
           {/*Challenge Info Section*/}
           <Card className="w-[23vw] p-4 h-[87vh] animate-flyTop relative">
-            <div className="flex flex-col items-center gap-3">
-              <Button className="absolute left-3 top-3 w-6 h-6" size={"icon"} onClick={() => window.history.back()}>
+          <div className="relative flex flex-col items-center gap-3 p-6 ">
+            <Button className="absolute left-3 top-3 w-6 h-6" variant={"outline"} size={"icon"} onClick={() => window.history.back()}>
                 <ArrowLeft size={15} />
-              </Button>
-              <p className="text-center font-light">
-                <h1 className="text-xl font-bold underline underline-offset-7">{challengeData?.name}</h1>
-                <span className="font-semibold">Author: </span>{challengeData?.authorId || ""}<br />
-                <span className="font-semibold">Difficulty: </span>{challengeData?.difficulty}<br />
-                <span className="font-semibold">Points: </span>{challengeData?.points}<br />
-              </p>
+            </Button>
+            <h1 className="text-xl font-extrabold text-white">
+                {challengeData?.name}
+            </h1>
+            <div className="mt-[-15px] font-light text-gray-400 space-y-1 w-full">
+                <Separator className="my-2" />
+                <p><span className="font-semibold text-white">Author:</span> {author || ""}</p>
+                <Separator className="my-2" />
+                <p><span className="font-semibold text-white">Difficulty:</span> {challengeData?.difficulty}</p>
+                <Separator className="my-2" />
+                <p><span className="font-semibold text-white">Points:</span> {challengeData?.points}</p>
+                <Separator className="my-2" />
             </div>
-
+        </div>
             <div className="mt-4 flex flex-col h-fit items-center">
                 <div className="w-5/6">
                   {visibleTestCases.map((value: VisibleTestCase, index: number) => {
@@ -222,11 +238,11 @@ export default function Challenge({ params }: { params: { id: string } }) {
 
               {/*Run and Help buttons*/}
               <div className="flex gap-1 justify-center items-center absolute bottom-5 left-0 right-0">
-                <Button className="gap-1 text-xs" size={"sm"} onClick={submitCode}>
+                <Button className="gap-1 text-xs" variant={"outline"}  size={"sm"} onClick={submitCode}>
                   <PlayIcon size={15} /> Run
                 </Button>
-                <Button className="gap-1 text-xs" size={"sm"} onClick={resetCode}>
-                  <CircleX size={15} /> Reset
+                <Button className="gap-1 text-xs" variant={"destructive"} size={"sm"} onClick={resetCode}>
+                  <RefreshCcw size={15} /> Reset
                 </Button>
               </div>
             </div>

@@ -15,12 +15,10 @@ export async function POST(request: NextRequest) {
   try {
     await dbConnect(); // Connect to MongoDB
     const formData = await request.formData(); // Parse form data
-    console.log(formData)
 
     if (!formData) {
       return NextResponse.json({ status: "form data invalid" });
     }
-    console.log(formData)
 
     // Extract form data
     const avatarFile = formData.get('avatar'); // Get avatar file
@@ -31,12 +29,16 @@ export async function POST(request: NextRequest) {
     const userId = userToken.user.id; // Extract user ID
 
     if (avatarFile instanceof File) {
+
+      if (!(["image/png", "image/jpeg", "image/jpg"].includes(avatarFile.type))) {
+        return new Response("Invalid filetype for avatar!", { status: 500 });
+      }
       // Prepare file storage path
       const uploadDir = path.join(process.cwd(), 'public', 'uploads');
       await fs.mkdir(uploadDir, { recursive: true }); // Ensure upload directory exists
 
       // Generate a unique file name using user ID and original file name
-      const fileName = `${userId}-${Date.now()}-${avatarFile.name}`;
+      const fileName = `${userId}.png`;
       const filePath = path.join(uploadDir, fileName);
 
       // Read file buffer
@@ -47,7 +49,8 @@ export async function POST(request: NextRequest) {
 
       // Update user document in MongoDB with new avatar path
       const avatarPath = `/uploads/${fileName}`;
-      await User.findOneAndUpdate({ id: userId }, { name, avatar: avatarPath });
+
+      await User.findOneAndUpdate({ id: userId }, { image: avatarPath });
 
       return NextResponse.json({ status: "ok" });
     } else {

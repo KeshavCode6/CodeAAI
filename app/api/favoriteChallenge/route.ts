@@ -21,7 +21,7 @@ export async function POST(request: NextRequest) {
 
         const challengeWithId = await Challenge.findOne({id: challengeId});
 
-        if (challengeWithId != null) {
+        if (challengeWithId != null && !challengeWithId.isDaily) {
             
             if (user.favoritedChallenges.includes(challengeId)) {
                 user.favoritedChallenges.splice(user.favoritedChallenges.indexOf(challengeId), 1)

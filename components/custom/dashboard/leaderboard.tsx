@@ -11,24 +11,27 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table"
+import { ScrollArea } from "@radix-ui/react-scroll-area";
 
 interface LeaderboardProps {
   children?:React.ReactNode;
 }
 export default function Leaderboard({children}:LeaderboardProps) {
   return (
-    <Table className="w-full">
-      <TableHeader className="w-full">
-        <TableRow className="w-full">
-          <TableHead className="text-center">Place</TableHead>
-          <TableHead className="text-center">Name</TableHead>
-          <TableHead className="text-center">Points</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody className="justify-center w-full">
-        {children}
-      </TableBody>
-    </Table>
+    <ScrollArea className="h-full w-full rounded-md border">
+      <Table className="w-full">
+        <TableHeader className="w-full">
+          <TableRow className="w-full">
+            <TableHead className="text-center">Place</TableHead>
+            <TableHead className="text-center">Name</TableHead>
+            <TableHead className="text-center">Points</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody className="justify-center h-400px] w-full">
+            {children}
+        </TableBody>
+      </Table>
+    </ScrollArea>
   );
 }
 

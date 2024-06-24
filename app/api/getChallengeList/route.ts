@@ -1,3 +1,4 @@
+import { deleteExpiredChallenges } from '@/instrumentation';
 import dbConnect from '@/lib/database/dbConnect';
 import {Challenge} from '@/lib/database/schemas/Challenge';
 import { NextRequest, NextResponse } from 'next/server';
@@ -7,6 +8,7 @@ export async function GET(request: NextRequest) {
   try {
     await dbConnect(); // Connect to MongoDB
 
+    await deleteExpiredChallenges();
     // getting all challenges
     const challenges = await Challenge.find({});
     // removing hints

@@ -18,15 +18,15 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import axios from "axios";
 import { useState } from "react";
+import { Checkbox } from "@/components/ui/checkbox";
 
 function EditProfileDialog(props: any) {
-  const { name } = props;
+
+  const { name, leaderboard } = props;
+
   const [updatedName, setUpdatedName] = useState(name);
   const [updatedAvatar, setUpdatedAvatar] = useState<File | null>(null);
-
-  const onNameChange = (event: any) => {
-    setUpdatedName(event.target.value);
-  }
+  const [resetAvatar, setResetAvatar] = useState(false);
 
   const onAvatarChange = (event: any) => {
 
@@ -75,10 +75,10 @@ function EditProfileDialog(props: any) {
         </AlertDialogHeader>
 
         <Label>Name</Label>
-        <Input defaultValue={name} onChange={onNameChange} placeholder={name}/>
+        <Input defaultValue={name} onChange={setUpdatedName} placeholder={name}/>
 
         <Label>Picture</Label>
-        <Input type="file" onChange={onAvatarChange} />
+        <Input type="file" onChange={onAvatarChange} accept="image/png, image/jpg, image/jpeg"/>
 
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>

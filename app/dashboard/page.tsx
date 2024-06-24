@@ -35,40 +35,49 @@ import {
 //@ts-ignore : has an import error for some reason, TODO: Fix
 import HeaderCard from "@/components/custom/card/headercard";
 import ScreenTooSmall from "@/components/custom/ScreenTooSmall";
+import {useScreenSizeCheck} from "@/lib/useScreenSizeCheck"
 
 export default function Dashboard() {
   const { session, status } = protectedRoute(); // auth data
   const [userData, setUserData] = useState<IUser | undefined>(undefined); // logged in users data
-  const [leaderboardData, setLeaderboardData] = useState<IUser[] | undefined>(undefined); // leaderboard data
-  const [challenges, setChallenges] = useState<IChallenge[] | undefined>(undefined); // leaderboard data
+  const [leaderboardData, setLeaderboardData] = useState<IUser[] | undefined>(
+    undefined
+  ); // leaderboard data
+  const [challenges, setChallenges] = useState<IChallenge[] | undefined>(
+    undefined
+  ); // leaderboard data
   const [selectedTab, setSelectedTab] = useState("easy"); // selected tab for filtering challenges
   const [leaderboardFilterSet, setLeaderboardFilterSet] = useState(false); // settings filters
-  const [displayedOnLeaderboard, setDisplayedOnLeaderboard] = useState([]); 
+  const [displayedOnLeaderboard, setDisplayedOnLeaderboard] = useState([]);
   const [completionPercentage, setCompletionPercentage] = useState(0.0);
   const [pointsPercentage, setPointsPercentage] = useState(0.0);
+  const [leaderboardRank, setLeaderboardRank] = useState(0);
 
-  const getChallengeList = ()=>{
+
+
+  const getChallengeList = () => {
     axios
-    .get("/api/getChallengeList")
-    .then(function (response: any) {
-      // TODO: Type check
-      setChallenges(response.data);
-    })
-    .catch(function (error: any) {
-      console.log(error);
-    });
-  }
+      .get("/api/getChallengeList")
+      .then(function (response: any) {
+        // TODO: Type check
+        setChallenges(response.data);
+      })
+      .catch(function (error: any) {
+        console.error(error);
+      });
+  };
 
-  const getUserData = ()=>{
-    axios.post("/api/getUser", { withCredentials: true })
-    .then(function (response: any) {
-      // TODO: Type check
-      setUserData(response.data);
-    })
-    .catch(function (error: any) {
-      console.log(error);
-    });
-  }
+  const getUserData = () => {
+    axios
+      .post("/api/getUser", { withCredentials: true })
+      .then(function (response: any) {
+        // TODO: Type check
+        setUserData(response.data);
+      })
+      .catch(function (error: any) {
+        console.error(error);
+      });
+  };
   // getting leaderboard error
   useEffect(() => {
     // making sure auth has loaded
@@ -85,12 +94,17 @@ export default function Dashboard() {
       .then(function (response: any) {
         // TODO: Type check
         setLeaderboardData(response.data);
+        leaderboardData?.forEach((user, index) => {
+          if (user.id == userData?.id) {
+            setLeaderboardRank(index);
+          }
+        });
       })
       .catch(function (error: any) {
-        console.log(error);
+        console.error(error);
       });
-      getChallengeList();
-    }, [status]);
+    getChallengeList();
+  }, [status]);
 
   // Handling the challenge filter changes
   const handleTabChange = (value: string) => {
@@ -112,104 +126,116 @@ export default function Dashboard() {
               avatar={user.image}
             />
           ))
-        )
+        );
         break;
 
       case "around":
-        var myPlace: Number;
-        leaderboardData?.forEach((user, index) => {
-          if (user.id == userData?.id) {
-            myPlace = index;
-          }
-        })
+        
         setDisplayedOnLeaderboard(
           //@ts-ignore
-          leaderboardData.map((user, index) => (
+          leaderboardData.map((user, index) =>
             //@ts-ignore
-            (Math.abs(index - myPlace) < 3) ? <LeaderboardItem
-              name={user.name}
-              points={user.points.toLocaleString()}
-              place={`#${index + 1}`}
-              avatar={user.image}
-            /> : ""
-          ))
-        )
+            Math.abs(index - leaderboardRank) < 3 ? (
+              <LeaderboardItem
+                name={user.name}
+                points={user.points.toLocaleString()}
+                place={`#${index + 1}`}
+                avatar={user.image}
+              />
+            ) : (
+              ""
+            )
+          )
+        );
         break;
 
       default:
         setDisplayedOnLeaderboard(
           //@ts-ignore
-          leaderboardData.map((user, index) => (
-            (parseInt(value) > index) ? <LeaderboardItem
-              name={user.name}
-              points={user.points.toLocaleString()}
-              place={`#${index + 1}`}
-              avatar={user.image}
-            /> : ""
-          ))
-        )
+          leaderboardData.map((user, index) =>
+            parseInt(value) > index ? (
+              <LeaderboardItem
+                name={user.name}
+                points={user.points.toLocaleString()}
+                place={`#${index + 1}`}
+                avatar={user.image}
+              />
+            ) : (
+              ""
+            )
+          )
+        );
         break;
     }
+  };
 
-  }
-
-  const getCompletionPercentage = ()=>{
+  const getCompletionPercentage = () => {
     let solves = 0;
 
-    if(typeof userData?.challenges === "undefined"){
+    if (typeof userData?.challenges === "undefined") {
       return;
     }
 
-    Object.keys(userData?.challenges).forEach((element:any)  => {
-      //@ts-ignore
-      if(userData?.challenges[element] == "solved"){
-        solves +=1
-      }
-    });
-    
-    if(typeof challenges?.length!=="undefined"){
-      if(challenges?.length>0){
-        setCompletionPercentage(Math.round((solves/challenges?.length)*100 * 100) / 100)
-      }
-      else{
+    if (typeof challenges?.length !== "undefined") {
+      if(challenges.length<0){return;}
+      let ids :string[] = []
+      challenges.forEach(element => {
+        ids.push(element.id)
+      });
+
+      Object.keys(userData?.challenges || {}).forEach((element: any) => {
+        if (
+          ids.includes(element) &&
+          //@ts-ignore
+          userData?.challenges[element] === "solved"
+        ) {
+          solves += 1;
+        }
+      });
+      if (challenges?.length > 0) {
+        setCompletionPercentage(
+          Math.round((solves / challenges?.length) * 100 * 100) / 100
+        );
+      } else {
         setCompletionPercentage(0);
       }
 
       let totalPoints = 0;
-      challenges.forEach(element => {
-        totalPoints+=element.points
+      challenges.forEach((element) => {
+        if (!element.isDaily) {
+          totalPoints += element.points;
+        }
       });
 
-      if(totalPoints<=0){totalPoints=1}
+      if (totalPoints <= 0) {
+        totalPoints = 1;
+      }
 
-      console.log(totalPoints);
-      setPointsPercentage(Math.round((userData?.points/totalPoints * 100) * 100) / 100)
+      setPointsPercentage(
+        Math.round((userData?.points / totalPoints) * 100 * 100) / 100
+      );
     }
-  }
-  
+  };
 
-  // If screen is too small
-  if(window.innerWidth < 1680) {
-    return <ScreenTooSmall/>
-  }
-  
-  const favoriteChallenge = (id:string) => {
-
-    axios.post("/api/favoriteChallenge", {challengeId: id}, { withCredentials: true })
+  const favoriteChallenge = (id: string) => {
+    axios
+      .post(
+        "/api/favoriteChallenge",
+        { challengeId: id },
+        { withCredentials: true }
+      )
       .then(function (response: any) {
         getUserData();
       })
       .catch(function (error: any) {
-        console.log(error);
+        console.error(error);
       });
-  }
-
+  };
 
   // setting up charts to work
   useEffect(() => {
     getCompletionPercentage();
-  }, [userData, challenges])
-
+  }, [userData, challenges]);
 
   // UI
   return (
@@ -220,10 +246,10 @@ export default function Dashboard() {
             <div className="flex gap-1 ">
               <ProfileCard
                 status={status}
-                avatar={userData?.image || "/assets/avatar/image.png"}
+                avatar={userData?.image || "/assets/default-avatar.jpeg"}
                 name={userData?.name || ""}
                 points={`${userData?.points}`}
-                ranking="Top 1% - #1/4000"
+                ranking={`Top ${Math.ceil(((leaderboardRank+1) / (leaderboardData?.length || 1)) * 100)}% - #${leaderboardRank+1}/${leaderboardData?.length}`}
               />
             </div>
             <Card className="flex p-4 gap-4 px-8 animate-flyBottom">
@@ -242,7 +268,10 @@ export default function Dashboard() {
               <span className="mb-[-1rem] text-sm self-center mt-3">
                 Points Over Time
               </span>
-              <PointsTracker pointData={userData?.pointsOverTime} className="self-center" />
+              <PointsTracker
+                pointData={userData?.pointsOverTime}
+                className="self-center"
+              />
             </Card>
           </div>
           <div className="flex mt-2 gap-3 justify-center items-center grow">
@@ -267,17 +296,19 @@ export default function Dashboard() {
               <div className="relative w-full border-t-2 border-slate-900">
                 <ChallengeList>
                   {challenges?.map((challenge, index) => {
-                    const favorited = userData?.favoritedChallenges.includes(challenge.id);
+                    const favorited = userData?.favoritedChallenges.includes(
+                      challenge.id
+                    );
                     if (
-                      challenge.difficulty.toLowerCase() ==
-                      selectedTab || selectedTab == "favorited" && favorited
+                      challenge.difficulty.toLowerCase() == selectedTab ||
+                      (selectedTab == "favorited" && favorited)
                     ) {
                       //@ts-ignore TODO: Fix
                       let status = userData?.challenges[challenge.id] || "unopened";
                       status = status[0].toUpperCase() + status.slice(1);
-                      return (!challenge.isDaily) ? (
+                      return !challenge.isDaily ? (
                         <ChallengeListItem
-                          index = {index}
+                          index={index}
                           id={challenge.id}
                           key={challenge.id}
                           name={challenge.name}
@@ -288,7 +319,9 @@ export default function Dashboard() {
                           favorited={favorited || false}
                           favoriteCallback={favoriteChallenge}
                         />
-                      ) : <></>;
+                      ) : (
+                        <></>
+                      );
                     }
                   })}
                 </ChallengeList>
@@ -300,15 +333,23 @@ export default function Dashboard() {
             >
               <DailyChallengeList>
                 {challenges?.map((challenge, index) => {
-
                   //@ts-ignore
                   let status = userData?.challenges[challenge.id] || "unopened";
                   status = status[0].toUpperCase() + status.slice(1);
 
-                  const expires = parseInt(challenge.creationTimestamp) + 24 * 60 * 60 * 1000;
+                  const expires =
+                    parseInt(challenge.creationTimestamp) + 24 * 60 * 60 * 1000;
                   const expiresDate = new Date(expires);
 
-                  const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+                  const daysOfWeek = [
+                    "Sunday",
+                    "Monday",
+                    "Tuesday",
+                    "Wednesday",
+                    "Thursday",
+                    "Friday",
+                    "Saturday",
+                  ];
 
                   var expiresHours = expiresDate.getHours();
                   var meridian = "am";
@@ -322,17 +363,27 @@ export default function Dashboard() {
                     meridian = "pm";
                   }
 
-                  return (challenge.isDaily) ? <DailyChallengeListItem
-                    name={challenge.name}
-                    solves={challenge.solves || 0}
-                    status={status}
-                    difficulty={challenge.difficulty}
-                    points={challenge.points.toString()}
-                    expires={`${daysOfWeek[expiresDate.getDay()]} ${expiresHours}:${expiresDate.getMinutes().toString().padStart(2, "0")} ${meridian}`}
-                    id={challenge.id}
-                  /> : <></>
+                  return challenge.isDaily ? (
+                    <DailyChallengeListItem
+                      name={challenge.name}
+                      solves={challenge.solves || 0}
+                      status={status}
+                      index={index}
+                      difficulty={challenge.difficulty}
+                      points={challenge.points.toString()}
+                      expires={`${
+                        daysOfWeek[expiresDate.getDay()]
+                      } ${expiresHours}:${expiresDate
+                        .getMinutes()
+                        .toString()
+                        .padStart(2, "0")} ${meridian}`}
+                      id={challenge.id}
+                    />
+                  ) : (
+                    <></>
+                  );
                 })}
-               </DailyChallengeList>
+              </DailyChallengeList>
             </HeaderCard>
           </div>
         </div>
@@ -359,17 +410,16 @@ export default function Dashboard() {
           }
         >
           <Leaderboard>
-          {(leaderboardFilterSet) ? displayedOnLeaderboard : (
-              leaderboardData?.map((user, index) => (
-                <LeaderboardItem
-                  name={user.name}
-                  points={user.points.toLocaleString()}
-                  place={`#${index + 1}`}
-                  avatar={user.image}
-                />
-              ))
-            )
-            }
+            {leaderboardFilterSet
+              ? displayedOnLeaderboard
+              : leaderboardData?.map((user, index) => (
+                  <LeaderboardItem
+                    name={user.name}
+                    points={user.points.toLocaleString()}
+                    place={`#${index + 1}`}
+                    avatar={user.image}
+                  />
+                ))}
           </Leaderboard>
         </HeaderCard>
       </div>
