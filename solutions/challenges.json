@@ -1,9 +1,0 @@
-{
-    "say_hello":[
-        {"args":{"name":"Johnny"}, "output":"Hello Johnny"},
-        {"args":{"name":"Bobby"}, "output":"Hello Bobby"}
-    ],
-    "hello_world":[
-        {"args":{}, "output":"Hello world"}
-    ]
-}

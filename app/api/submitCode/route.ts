@@ -49,9 +49,8 @@ export async function POST(request: NextRequest) {
     if (user.challenges.has(data.challengeId) && user.challenges.get(data.challengeId) == "solved") {
       return NextResponse.json({ result: "You solved this challenge already!" });
     }
-    // getting test cases
-    const file = await fs.readFile(process.cwd() + '/solutions/challenges.json', 'utf8');
-    const testCases = challenge.testCases
+    
+    const {testCases} = challenge;
     let visibleTestCases: VisibleTestCase[] = [];
     let passed = 0;
     let failed = 0;
@@ -150,9 +149,7 @@ export async function POST(request: NextRequest) {
         await user.save();
 
         const solvedChallenge = await Challenge.findOne({id: data.challengeId});
-        console.log(solvedChallenge.solves);
-        solvedChallenge.solves.set(solvedChallenge.solves + 1);
-        solvedChallenge.markModified("solves");
+        solvedChallenge.solves += 1;
         await solvedChallenge.save();
 
       } catch (error) {

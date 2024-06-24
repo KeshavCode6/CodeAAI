@@ -46,24 +46,12 @@ export default function Dashboard() {
   const [displayedOnLeaderboard, setDisplayedOnLeaderboard] = useState([]); 
   const [completionPercentage, setCompletionPercentage] = useState(0.0);
   const [pointsPercentage, setPointsPercentage] = useState(0.0);
-  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
 
   // getting leaderboard error
   useEffect(() => {
     // making sure auth has loaded
     if (status == "loading") {
       return;
-    }
-
-    if (window != undefined) {
-
-      const handleWindowResize = () => {
-        setWindowWidth(window.innerWidth);
-      };
-  
-      // Add event listener to update window width on resize
-      window.addEventListener('resize', handleWindowResize);
-
     }
 
     // getting logged in users data
@@ -196,7 +184,7 @@ export default function Dashboard() {
   
 
   // If screen is too small
-  if(windowWidth < 1680) {
+  if(window.innerWidth < 1680) {
     return <ScreenTooSmall/>
   }
 
@@ -204,17 +192,6 @@ export default function Dashboard() {
   useEffect(() => {
     getCompletionPercentage();
   }, [userData, challenges])
-
-  const wasInLastDay = (timestamp: number) => {
-
-    const currentTime = Date.now();
-
-    const difference = currentTime - timestamp;
-    const twentyFourHoursInMs = 24 * 60 * 60 * 1000;
-
-    return difference > twentyFourHoursInMs;
-
-  }
 
 
   // UI
@@ -273,9 +250,10 @@ export default function Dashboard() {
               <div className="relative w-full border-t-2 border-slate-900">
                 <ChallengeList>
                   {challenges?.map((challenge, index) => {
+                    const favorited = userData?.favoritedChallenges.includes(challenge.id);
                     if (
                       challenge.difficulty.toLowerCase() ==
-                      selectedTab.toLowerCase()
+                      selectedTab || selectedTab == "favorited" && favorited
                     ) {
                       //@ts-ignore TODO: Fix
                       let status = userData?.challenges[challenge.id] || "unopened";
@@ -286,9 +264,11 @@ export default function Dashboard() {
                           id={challenge.id}
                           key={challenge.id}
                           name={challenge.name}
+                          solves={challenge.solves}
                           status={status}
                           difficulty={challenge.difficulty}
                           points={challenge.points.toString()}
+                          favorited={favorited}
                         />
                       ) : <></>;
                     }
@@ -297,19 +277,43 @@ export default function Dashboard() {
               </div>
             </HeaderCard>
             <HeaderCard
-              className="w-30 animate-flyTop ml-1 h-full"
+              className="animate-flyTop ml-1 h-full"
               header="Daily Challenges"
             >
               <DailyChallengeList>
-                {challenges?.map((challenge, index) => (
-                  (challenge.isDaily) ? <DailyChallengeListItem
+                {challenges?.map((challenge, index) => {
+
+                  //@ts-ignore
+                  let status = userData?.challenges[challenge.id] || "unopened";
+                  status = status[0].toUpperCase() + status.slice(1);
+
+                  const expires = parseInt(challenge.creationTimestamp) + 24 * 60 * 60 * 1000;
+                  const expiresDate = new Date(expires);
+
+                  const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+
+                  var expiresHours = expiresDate.getHours();
+                  var meridian = "am";
+
+                  if (expiresHours == 12) {
+                    meridian = "pm";
+                  }
+
+                  if (expiresHours > 12) {
+                    expiresHours -= 12;
+                    meridian = "pm";
+                  }
+
+                  return (!challenge.isDaily) ? <DailyChallengeListItem
                     name={challenge.name}
                     solves={challenge.solves || 0}
+                    status={status}
                     difficulty={challenge.difficulty}
                     points={challenge.points.toString()}
+                    expires={`${daysOfWeek[expiresDate.getDay()]} ${expiresHours}:${expiresDate.getMinutes().toString().padStart(2, "0")} ${meridian}`}
                     id={challenge.id}
                   /> : <></>
-                ))}
+                })}
                </DailyChallengeList>
             </HeaderCard>
           </div>

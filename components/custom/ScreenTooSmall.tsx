@@ -17,14 +17,12 @@ export default function ScreenTooSmall() {
                         <span>Return to Home</span>
                     </Button>
                 </a>
-                <a href="/" className="self-center">
-                    <Button className="w-40 flex gap-2" variant="outline" onClick={() => {
+                <Button className="w-40 flex gap-2 self-center" variant="outline" onClick={() => {
                         location.reload();
                     }}>
                         <RefreshCw />
                         <span>Retry</span>
                     </Button>
-                </a>
             </div>
         </div>
     );

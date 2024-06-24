@@ -9,6 +9,8 @@ import { useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { protectedRoute } from "@/lib/protectedRoute";
 import Navigation from "@/components/custom/navigation";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
 
 export default function CreateChallenge() {
   const [editorContent, setEditorContent] = useState(defaultJson);
@@ -73,6 +75,7 @@ export default function CreateChallenge() {
               defaultLanguage="json"
             />
           </Card>
+
           <div className="flex flex-row gap-2">
             <Input
               placeholder="Enter secret key"
@@ -83,6 +86,7 @@ export default function CreateChallenge() {
               Create
             </Button>
           </div>
+            
         </div>
       </div>
     </Navigation>

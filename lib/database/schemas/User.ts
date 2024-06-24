@@ -31,6 +31,11 @@ const userSchema = new mongoose.Schema({
         type: String, 
         required: true,
         default: ""
+    }, 
+    favoritedChallenges: {
+        type: [String],
+        required: true, 
+        default: false
     }
 });
 
@@ -41,6 +46,7 @@ export interface IUser {
     points: number;
     image: string;
     pointsOverTime: Map<string, number>;
+    favoritedChallenges: string[]
 }
 
 export const User = mongoose.models.User || mongoose.model<IUser>('User', userSchema);

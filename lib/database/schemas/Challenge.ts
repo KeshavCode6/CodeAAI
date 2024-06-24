@@ -56,9 +56,13 @@ const challengeSchema: Schema = new mongoose.Schema({
         required: false,
         default: 0
     },
-    author:{
+    authorId: {
         type:String,
         require:true,
+    }, 
+    creationTimestamp: {
+        type: String, 
+        require: true
     }
 });
 
@@ -71,8 +75,9 @@ export interface IChallenge {
     points: number;
     isDaily: boolean;
     solves?: number;
-    author:string;
+    authorId: string;
     testCases: ITestCase[];
+    creationTimestamp: string
 }
 
 export interface ITestCase {
