@@ -100,9 +100,10 @@ export function DailyChallengeList({ children }: ChallengeListProps) {
 
 interface DailyChallengeListItemProps {
   name?: string;
-  solves?: string;
+  solves?: number;
   difficulty?: string;
   points?: string;
+  id?: string
 }
 
 var customColors = {
@@ -119,6 +120,7 @@ export function DailyChallengeListItem({
   solves,
   difficulty,
   points,
+  id
 }: DailyChallengeListItemProps) {
   const lowerCaseDifficulty = difficulty?.toLowerCase();
 
@@ -147,7 +149,7 @@ export function DailyChallengeListItem({
           className="m-auto"
           size={"icon"}
           onClick={() => {
-            location.href = "/challenge";
+            location.href = `/challenge/${id}`;
           }}
         >
           <ChevronRight size={15} />

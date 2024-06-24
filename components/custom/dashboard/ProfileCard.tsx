@@ -22,20 +22,42 @@ import { useState } from "react";
 function EditProfileDialog(props: any) {
   const { name } = props;
   const [updatedName, setUpdatedName] = useState(name);
+  const [updatedAvatar, setUpdatedAvatar] = useState<File | null>(null);
 
   const onNameChange = (event: any) => {
     setUpdatedName(event.target.value);
   }
 
+  const onAvatarChange = (event: any) => {
+
+    const file = event.target.files[0];
+
+    if (file) {
+      setUpdatedAvatar(file);
+    }
+    
+  }
+
   const updateUserProfile = () => {
-    axios.post('/api/updateUserProfile', {
-      name: updatedName
-    }, {withCredentials: true})
-      .then(function (response: any) {
-        location.reload();
+    const formData = new FormData();
+    formData.append("name", updatedName);
+    if (updatedAvatar) {
+      formData.append("avatar", updatedAvatar);
+    }
+
+    axios.post("/api/updateUserProfile", formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    })
+      .then(response => {
+        console.log("Success:", response.data);
+        // Optionally handle success, e.g., update state or UI
+        window.location.reload();  // Reload the page after successful update
       })
-      .catch(function (error: any) {
-        console.log(error);
+      .catch(error => {
+        console.error("Error:", error);
+        // Handle error, e.g., show error message to user
       });
   }
 
@@ -53,10 +75,10 @@ function EditProfileDialog(props: any) {
         </AlertDialogHeader>
 
         <Label>Name</Label>
-        <Input defaultValue={name} onChange={onNameChange}/>
+        <Input defaultValue={name} onChange={onNameChange} placeholder={name}/>
 
         <Label>Picture</Label>
-        <Input type="file" />
+        <Input type="file" onChange={onAvatarChange} />
 
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
@@ -74,6 +96,7 @@ interface ProfileProps {
   avatar: string;
   status: "authenticated" | "loading";
 }
+
 export default function ProfileCard({
   name,
   status,
@@ -87,9 +110,7 @@ export default function ProfileCard({
     <Card className="flex relative animate-flyTopLeft">
       <div className="w-[34rem] flex flex-row p-5 gap-5">
         {status === "loading" ? (
-          <>
-            Processing...
-          </>
+          <>Processing...</>
         ) : (
           <>
             <img src={avatar} className="w-36 rounded-full h-36" />

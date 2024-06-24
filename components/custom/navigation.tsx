@@ -88,7 +88,7 @@ export default function Navigation({ children, path, marginTop="4rem" }: NavbarP
         )}
       </div>
 
-      <div style={{marginTop:marginTop}}>{children}</div>
+      <div className="overflow-x-hidden" style={{marginTop:marginTop}}>{children}</div>
     </>
   );
 }

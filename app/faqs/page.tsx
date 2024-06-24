@@ -10,6 +10,7 @@ import Navigation from '@/components/custom/navigation'
 import React from 'react'
 //@ts-ignore
 import FAQ from "@/components/custom/faqs/FAQ"
+import Footer from "@/components/custom/footer"
 
 const faqs = [
     {
@@ -52,9 +53,9 @@ export default function Faqs() {
     return (
         <Navigation path={"/faqs"}>
 
-            <div className="flex justify-center">
-                <div className="flex flex-col gap-10 mt-10 w-[60vw]">
-                    <span className="text-3xl text-center">Frequently Asked Questions</span>
+            <div className="flex justify-center h-screen">
+                <div className="flex flex-col gap-10 mt-4 w-[60vw]">
+                    <span className="text-xl text-center">Frequently Asked Questions</span>
                     <Accordion type="multiple" className="grid grid-cols-2 gap-x-20">
                         {faqs.map((faq, index) => (
                             <div>
@@ -68,7 +69,7 @@ export default function Faqs() {
                     </Accordion>
                 </div>
             </div>
-            
+            <Footer/>
         </Navigation>
     )
 

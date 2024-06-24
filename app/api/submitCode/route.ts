@@ -20,6 +20,17 @@ export interface VisibleTestCase {
   result: boolean
 }
 
+function wasInLastDay(timestamp: number) {
+
+  const currentTime = Date.now();
+
+  const difference = currentTime - timestamp;
+  const twentyFourHoursInMs = 24 * 60 * 60 * 1000;
+
+  return difference > twentyFourHoursInMs;
+
+}
+
 export async function POST(request: NextRequest) {
   try {
     const data: PostData = await request.json(); // getting data
@@ -40,11 +51,13 @@ export async function POST(request: NextRequest) {
     }
     // getting test cases
     const file = await fs.readFile(process.cwd() + '/solutions/challenges.json', 'utf8');
-    const testCases = JSON.parse(file)[data.challengeId];
+    const testCases = challenge.testCases
     let visibleTestCases: VisibleTestCase[] = [];
     let passed = 0;
     let failed = 0;
     let index = 0;
+
+    let executionTime;
 
     // Use for..of loop to handle async/await correctly
     for (const value of testCases) {
@@ -60,13 +73,15 @@ export async function POST(request: NextRequest) {
       // Prepare the arguments string
       let args = "";
       challenge.arguments.forEach((argument: string) => {
-        args += `${value.args[argument]} `;
+        args += `${value.args.get(argument)} `;
       });
+
 
       // Using Docker and a Python sandbox to execute the user code safely
       const command = `docker run --rm -v ${userDir}:/code python:3.9 python /code/user_code.py ${args}`;
       let output: string;
       try {
+
         output = execSync(command, { encoding: 'utf-8' }); // code output
       } catch (error: any) {
         //@ts-ignore
@@ -77,7 +92,11 @@ export async function POST(request: NextRequest) {
       await fs.rm(userDir, { recursive: true, force: true });
 
       // Check the output against expected output
-      const fail = output.trim() !== value.output.trim();
+      let check = value.output;
+      if(typeof check !== "string"){
+        check = check.toString()
+      }
+      const fail = output.trim() !== check.trim();
       if (!fail) {
         passed += 1;
       } else {
@@ -97,10 +116,13 @@ export async function POST(request: NextRequest) {
 
     let finalResult = "Failed";
     if (failed === 0) {
+
       finalResult = "Passed";
+
       await dbConnect();
 
       try {
+
         let change = challenge.points;
         // Create a new Date object
         const currentDate = new Date();
@@ -126,13 +148,20 @@ export async function POST(request: NextRequest) {
         }
 
         await user.save();
+
+        const solvedChallenge = await Challenge.findOne({id: data.challengeId});
+        console.log(solvedChallenge.solves);
+        solvedChallenge.solves.set(solvedChallenge.solves + 1);
+        solvedChallenge.markModified("solves");
+        await solvedChallenge.save();
+
       } catch (error) {
         console.error("Error finding or updating user:", error);
       }
     }
 
     // returning data
-    return NextResponse.json({ result: finalResult, failed: failed, total: passed + failed, visibleTestCases: visibleTestCases });
+    return NextResponse.json({ result: finalResult, failed, total: passed + failed, visibleTestCases, executionTime });
   } catch (error: any) {
     console.error("Error:", error);
     return new Response(`Error processing request: ${error.message}`, { status: 500 });

@@ -114,7 +114,7 @@ export default function Challenge({ params }: { params: { id: string } }) {
         }
       }
 
-      let args = "\n# <- Challenge Arguments Go Here -> \n";
+      let args = "\n# <- Challenge Arguments Go Here (you might have to convert the types)-> \n";
       response.data.arguments.forEach((element: string, index: number) => {
         args += `${element} = sys.argv[${index+1}]\n`;
       });
@@ -183,6 +183,7 @@ export default function Challenge({ params }: { params: { id: string } }) {
               </Button>
               <p className="text-center font-light">
                 <h1 className="text-xl font-bold underline underline-offset-7">{challengeData?.name}</h1>
+                <span className="font-semibold">Author: </span>{challengeData?.author}<br />
                 <span className="font-semibold">Difficulty: </span>{challengeData?.difficulty}<br />
                 <span className="font-semibold">Points: </span>{challengeData?.points}<br />
               </p>

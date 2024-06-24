@@ -45,12 +45,25 @@ export default function Dashboard() {
   const [leaderboardFilterSet, setLeaderboardFilterSet] = useState(false); // settings filters
   const [displayedOnLeaderboard, setDisplayedOnLeaderboard] = useState([]); 
   const [completionPercentage, setCompletionPercentage] = useState(0.0);
+  const [pointsPercentage, setPointsPercentage] = useState(0.0);
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
 
   // getting leaderboard error
   useEffect(() => {
     // making sure auth has loaded
     if (status == "loading") {
       return;
+    }
+
+    if (window != undefined) {
+
+      const handleWindowResize = () => {
+        setWindowWidth(window.innerWidth);
+      };
+  
+      // Add event listener to update window width on resize
+      window.addEventListener('resize', handleWindowResize);
+
     }
 
     // getting logged in users data
@@ -163,24 +176,45 @@ export default function Dashboard() {
     
     if(typeof challenges?.length!=="undefined"){
       if(challenges?.length>0){
-        setCompletionPercentage((solves/challenges?.length)*100)
+        setCompletionPercentage(Math.round((solves/challenges?.length)*100 * 100) / 100)
       }
       else{
         setCompletionPercentage(0);
       }
+
+      let totalPoints = 0;
+      challenges.forEach(element => {
+        totalPoints+=element.points
+      });
+
+      if(totalPoints<=0){totalPoints=1}
+
+      console.log(totalPoints);
+      setPointsPercentage(Math.round((userData?.points/totalPoints * 100) * 100) / 100)
     }
   }
   
 
   // If screen is too small
-  if(window.innerWidth<1680){
+  if(windowWidth < 1680) {
     return <ScreenTooSmall/>
   }
 
   // setting up charts to work
-  useEffect(()=>{
+  useEffect(() => {
     getCompletionPercentage();
   }, [userData, challenges])
+
+  const wasInLastDay = (timestamp: number) => {
+
+    const currentTime = Date.now();
+
+    const difference = currentTime - timestamp;
+    const twentyFourHoursInMs = 24 * 60 * 60 * 1000;
+
+    return difference > twentyFourHoursInMs;
+
+  }
 
 
   // UI
@@ -204,14 +238,13 @@ export default function Dashboard() {
                 className="w-40"
                 title="Completion"
               />
-              <MultipleSectionsCircleWithText
-                values={[10, 30, 40]}
+              <ProgressCircleWithText
+                value={pointsPercentage}
                 className="w-40"
                 title="Points"
-                labels={["Easy", "Medium", "Hard"]}
               />
             </Card>
-            <Card className="p-2 w-[25vw] flex flex-col animate-flyBottom">
+            <Card className="relative p-2 w-[25vw] flex flex-col animate-flyBottom">
               <span className="mb-[-1rem] text-sm self-center mt-3">
                 Points Over Time
               </span>
@@ -239,25 +272,25 @@ export default function Dashboard() {
             >
               <div className="relative w-full border-t-2 border-slate-900">
                 <ChallengeList>
-                  {challenges?.map((value, index) => {
+                  {challenges?.map((challenge, index) => {
                     if (
-                      value.difficulty.toLowerCase() ==
+                      challenge.difficulty.toLowerCase() ==
                       selectedTab.toLowerCase()
                     ) {
                       //@ts-ignore TODO: Fix
-                      let status = userData?.challenges[value.id] || "unopened";
+                      let status = userData?.challenges[challenge.id] || "unopened";
                       status = status[0].toUpperCase() + status.slice(1);
-                      return (
+                      return (!challenge.isDaily) ? (
                         <ChallengeListItem
                           index = {index}
-                          id={value.id}
-                          key={value.id}
-                          name={value.name}
+                          id={challenge.id}
+                          key={challenge.id}
+                          name={challenge.name}
                           status={status}
-                          difficulty={value.difficulty}
-                          points={value.points.toString()}
+                          difficulty={challenge.difficulty}
+                          points={challenge.points.toString()}
                         />
-                      );
+                      ) : <></>;
                     }
                   })}
                 </ChallengeList>
@@ -268,25 +301,16 @@ export default function Dashboard() {
               header="Daily Challenges"
             >
               <DailyChallengeList>
-                <DailyChallengeListItem
-                  name="Merge Sort"
-                  solves="100k"
-                  difficulty="Easy"
-                  points="100k"
-                />
-                <DailyChallengeListItem
-                  name="Merge Sort"
-                  solves="100k"
-                  difficulty="Medium"
-                  points="100k"
-                />
-                <DailyChallengeListItem
-                  name="Merge Sort"
-                  solves="100k"
-                  difficulty="Hard"
-                  points="100k"
-                />
-              </DailyChallengeList>
+                {challenges?.map((challenge, index) => (
+                  (challenge.isDaily) ? <DailyChallengeListItem
+                    name={challenge.name}
+                    solves={challenge.solves || 0}
+                    difficulty={challenge.difficulty}
+                    points={challenge.points.toString()}
+                    id={challenge.id}
+                  /> : <></>
+                ))}
+               </DailyChallengeList>
             </HeaderCard>
           </div>
         </div>

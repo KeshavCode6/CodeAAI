@@ -1,38 +1,74 @@
-"use client"
-
-import OfficerAbout from "@/components/custom/officer-about"
-import Navigation from "@/components/custom/navigation"
-import Footer from "@/components/custom/footer"
+import OfficerAbout from "@/components/custom/officer-about";
+import Navigation from "@/components/custom/navigation";
+import Footer from "@/components/custom/footer";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const officerAbouts = [
-    {
-        "name": "Shaurya Kumar", 
-        "role": "VP of Development", 
-        "icon": "/assets/contact/officer-icon/shaurya-kumar.png", 
-        "description": "I am a sophomore who loves to code! I started my journey with simple Scratch games, but eventually moved on to Python and JavaScript. I am one of the developers of this website! You can email me at kshaurya731@gmail.com."
-    }, 
-    {
-        "name": "Keshav Shah", 
-        "role": "VP of Development", 
-        "icon": "/assets/contact/officer-icon/keshav-shah.png", 
-        "description": "I am a sophomore who loves to code! I started my journey with simple Scratch games, but eventually moved on to Python and JavaScript. I am one of the developers of this website! You can email me at kshaurya731@gmail.com."
-    }, 
-]
+  {
+    name: "Shaurya Kumar",
+    role: "VP of Development",
+    icon: "/assets/contact/officer-icon/shaurya-kumar.png",
+    description:
+      "I am a sophomore who loves to code! I started my journey with simple Scratch games, but eventually moved on to Python and JavaScript. I am one of the developers of this website! You can email me at kshaurya731@gmail.com.",
+  },
+  {
+    name: "Keshav Shah",
+    role: "VP of Development",
+    icon: "/assets/contact/officer-icon/keshav-shah.png",
+    description:
+      "I am a sophomore who loves to code! I started my journey with simple Scratch games, but eventually moved on to Python and JavaScript. I am one of the developers of this website! You can email me at kshaurya731@gmail.com.",
+  },
+  {
+    name: "Keshav Shah",
+    role: "VP of Development",
+    icon: "/assets/contact/officer-icon/keshav-shah.png",
+    description:
+      "I am a sophomore who loves to code! I started my journey with simple Scratch games, but eventually moved on to Python and JavaScript. I am one of the developers of this website! You can email me at kshaurya731@gmail.com.",
+  },
+  {
+    name: "Keshav Shah",
+    role: "VP of Development",
+    icon: "/assets/contact/officer-icon/keshav-shah.png",
+    description:
+      "I am a sophomore who loves to code! I started my journey with simple Scratch games, but eventually moved on to Python and JavaScript. I am one of the developers of this website! You can email me at kshaurya731@gmail.com.",
+  },
+  {
+    name: "Keshav Shah",
+    role: "VP of Development",
+    icon: "/assets/contact/officer-icon/keshav-shah.png",
+    description:
+      "I am a sophomore who loves to code! I started my journey with simple Scratch games, but eventually moved on to Python and JavaScript. I am one of the developers of this website! You can email me at kshaurya731@gmail.com.",
+  },
+  {
+    name: "Keshav Shah",
+    role: "VP of Development",
+    icon: "/assets/contact/officer-icon/keshav-shah.png",
+    description:
+      "I am a sophomore who loves to code! I started my journey with simple Scratch games, but eventually moved on to Python and JavaScript. I am one of the developers of this website! You can email me at kshaurya731@gmail.com.",
+  },
+  // Add more officers as needed
+];
 
-// UNFINISHED
 export default function Contact() {
-
-    return (
-        <Navigation path={"/contact"}>
-            <div className="bg-aboutUsOfficersBg">
-                {officerAbouts.map((officer, index) => (
-                    <OfficerAbout name={officer.name} role={officer.role} icon={officer.icon} right={(index+1)%2==0}>
-                        {officer.description}
-                    </OfficerAbout>
-                ))}
-            </div>
-            <Footer/>
-        </Navigation>
-    )
-
+  return (
+    <Navigation path={"/contact"}>
+      <div className="flex flex-col items-center justify-center h-[90vh]">
+        <h1 className="text-2xl">Officer team</h1>
+        <div className="grid grid-cols-3 gap-4 mt-4 w-full max-w-screen-xl">
+          {officerAbouts.map((officer, index) => (
+            <OfficerAbout
+              key={index}
+              index={index}
+              name={officer.name}
+              role={officer.role}
+              icon={officer.icon}
+            >
+              {officer.description}
+            </OfficerAbout>
+          ))}
+        </div>
+      </div>
+      <Footer />
+    </Navigation>
+  );
 }
