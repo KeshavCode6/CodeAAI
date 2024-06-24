@@ -5,16 +5,16 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const officerAbouts = [
   {
-    name: "Shaurya Kumar",
+    name: "Keshav Shah",
     role: "VP of Development",
-    icon: "/assets/contact/officer-icon/shaurya-kumar.png",
+    icon: "/assets/contact/officer-icon/keshav-shah.png",
     description:
       "I am a sophomore who loves to code! I started my journey with simple Scratch games, but eventually moved on to Python and JavaScript. I am one of the developers of this website! You can email me at kshaurya731@gmail.com.",
   },
   {
-    name: "Keshav Shah",
+    name: "Shaurya Kumar",
     role: "VP of Development",
-    icon: "/assets/contact/officer-icon/keshav-shah.png",
+    icon: "/assets/contact/officer-icon/shaurya-kumar.png",
     description:
       "I am a sophomore who loves to code! I started my journey with simple Scratch games, but eventually moved on to Python and JavaScript. I am one of the developers of this website! You can email me at kshaurya731@gmail.com.",
   },
@@ -53,8 +53,8 @@ export default function Contact() {
   return (
     <Navigation path={"/contact"}>
       <div className="flex flex-col items-center justify-center h-[90vh]">
-        <h1 className="text-2xl my-10">Officer Team</h1>
-        <div className="grid grid-cols-3 gap-4 mt-4 w-full max-w-screen-xl">
+        <h1 className="text-2xl mt-10 mb-4">Officer Team</h1>
+        <div className="grid grid-cols-3 gap-4 w-full max-w-screen-xl">
           {officerAbouts.map((officer, index) => (
             <OfficerAbout
               key={index}

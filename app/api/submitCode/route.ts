@@ -45,6 +45,9 @@ export async function POST(request: NextRequest) {
     if (!challenge || !user) {
       return NextResponse.json({ result: "Invalid Challenge or user ID" });
     }
+    if(challenge.isDaily && wasInLastDay(challenge.creationTimeStamp)){
+      return NextResponse.json({ result: "This challenge has expired.." });
+    }
 
     if (user.challenges.has(data.challengeId) && user.challenges.get(data.challengeId) == "solved") {
       return NextResponse.json({ result: "You solved this challenge already!" });
@@ -81,7 +84,7 @@ export async function POST(request: NextRequest) {
       let output: string;
       try {
 
-        output = execSync(command, { encoding: 'utf-8' }); // code output
+        output = execSync(command, { encoding: 'utf-8', timeout: 5000}); // code output
       } catch (error: any) {
         //@ts-ignore
         output = error.stdout ? error.stdout.toString() : error.message;

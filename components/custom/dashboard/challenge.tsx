@@ -28,7 +28,7 @@ export function ChallengeList({ children }: ChallengeListProps) {
           <TableHead className="text-center">Favorited</TableHead>
         </TableRow>
       </TableHeader>
-      <TableBody className="w-full">{children}</TableBody>
+      <TableBody className="w-full max-h-[30px] overflow-y-scroll">{children}</TableBody>
     </Table>
   );
 }
@@ -42,6 +42,7 @@ interface ChallengeListItemProps {
   id:string;
   index:number;
   favorited: boolean
+  favoriteCallback: (id:string) => void;
 }
 
 export function ChallengeListItem({
@@ -52,6 +53,7 @@ export function ChallengeListItem({
   difficulty,
   points,
   favorited,
+  favoriteCallback,
   id,
 }: ChallengeListItemProps) {
   const lowerCaseDifficulty = difficulty?.toLowerCase();
@@ -60,21 +62,8 @@ export function ChallengeListItem({
   //@ts-ignore
   const fgColor = customColors[`${lowerCaseDifficulty}Fg`];
 
-
-  const favoriteChallenge = () => {
-
-    axios.post("/api/favoriteChallenge", {challengeId: id}, { withCredentials: true })
-      .then(function (response: any) {
-        
-      })
-      .catch(function (error: any) {
-        console.log(error);
-      });
-  
-  }
-
   return (
-    <TableRow className="w-full animate-fade opacity-0" style={{ animationFillMode: "forwards", animationDelay:`${0.5*index}s`}}>
+    <TableRow className="w-full animate-fade opacity-0" style={{ animationFillMode: "forwards", animationDelay:`${0.25*index}s`}}>
       <TableCell className="text-center">{name}</TableCell>
       <TableCell className="text-center font-normal">{status}</TableCell>
       <TableCell className="text-center">
@@ -102,7 +91,7 @@ export function ChallengeListItem({
       </TableCell>
 
       <TableCell>
-        <Button onClick={favoriteChallenge} variant="ghost" className="ml-[15%] hover:cursor-pointer">
+        <Button onClick={()=>{favoriteCallback(id)}} variant="ghost" className="ml-[15%] hover:cursor-pointer">
           <Star fill={favorited ? "#ffffff" : ""}/>
         </Button>
       </TableCell>

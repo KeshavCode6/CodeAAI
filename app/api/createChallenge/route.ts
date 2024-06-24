@@ -21,10 +21,11 @@ export async function POST(request: NextRequest) {
 
         const data = JSON.parse(reqData.challengeData);
         data.solves = 0;
-
+        data.creationTimestamp = new Date().getTime();
+        
         //@ts-ignore
-        const userEmail = (await getUserFromToken(request.cookies)).user.email;
-        data.author = userEmail;
+        const userEmail = (await getUserFromToken(request.cookies)).user.id;
+        data.authorId = userEmail;
         await new Challenge(data).save();
         console.log(data)
 

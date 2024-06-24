@@ -39,6 +39,12 @@ export default function Challenge({ params }: { params: { id: string } }) {
 
   // submitting code via post request
   const submitCode = function () {
+    toast({
+      variant: "default",
+      title: `Testing code...`,
+      description: "Your code is being run at this moment. Please wait",
+    });
+
     //@ts-ignore : have to tsx ignore because nextauth doesnt know we added a custom id param on login
     axios.post("/api/submitCode", { code: code, challengeId: params.id }, { withCredentials: true }).then((response) => {
       // getting execution result and making sure its a string
@@ -183,7 +189,7 @@ export default function Challenge({ params }: { params: { id: string } }) {
               </Button>
               <p className="text-center font-light">
                 <h1 className="text-xl font-bold underline underline-offset-7">{challengeData?.name}</h1>
-                <span className="font-semibold">Author: </span>{challengeData?.author}<br />
+                <span className="font-semibold">Author: </span>{challengeData?.authorId || ""}<br />
                 <span className="font-semibold">Difficulty: </span>{challengeData?.difficulty}<br />
                 <span className="font-semibold">Points: </span>{challengeData?.points}<br />
               </p>

@@ -47,6 +47,28 @@ export default function Dashboard() {
   const [completionPercentage, setCompletionPercentage] = useState(0.0);
   const [pointsPercentage, setPointsPercentage] = useState(0.0);
 
+  const getChallengeList = ()=>{
+    axios
+    .get("/api/getChallengeList")
+    .then(function (response: any) {
+      // TODO: Type check
+      setChallenges(response.data);
+    })
+    .catch(function (error: any) {
+      console.log(error);
+    });
+  }
+
+  const getUserData = ()=>{
+    axios.post("/api/getUser", { withCredentials: true })
+    .then(function (response: any) {
+      // TODO: Type check
+      setUserData(response.data);
+    })
+    .catch(function (error: any) {
+      console.log(error);
+    });
+  }
   // getting leaderboard error
   useEffect(() => {
     // making sure auth has loaded
@@ -55,14 +77,7 @@ export default function Dashboard() {
     }
 
     // getting logged in users data
-    axios.post("/api/getUser", { withCredentials: true })
-      .then(function (response: any) {
-        // TODO: Type check
-        setUserData(response.data);
-      })
-      .catch(function (error: any) {
-        console.log(error);
-      });
+    getUserData();
 
     // getting leaderboard data
     axios
@@ -74,18 +89,8 @@ export default function Dashboard() {
       .catch(function (error: any) {
         console.log(error);
       });
-
-    axios
-      .get("/api/getChallengeList")
-      .then(function (response: any) {
-        // TODO: Type check
-        setChallenges(response.data);
-      })
-      .catch(function (error: any) {
-        console.log(error);
-      });
-
-  }, [status]);
+      getChallengeList();
+    }, [status]);
 
   // Handling the challenge filter changes
   const handleTabChange = (value: string) => {
@@ -187,6 +192,18 @@ export default function Dashboard() {
   if(window.innerWidth < 1680) {
     return <ScreenTooSmall/>
   }
+  
+  const favoriteChallenge = (id:string) => {
+
+    axios.post("/api/favoriteChallenge", {challengeId: id}, { withCredentials: true })
+      .then(function (response: any) {
+        getUserData();
+      })
+      .catch(function (error: any) {
+        console.log(error);
+      });
+  }
+
 
   // setting up charts to work
   useEffect(() => {
@@ -230,7 +247,7 @@ export default function Dashboard() {
           </div>
           <div className="flex mt-2 gap-3 justify-center items-center grow">
             <HeaderCard
-              header="Challenges"
+              header="Normal Challenges"
               className="h-full animate-flyRight"
               footer={
                 <Tabs
@@ -264,11 +281,12 @@ export default function Dashboard() {
                           id={challenge.id}
                           key={challenge.id}
                           name={challenge.name}
-                          solves={challenge.solves}
+                          solves={challenge.solves || 0}
                           status={status}
                           difficulty={challenge.difficulty}
                           points={challenge.points.toString()}
-                          favorited={favorited}
+                          favorited={favorited || false}
+                          favoriteCallback={favoriteChallenge}
                         />
                       ) : <></>;
                     }
@@ -304,7 +322,7 @@ export default function Dashboard() {
                     meridian = "pm";
                   }
 
-                  return (!challenge.isDaily) ? <DailyChallengeListItem
+                  return (challenge.isDaily) ? <DailyChallengeListItem
                     name={challenge.name}
                     solves={challenge.solves || 0}
                     status={status}

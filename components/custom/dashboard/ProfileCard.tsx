@@ -100,7 +100,7 @@ interface ProfileProps {
 export default function ProfileCard({
   name,
   status,
-  avatar,
+  avatar = "/assets/default-avatar.jpeg",
   points,
   ranking,
 }: ProfileProps) {

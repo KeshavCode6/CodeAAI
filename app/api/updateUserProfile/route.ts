@@ -4,7 +4,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getUserFromToken } from '@/lib/getUserFromToken';
 import { promises as fs } from 'fs';
 import path from 'path';
-import formidable from 'formidable';
 
 export const config = {
   api: {
