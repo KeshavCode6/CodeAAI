@@ -17,8 +17,8 @@ interface ChallengeListProps {
 
 export function ChallengeList({ children }: ChallengeListProps) {
   return (
-    <Table className="w-full overflow-y-scroll">
-      <ScrollArea className="w-full h-[24rem]">
+    <div className="w-full max-h-[450px] overflow-y-auto">
+      <Table className="w-full">
         <TableHeader className="w-full">
           <TableRow className="w-full">
             <TableHead className="text-center">Name</TableHead>
@@ -30,11 +30,9 @@ export function ChallengeList({ children }: ChallengeListProps) {
             <TableHead className="text-center">Favorited</TableHead>
           </TableRow>
         </TableHeader>
-        <TableBody className="overflow-hidden">
-          {children}
-        </TableBody>
-      </ScrollArea>
-    </Table>
+        <TableBody className="overflow-hidden">{children}</TableBody>
+      </Table>
+    </div>
   );
 }
 
@@ -119,19 +117,19 @@ export function ChallengeListItem({
 export function DailyChallengeList({ children }: ChallengeListProps) {
   return (
     <Table className="w-full">
-            <ScrollArea className="w-full h-[24rem]">
-      <TableHeader className="w-full">
-        <TableRow className="w-full">
-          <TableHead className="text-center">Name</TableHead>
-          <TableHead className="text-center">Status</TableHead>
-          <TableHead className="text-center">Difficulty</TableHead>
-          <TableHead className="text-center">Solves</TableHead>
-          <TableHead className="text-center">Points</TableHead>
-          <TableHead className="text-center">Expires</TableHead>
-          <TableHead className="text-center">Play</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody className="w-full">{children}</TableBody>
+      <ScrollArea className="w-full h-[24rem]">
+        <TableHeader className="w-full">
+          <TableRow className="w-full">
+            <TableHead className="text-center">Name</TableHead>
+            <TableHead className="text-center">Status</TableHead>
+            <TableHead className="text-center">Difficulty</TableHead>
+            <TableHead className="text-center">Solves</TableHead>
+            <TableHead className="text-center">Points</TableHead>
+            <TableHead className="text-center">Expires</TableHead>
+            <TableHead className="text-center">Play</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody className="w-full">{children}</TableBody>
       </ScrollArea>
     </Table>
   );
@@ -145,7 +143,7 @@ interface DailyChallengeListItemProps {
   points?: string;
   expires?: string;
   id?: string;
-  index: number
+  index: number;
 }
 
 var customColors = {
@@ -165,7 +163,7 @@ export function DailyChallengeListItem({
   points,
   expires,
   id,
-  index
+  index,
 }: DailyChallengeListItemProps) {
   const lowerCaseDifficulty = difficulty?.toLowerCase();
 
