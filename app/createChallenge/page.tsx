@@ -37,7 +37,12 @@ export default function CreateChallenge() {
       { withCredentials: true }
     ).then((res) => {
         if (res.data.status == 200) {
-          return;
+          toast({
+            variant: "success",
+            title: "Challenge Created Successfully",
+            description:
+              "Your challenge has been created!",
+          });
         }
         else if(res.data.status == 403){
           toast({

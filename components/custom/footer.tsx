@@ -17,7 +17,7 @@ export default function Footer() {
                             <h2 className="text-sm font-semibold text-gray-900 mb-4 uppercase dark:text-white">Resources</h2>
                             <ul className="text-gray-500 dark:text-gray-400 font-medium">
                                 <li className="mb-4">
-                                    <a href="/home" className="hover:underline">Home</a>
+                                    <a href="/" className="hover:underline">Home</a>
                                 </li>
                                 <li>
                                     <a href="/dashboard" className="hover:underline">Dashboard</a>
