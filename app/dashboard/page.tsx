@@ -36,6 +36,8 @@ import {
 import HeaderCard from "@/components/custom/card/headercard";
 import ScreenTooSmall from "@/components/custom/ScreenTooSmall";
 import {useScreenSizeCheck} from "@/lib/useScreenSizeCheck"
+import { ScrollArea } from "@radix-ui/react-scroll-area";
+import { wasInLastDay } from "@/lib/wasInLastDay";
 
 export default function Dashboard() {
   const { session, status } = protectedRoute(); // auth data
@@ -306,7 +308,7 @@ export default function Dashboard() {
                       //@ts-ignore TODO: Fix
                       let status = userData?.challenges[challenge.id] || "unopened";
                       status = status[0].toUpperCase() + status.slice(1);
-                      return !challenge.isDaily ? (
+                      return (!challenge.isDaily && !wasInLastDay(parseInt(challenge.creationTimestamp))) ? (
                         <ChallengeListItem
                           index={index}
                           id={challenge.id}
@@ -388,40 +390,42 @@ export default function Dashboard() {
           </div>
         </div>
         <HeaderCard
-          header="Leaderboard"
-          className="w-30 max-w-[25vw] animate-flyLeft ml-1"
-          footer={
-            <Select onValueChange={handleLeaderboardFilterChange}>
-              <SelectTrigger className="absolute bottom-0 right-0 w-40 m-2">
-                <SelectValue placeholder="Select a filter" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectGroup>
-                  <SelectLabel>Filters</SelectLabel>
-                  <SelectItem value="all">All</SelectItem>
-                  <SelectItem value="around">Around me</SelectItem>
-                  <SelectItem value="5">Top 5</SelectItem>
-                  <SelectItem value="20">Top 20</SelectItem>
-                  <SelectItem value="50">Top 50</SelectItem>
-                  <SelectItem value="100">Top 100</SelectItem>
-                </SelectGroup>
-              </SelectContent>
-            </Select>
-          }
-        >
-          <Leaderboard>
-            {leaderboardFilterSet
-              ? displayedOnLeaderboard
-              : leaderboardData?.map((user, index) => (
-                  <LeaderboardItem
-                    name={user.name}
-                    points={user.points.toLocaleString()}
-                    place={`#${index + 1}`}
-                    avatar={user.image}
-                  />
-                ))}
-          </Leaderboard>
-        </HeaderCard>
+  header="Leaderboard"
+  className="w-30 max-w-[25vw] animate-flyLeft ml-1"
+  footer={
+    <Select onValueChange={handleLeaderboardFilterChange}>
+      <SelectTrigger className="absolute bottom-0 right-0 w-40 m-2">
+        <SelectValue placeholder="Select a filter" />
+      </SelectTrigger>
+      <SelectContent>
+        <SelectGroup>
+          <SelectLabel>Filters</SelectLabel>
+          <SelectItem value="all">All</SelectItem>
+          <SelectItem value="around">Around me</SelectItem>
+          <SelectItem value="5">Top 5</SelectItem>
+          <SelectItem value="20">Top 20</SelectItem>
+          <SelectItem value="50">Top 50</SelectItem>
+          <SelectItem value="100">Top 100</SelectItem>
+        </SelectGroup>
+      </SelectContent>
+    </Select>
+  }
+>
+  <Leaderboard>
+    {leaderboardFilterSet
+      ? displayedOnLeaderboard
+      : leaderboardData?.map((user, index) => (
+          <LeaderboardItem
+            key={index}
+            name={user.name}
+            points={user.points.toLocaleString()}
+            place={`#${index + 1}`}
+            avatar={user.image}
+          />
+        ))}
+  </Leaderboard>
+</HeaderCard>
+
       </div>
     </Navigation>
   );

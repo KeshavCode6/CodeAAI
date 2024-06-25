@@ -17,8 +17,8 @@ interface ChallengeListProps {
 
 export function ChallengeList({ children }: ChallengeListProps) {
   return (
-    <ScrollArea className="h-full w-full rounded-md border">
-      <Table className="w-full">
+    <Table className="w-full overflow-y-scroll">
+      <ScrollArea className="w-full h-[24rem]">
         <TableHeader className="w-full">
           <TableRow className="w-full">
             <TableHead className="text-center">Name</TableHead>
@@ -30,11 +30,11 @@ export function ChallengeList({ children }: ChallengeListProps) {
             <TableHead className="text-center">Favorited</TableHead>
           </TableRow>
         </TableHeader>
-          <TableBody>
-            {children}
-          </TableBody>
-      </Table>
-    </ScrollArea>
+        <TableBody className="overflow-hidden">
+          {children}
+        </TableBody>
+      </ScrollArea>
+    </Table>
   );
 }
 
@@ -119,6 +119,7 @@ export function ChallengeListItem({
 export function DailyChallengeList({ children }: ChallengeListProps) {
   return (
     <Table className="w-full">
+            <ScrollArea className="w-full h-[24rem]">
       <TableHeader className="w-full">
         <TableRow className="w-full">
           <TableHead className="text-center">Name</TableHead>
@@ -131,6 +132,7 @@ export function DailyChallengeList({ children }: ChallengeListProps) {
         </TableRow>
       </TableHeader>
       <TableBody className="w-full">{children}</TableBody>
+      </ScrollArea>
     </Table>
   );
 }
@@ -143,7 +145,7 @@ interface DailyChallengeListItemProps {
   points?: string;
   expires?: string;
   id?: string;
-  index:number
+  index: number
 }
 
 var customColors = {

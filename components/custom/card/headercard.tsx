@@ -10,7 +10,7 @@ interface rdProps {
 
 export default function HeaderCard({ header, className, children, footer }: rdProps) {
   return (
-    <Card className={`relative flex flex-col grow items-start w-1/2 p-0 ${className} overflow-y-scroll`}>
+    <Card className={`relative flex flex-col grow items-start w-1/2 p-0 ${className}`}>
       <div className="p-0 mt-0 rounded-tl-2xl rounded-tr-2xl h-12 flex justify-center items-center bg-black w-full bg-slate-900">
         {header}
       </div>

@@ -7,6 +7,7 @@ import dbConnect from '@/lib/database/dbConnect';
 import User from '@/lib/database/schemas/User';
 import Challenge from '@/lib/database/schemas/Challenge';
 import { getUserFromToken } from '@/lib/getUserFromToken';
+import { wasInLastDay } from '@/lib/wasInLastDay';
 
 interface PostData {
   challengeId: string;
@@ -20,16 +21,6 @@ export interface VisibleTestCase {
   result: boolean
 }
 
-function wasInLastDay(timestamp: number) {
-
-  const currentTime = Date.now();
-
-  const difference = currentTime - timestamp;
-  const twentyFourHoursInMs = 24 * 60 * 60 * 1000;
-
-  return difference > twentyFourHoursInMs;
-
-}
 
 export async function POST(request: NextRequest) {
   try {
