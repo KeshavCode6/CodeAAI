@@ -5,11 +5,9 @@ import { getUserFromToken } from '@/lib/getUserFromToken';
 import { promises as fs } from 'fs';
 import path from 'path';
 
-export const config = {
-  api: {
-    bodyParser: false
-  }
-}
+export const runtime = {
+  bodyParser: false,
+};
 
 export async function POST(request: NextRequest) {
   try {

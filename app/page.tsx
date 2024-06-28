@@ -20,7 +20,7 @@ export default function Home() {
               <span> by writing </span>
               <span className="text-homeEmphasizedText">code</span>
             </span>
-            <span className="text-3xl font-light">Brought to you by AAI Coding Club</span>
+            <span className="text-3xl font-light">Brought to you by Keshav Shah and Shaurya Kumar</span>
             <div className="flex flex-row gap-5">
               <Button className="w-48 rounded-lg bg-homePlayButton text-primary font-bold text-3 text-md hover:bg-homePlayButton/80">Play now</Button>
               <Button className="w-48 rounded-lg bg-transparent border-primary border-2 text-white font-bold text-md hover:text-black">Learn more</Button>
@@ -35,6 +35,7 @@ export default function Home() {
           <div className="flex flex-col w-[30vw] gap-5">
             <span className="text-4xl mt-4">What do we do?</span>
             <span className="text-lg mt-[-12px]">
+              Full disclosure, this site does not have real content yet.
               Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
             </span>
           </div>
