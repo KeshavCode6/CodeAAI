@@ -1,6 +1,6 @@
+import { NextRequest, NextResponse } from 'next/server';
 import dbConnect from '@/lib/database/dbConnect';
 import { User } from '@/lib/database/schemas/User';
-import { NextRequest, NextResponse } from 'next/server';
 import { getUserFromToken } from '@/lib/getUserFromToken';
 import { promises as fs } from 'fs';
 import path from 'path';
@@ -27,10 +27,10 @@ export async function POST(request: NextRequest) {
     const userId = userToken.user.id; // Extract user ID
 
     if (avatarFile instanceof File) {
-
       if (!(["image/png", "image/jpeg", "image/jpg"].includes(avatarFile.type))) {
         return new Response("Invalid filetype for avatar!", { status: 500 });
       }
+
       // Prepare file storage path
       const uploadDir = path.join(process.cwd(), 'public', 'uploads');
       await fs.mkdir(uploadDir, { recursive: true }); // Ensure upload directory exists

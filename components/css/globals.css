@@ -1,0 +1,141 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+
+    --primary: 222.2 47.4% 11.2%;
+    --primary-foreground: 210 40% 98%;
+
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 222.2 84% 4.9%;
+
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 210 40% 98%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 212.7 26.8% 83.9%;
+
+    font-weight: bold; 
+    font-family: Arial, Helvetica, sans-serif;
+
+    .sawtooth {
+      background-image:
+      /* Bottom jagged */
+      linear-gradient(45deg, #080C14 50%, transparent 50%),
+      linear-gradient(-45deg, #080C14 50%, transparent 50%);
+    background-position:
+      /* Bottom jagged */
+      bottom left, bottom left;
+    background-size: 60px 60px;
+    background-repeat: repeat-x;
+    }
+
+    .sawtooth2 {
+      background-image:
+      /* Bottom jagged */
+      linear-gradient(45deg, #0C121E 50%, transparent 50%),
+      linear-gradient(-45deg, #0C121E 50%, transparent 50%);
+    background-position:
+      /* Bottom jagged */
+      bottom left, bottom left;
+    background-size: 60px 60px;
+    background-repeat: repeat-x;
+    }
+    
+
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+::-webkit-scrollbar {
+  width: 12px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3); 
+  -webkit-border-radius: 10px;
+  border-radius: 10px;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  -webkit-border-radius: 10px;
+  border-radius: 10px;
+  background: rgba(255,0,0,0.8); 
+  -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.5); 
+}
+/* Firefox */
+html {
+  scrollbar-width: thin;
+  scrollbar-color: rgb(2 6 23) rgba(0,0,0,0);
+}
+
+/* Firefox: remove the buttons */
+html {
+  scrollbar-width: thin;
+  scrollbar-color: rgb(2 6 23) rgba(0,0,0,0);
+}
+
+/* Removing scrollbar buttons in Firefox */
+::-moz-scrollbar-button {
+  display: none; /* This may not work directly in Firefox, as it doesn't support ::-moz-scrollbar-button */
+}
