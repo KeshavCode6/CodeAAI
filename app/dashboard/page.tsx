@@ -122,6 +122,7 @@ export default function Dashboard() {
           //@ts-ignore
           leaderboardData.map((user, index) => (
             <LeaderboardItem
+              key={index}
               name={user.name}
               points={user.points.toLocaleString()}
               place={`#${index + 1}`}
@@ -139,6 +140,7 @@ export default function Dashboard() {
             //@ts-ignore
             Math.abs(index - leaderboardRank) < 3 ? (
               <LeaderboardItem
+                key={index}
                 name={user.name}
                 points={user.points.toLocaleString()}
                 place={`#${index + 1}`}
@@ -157,6 +159,7 @@ export default function Dashboard() {
           leaderboardData.map((user, index) =>
             parseInt(value) > index ? (
               <LeaderboardItem
+              key={index}
                 name={user.name}
                 points={user.points.toLocaleString()}
                 place={`#${index + 1}`}
@@ -371,6 +374,7 @@ export default function Dashboard() {
                       solves={challenge.solves || 0}
                       status={status}
                       index={index}
+                      key={index}
                       difficulty={challenge.difficulty}
                       points={challenge.points.toString()}
                       expires={`${

@@ -58,7 +58,7 @@ export default function Faqs() {
                     <span className="text-xl text-center">Frequently Asked Questions</span>
                     <Accordion type="multiple" className="grid grid-cols-2 gap-x-20">
                         {faqs.map((faq, index) => (
-                            <div>
+                            <div key={index}>
                                 <AccordionItem value={`item-${index + 1}`}>
                                     <FAQ question={faq.question}>
                                         {faq.answer}
