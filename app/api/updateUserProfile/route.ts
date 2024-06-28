@@ -8,7 +8,7 @@ import path from 'path';
 export const method = 'POST';
 export const bodyParser = false; // Ensure to set this according to your needs
 
-export async function handler(request: NextRequest) {
+export async function POST(request: NextRequest) {
   try {
     await dbConnect(); // Connect to MongoDB
     const formData = await request.formData(); // Parse form data
