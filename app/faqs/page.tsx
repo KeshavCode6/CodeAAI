@@ -9,7 +9,7 @@ import {
 import Navigation from '@/components/custom/navigation'
 import React from 'react'
 //@ts-ignore
-import FAQ from "@/components/custom/faqs/FAQ"
+import FAQ from "@/components/custom/faqs/Faq"
 import Footer from "@/components/custom/footer"
 
 const faqs = [
