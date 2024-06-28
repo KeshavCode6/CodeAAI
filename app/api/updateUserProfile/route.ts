@@ -6,7 +6,6 @@ import { getUserFromToken } from '@/lib/getUserFromToken';
 import { promises as fs } from 'fs';
 import path from 'path';
 
-export const bodyParser = false; // Ensure to set this according to your needs
 
 export async function POST(request: NextRequest) {
   try {
