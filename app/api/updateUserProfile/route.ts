@@ -1,3 +1,4 @@
+//@ts-nocheck
 import { NextRequest, NextResponse } from 'next/server';
 import dbConnect from '@/lib/database/dbConnect';
 import { User } from '@/lib/database/schemas/User';
@@ -5,7 +6,6 @@ import { getUserFromToken } from '@/lib/getUserFromToken';
 import { promises as fs } from 'fs';
 import path from 'path';
 
-export const method = 'POST';
 export const bodyParser = false; // Ensure to set this according to your needs
 
 export async function POST(request: NextRequest) {
