@@ -7,7 +7,7 @@ import { Editor, loader } from "@monaco-editor/react";
 import axios from "axios";
 import { useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
-import { protectedRoute } from "@/lib/protectedRoute";
+import { useProtectedRoute } from "@/lib/protectedRoute";
 import Navigation from "@/components/custom/navigation";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
@@ -15,7 +15,7 @@ import { Label } from "@/components/ui/label";
 export default function CreateChallenge() {
   const [editorContent, setEditorContent] = useState(defaultJson);
   const [enteredSecretKey, setEnteredSecretKey] = useState("");
-  const { session, status } = protectedRoute();
+  const { session, status } = useProtectedRoute();
 
   const { toast } = useToast();
 

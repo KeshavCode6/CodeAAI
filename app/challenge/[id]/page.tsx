@@ -6,7 +6,7 @@ import { Editor, loader } from "@monaco-editor/react";
 import { useEffect, useState } from "react";
 import { RefreshCcw, PlayIcon, ArrowLeft } from "lucide-react";
 import axios from "axios";
-import { protectedRoute } from "@/lib/protectedRoute";
+import { useProtectedRoute } from "@/lib/protectedRoute";
 import { IChallenge } from "@/lib/database/schemas/Challenge";
 import { useToast } from "@/components/ui/use-toast";
 import { Accordion } from "@radix-ui/react-accordion";
@@ -18,7 +18,7 @@ import { Separator } from "@/components/ui/separator";
 export default function Challenge({ params }: { params: { id: string } }) {
   const [code, setCode] = useState<string>(""); // code from the editor
   const [isDirty, setIsDirty] = useState<boolean>(false); // track unsaved changes
-  const { session, status } = protectedRoute(); // auth data
+  const { session, status } = useProtectedRoute(); // auth data
   const [challengeData, setChallengeData] = useState<IChallenge | undefined>(undefined); // loaded challenge data
   const [challengeDescription, setChallengeDescription] = useState<string>(""); // loaded challenge data
   const [challengeArguments, setChallengeArguments] = useState<string>(""); // loaded challenge data

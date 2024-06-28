@@ -18,7 +18,7 @@ import {
   ProgressCircleWithText,
 } from "@/components/custom/charts/ProgressCircle";
 import ProfileCard from "@/components/custom/dashboard/ProfileCard";
-import { protectedRoute } from "@/lib/protectedRoute";
+import { useProtectedRoute } from "@/lib/protectedRoute";
 import axios from "axios";
 import { IUser } from "@/lib/database/schemas/User";
 import { IChallenge } from "@/lib/database/schemas/Challenge";
@@ -40,7 +40,7 @@ import { ScrollArea } from "@radix-ui/react-scroll-area";
 import { wasInLastDay } from "@/lib/wasInLastDay";
 
 export default function Dashboard() {
-  const { session, status } = protectedRoute(); // auth data
+  const { session, status } = useProtectedRoute(); // auth data
   const [userData, setUserData] = useState<IUser | undefined>(undefined); // logged in users data
   const [leaderboardData, setLeaderboardData] = useState<IUser[] | undefined>(
     undefined
