@@ -9,7 +9,7 @@ export const useScreenSizeCheck = () => {
         if (typeof window !== 'undefined') {
           // Check if screen width is less than 1680 pixels
           console.log(window.innerHeight)
-          const isScreenTooSmall = window.innerWidth < 1680 || window.innerHeight<950;
+          const isScreenTooSmall = window.innerWidth < 1680 || window.innerHeight < 100;
           setScreenTooSmall(isScreenTooSmall);
         }
       };

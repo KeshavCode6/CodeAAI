@@ -24,7 +24,7 @@ function EditProfileDialog(props: any) {
 
   const { name, leaderboard } = props;
 
-  const [updatedName, setUpdatedName] = useState(name);
+  const [updatedName, setUpdatedName] = useState("");
   const [updatedAvatar, setUpdatedAvatar] = useState<File | null>(null);
   const [resetAvatar, setResetAvatar] = useState(false);
 
@@ -40,6 +40,7 @@ function EditProfileDialog(props: any) {
 
   const updateUserProfile = () => {
     const formData = new FormData();
+    console.log(updatedName)
     formData.append("name", updatedName);
     if (updatedAvatar) {
       formData.append("avatar", updatedAvatar);
@@ -75,7 +76,7 @@ function EditProfileDialog(props: any) {
         </AlertDialogHeader>
 
         <Label>Name</Label>
-        <Input defaultValue={name} onChange={setUpdatedName} placeholder={name}/>
+        <Input defaultValue={name} onChange={(event:any)=>{setUpdatedName(event.target.value)}} placeholder={name}/>
 
         <Label>Picture</Label>
         <Input type="file" onChange={onAvatarChange} accept="image/png, image/jpg, image/jpeg"/>

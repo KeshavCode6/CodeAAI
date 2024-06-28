@@ -30,6 +30,7 @@
     "circular-json": "^0.5.9",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
+    "crypto": "^1.0.1",
     "formidable": "^3.5.1",
     "lucide-react": "^0.395.0",
     "mongoose": "^8.4.3",

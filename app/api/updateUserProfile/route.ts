@@ -50,15 +50,14 @@ export async function POST(request: NextRequest) {
 
       await User.findOneAndUpdate({ id: userId }, { image: avatarPath });
 
-      return NextResponse.json({ status: "ok" });
-    } else {
-      // Handle case where no avatar file is uploaded
-      if (name != "") {
-        await User.findOneAndUpdate({ id: userId }, { name });
-      }
+    } 
 
-      return NextResponse.json({ status: "ok" });
+    console.log(formData)
+    if (name != "") {
+      await User.findOneAndUpdate({ id: userId }, { name });
     }
+
+    return NextResponse.json({ status: "ok" });
   } catch (error: any) {
     console.error("Error:", error);
     return new Response(`Error processing request: ${error.message}`, { status: 500 });

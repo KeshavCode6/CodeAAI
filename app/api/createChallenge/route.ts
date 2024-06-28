@@ -2,6 +2,8 @@ import dbConnect from "@/lib/database/dbConnect";
 import Challenge, { IChallenge } from "@/lib/database/schemas/Challenge";
 import { NextRequest, NextResponse } from "next/server";
 import { getUserFromToken } from "@/lib/getUserFromToken";
+import crypto from "crypto";
+
 
 export async function POST(request: NextRequest) {
 
@@ -11,7 +13,7 @@ export async function POST(request: NextRequest) {
 
         const reqData = await request.json();
 
-        if(reqData.secretKey != "i_love_making_challenges_38255") {
+        if(crypto.createHash('sha1').update(reqData.secretKey).digest('hex') != process.env.CHALLENGE_CREATION_SECRET_KEY_HASH) {
             return NextResponse.json({ status: 403 });
         }
 

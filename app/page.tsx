@@ -22,8 +22,8 @@ export default function Home() {
             </span>
             <span className="text-3xl font-light">Brought to you by Keshav Shah and Shaurya Kumar</span>
             <div className="flex flex-row gap-5">
-              <Button className="w-48 rounded-lg bg-homePlayButton text-primary font-bold text-3 text-md hover:bg-homePlayButton/80">Play now</Button>
-              <Button className="w-48 rounded-lg bg-transparent border-primary border-2 text-white font-bold text-md hover:text-black">Learn more</Button>
+            <Button onClick={()=>{location.href="/dashboard"}} className="w-48 rounded-xl bg-homePlayButton text-primary font-bold text-3 text-md hover:bg-homePlayButton/80 self-center mb-12">Play now</Button>
+            <Button onClick={()=>{location.href="/contact"}}  className="w-48 rounded-lg bg-transparent border-primary border-2 text-white font-bold text-md hover:text-black">About us</Button>
             </div>
           </div>
         </div>
@@ -78,7 +78,7 @@ export default function Home() {
           <span className="text-2xl font-thin w-[36rem] self-center">
             Learn programming in a fun and competitive environment among your peers
           </span>
-          <Button className="w-48 rounded-xl bg-homePlayButton text-primary font-bold text-3 text-md hover:bg-homePlayButton/80 self-center mb-12">Play now</Button>
+          <Button onClick={()=>{location.href="/dashboard"}} className="w-48 rounded-xl bg-homePlayButton text-primary font-bold text-3 text-md hover:bg-homePlayButton/80 self-center mb-12">Play now</Button>
         </div>
         <img src="/assets/home/join-now.png" className="w-full"/>
       </div>
