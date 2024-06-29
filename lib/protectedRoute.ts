@@ -1,12 +1,13 @@
 import { useSession } from "next-auth/react";
 import { Red_Rose } from "next/font/google";
+import { useRouter } from "next/router";
 
 export function useProtectedRoute(){
-    if(typeof window == "undefined") return {};
+    const router = useRouter();
     const { data: session, status } = useSession({
         required: true,
         onUnauthenticated() {
-            location.href="/"
+            router.push("/")
         },
     });
     return {session, status};
