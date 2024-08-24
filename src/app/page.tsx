@@ -7,19 +7,15 @@ import { GlobeIcon } from "lucide-react"
 import { infoCards, teamMembers, faqs } from "@/lib/constants"
 
 // TODO: Fix?
-//@ts-ignore
-import Footer from "@/components/footer"
-//@ts-ignore
-import Navigation from "@/components/navigation"
-//@ts-ignore
-import ScrollableSection from "@/components/scrollableSection"
-
+import Footer from "@/components/Footer" 
+import { Navbar } from "@/components/Navigation"
+import ScrollableSection from "@/components/ScrollableSection"
 // Landing page
 export default function Landing() {
 
 
   return (
-    <Navigation path="/">
+    <Navbar path="/">
       {/* Hero Section */}
       <div className="h-screen bg-cover flex justify-center flex-col bg-[url('/assets/background.png')]">
         <div className=" w-full h-full bg-gradient-to-r from-homeGradientStart backdrop-blur-sm" style={{ backgroundColor: "rgba(16, 12, 52, 0.8)" }}>
@@ -41,6 +37,7 @@ export default function Landing() {
             </div>
           </div>
         </div>
+        <span id="about" />
       </div>
 
       {/* About us Section */}
@@ -72,14 +69,13 @@ export default function Landing() {
                 </div>
               </Card>
             ))}
-
+            <span id="contact" />
           </div>
         </ScrollableSection>
       </div>
 
       {/* Meet the team */}
       <div className="bg-lightBlue sawtooth py-16">
-        <span id="contact" />
         <ScrollableSection className="flex flex-col items-center  px-4 md:px-8">
           <h2 className="text-3xl md:text-3xl font-bold mb-8 md:mb-12 text-center">Meet Our Team</h2>
           <div className="flex flex-wrap gap-8 md:gap-16 mb-20">
@@ -110,8 +106,8 @@ export default function Landing() {
                 </div>
               </div>
             ))}
-
           </div>
+          <span id="faqs" />
         </ScrollableSection>
       </div>
 
@@ -154,7 +150,7 @@ export default function Landing() {
       </div>
 
       <Footer />
-    </Navigation>
+    </Navbar>
   )
 
 }

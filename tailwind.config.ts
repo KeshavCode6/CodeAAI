@@ -72,10 +72,22 @@ const config = {
           from: { height: "var(--radix-accordion-content-height)" },
           to: { height: "0" },
         },
+        "loading-dots": {
+          "0%, 20%": {
+            transform: "translateY(0)",
+          },
+          "50%": {
+            transform: "translateY(-4px)",
+          },
+          "80%, 100%": {
+            transform: "translateY(0)",
+          },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        "loading-dot": "loading-dots 1s infinite ease-in-out",
       },
     },
   },

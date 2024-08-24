@@ -1,4 +1,5 @@
 
+
 export const infoCards = [
     {
         iconUrl: "/assets/info-card-icons/hackathons.png",

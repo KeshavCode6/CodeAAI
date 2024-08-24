@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import AuthProvider from "@/components/AuthProvider";
 import { ThemeProvider } from "next-themes";
+import { TooltipProvider } from "@radix-ui/react-tooltip";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -19,17 +20,19 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        
-      <ThemeProvider
-          attribute="class"
-          defaultTheme="dark"
-          enableSystem
-          disableTransitionOnChange
-        >
-        <AuthProvider>
-          {children}
-        </AuthProvider>
-        </ThemeProvider>
+        <TooltipProvider>
+
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="dark"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <AuthProvider>
+              {children}
+            </AuthProvider>
+          </ThemeProvider>
+        </TooltipProvider>
 
       </body>
     </html>
