@@ -2,6 +2,8 @@ import { NextAuthOptions } from 'next-auth';
 import NextAuth from 'next-auth';
 import GoogleProvider from 'next-auth/providers/google';
 import GitHubProvider from 'next-auth/providers/github';
+import { prismaClient } from '@/lib/prisma';
+import { PrismaAdapter } from "@next-auth/prisma-adapter"; 
 
 // getting env vars
 const {
@@ -20,6 +22,7 @@ const authOptions: NextAuthOptions = {
     session: {
         strategy: 'jwt'    // using JWT over session
     },
+    adapter: PrismaAdapter(prismaClient),
     secret: process.env.NEXT_AUTH_SECRET,
     pages: {
         "signIn": "/login"    // setting up custom login page
@@ -33,21 +36,7 @@ const authOptions: NextAuthOptions = {
             clientId: GITHUB_CLIENT_ID,
             clientSecret: GITHUB_CLIENT_SECRET
         })
-    ],
-    // including id in user session
-    callbacks: {
-        async jwt({ token, user }) {
-            if (user) {
-                token.user = user;
-            }
-            return Promise.resolve(token);
-        },
-        session: async ({ session, token }) => {
-            //@ts-ignore
-            session.user = token.user;
-            return Promise.resolve(session);
-        },
-    }
+    ]
 };
 
 // exporting route handler

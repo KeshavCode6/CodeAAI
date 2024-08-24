@@ -8,12 +8,14 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { signOut, useSession } from "next-auth/react";
+import { signIn, signOut, useSession } from "next-auth/react";
 import {
   NavigationMenu,
   NavigationMenuLink,
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu"
+import { Dialog, DialogTrigger, DialogContent } from "@/components/ui/dialog";
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuSeparator, DropdownMenuItem } from "@/components/ui/dropdown-menu";
 
 export const links: { [key: string]: string } = {
   Home: "/",
@@ -66,30 +68,51 @@ export default function Navigation({ children, path, marginTop = "4rem" }: Navba
           </NavigationMenu>
         </div>
         {status === "authenticated" ? (
-          <div className="flex items-center justify-center gap-2">
-            <Popover>
-              <PopoverTrigger className="flex items-center">
-                <Button variant="secondary" size="icon" className="rounded-full w-9 h-9">
-                  <img src={session?.user?.image || "/assets/avatar/image.png"} className="rounded-full" />
-                  <span className="sr-only">User menu</span>
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="relative z-[1] flex flex-col items-center mr-5">
-                <div className="flex flex-row gap-3 mb-12">
-                  <img src={session?.user?.image || "..."} className="rounded-full w-12 h-12 aspect-square" />
-                  <div className="flex flex-col">
-                    <span className="text-lg w-40">{session?.user?.name || "..."}</span>
-                    <span className="text-xs w-40">{session?.user?.email || "..."}</span>
-                  </div>
-                </div>
-                <Button className="absolute right-2 bottom-2 text-xs" size="sm" onClick={() => signOut()}>Sign out</Button>
-              </PopoverContent>
-            </Popover>
-          </div>
+          <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="secondary" size="icon" className="rounded-full w-9 h-9">
+              <img src={session?.user?.image || "/assets/avatar/image.png"} className="rounded-full" />
+              <span className="sr-only">User menu</span>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-60 p-4 shadow-lg">
+            <div className="flex flex-row gap-3 mb-4">
+              <img src={session?.user?.image || "/assets/avatar/image.png"} className="rounded-full w-12 h-12 aspect-square" />
+              <div className="flex flex-col">
+                <span className="text-lg">{session?.user?.name || "..."}</span>
+                <span className="text-xs">{session?.user?.email || "..."}</span>
+              </div>
+            </div>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={() => signOut()}>Sign out</DropdownMenuItem>
+            <DropdownMenuItem>
+              <Link href="/settings">Settings</Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem>
+              <Link href="/dashboard">Dashboard</Link>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
         ) : (
-          <Button>
-            <Link href="/login" className="text-white">Login</Link>
-          </Button>
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button className="text-white">Login</Button>
+            </DialogTrigger>
+            <DialogContent className="w-96 h-72 flex flex-col justify-center gap-2">
+              <Button onClick={() => { signIn("google", { callbackUrl: '/dashboard' }) }} className="text-lg flex gap-4 p-4 rounded-lg" size={"lg"} variant="outline">
+                <img src="/assets/login/google.png" className="w-6" />
+                Log in with Google
+              </Button>
+              <Button onClick={() => { signIn("github", { callbackUrl: '/dashboard' }) }} className="text-lg flex gap-4 p-4 rounded-lg" size={"lg"} variant="outline">
+                <img src="/assets/login/github.png" className="w-6" />
+                Log in with Github
+              </Button>
+              <Button onClick={() => { signIn("github", { callbackUrl: '/dashboard' }) }} className="text-lg flex gap-4 p-4 rounded-lg" size={"lg"} variant="outline">
+                <img src="/assets/login/github.png" className="w-6" />
+                Log in with Faceboook
+              </Button>
+            </DialogContent>
+          </Dialog>
         )}
       </div>
 
