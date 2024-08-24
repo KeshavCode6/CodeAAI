@@ -1,12 +1,12 @@
 "use client"
 import { Button } from "@/components/ui/button"
-import Footer from "@/components/custom/general/footer"
-import Navigation from "@/components/custom/general/navigation"
 import Link from "next/link"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
-import ScrollableSection from "@/components/custom/general/scrollableSection"
 import { Card, CardTitle } from "@/components/ui/card"
 import { GlobeIcon } from "lucide-react"
+import Footer from "@/components/footer"
+import Navigation from "@/components/navigation"
+import ScrollableSection from "@/components/scrollableSection"
 
 // Landing page
 export default function Landing() {
