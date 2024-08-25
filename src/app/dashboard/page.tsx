@@ -13,12 +13,13 @@ import { useSession } from "next-auth/react";
 import { ThreeDots } from "@/components/Threedots";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Link from "next/link";
-import { Popover, PopoverTrigger } from "@/components/ui/popover";
-import { Select, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useEffect, useState } from "react";
 
 
 export default function Dashboard() {
   const { data: session, status } = useSession();
+  const [challengeFilter, setChallengeFilter] = useState("");
+
 
   if (status === "loading") {
     return (
@@ -30,54 +31,15 @@ export default function Dashboard() {
 
   return (
     <Sidebar path="/dashboard">
-      <div className="flex flex-row gap-2 h-[91vh]">
-        <div className="flex flex-col gap-2">
-          <div className="flex gap-2 w-[80rem]">
-            <Card className="w-full">
-              <CardHeader className="pb-2">
-                <CardDescription>Your points</CardDescription>
-                <CardTitle className="text-4xl">100,000</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-xs text-muted-foreground">
-                  +2,500 from yesterday
-                </div>
-              </CardContent>
-              <CardFooter>
-                <Progress value={25} aria-label="25% increase" />
-              </CardFooter>
-            </Card>
-            <Card className="w-full">
-              <CardHeader className="pb-2">
-                <CardDescription>Your points</CardDescription>
-                <CardTitle className="text-4xl">100,000</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-xs text-muted-foreground">
-                  +2,500 from yesterday
-                </div>
-              </CardContent>
-              <CardFooter>
-                <Progress value={25} aria-label="25% increase" />
-              </CardFooter>
-            </Card>
-            <Card className="w-full">
-              <CardHeader className="pb-2">
-                <CardDescription>Your Code League ranking</CardDescription>
-                <CardTitle className="text-4xl">100th</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-xs text-muted-foreground">
-                  +2 places up from yesterday
-                </div>
-              </CardContent>
-              <CardFooter>
-                <Progress value={12} aria-label="12% increase" />
-              </CardFooter>
-            </Card>
+      <div
+        className="flex flex-col md:flex-row md:justify-center gap-2 h-[91vh] bg-fit bg-center"
+      >
+        <div className="flex flex-col gap-2 opacity-90">
+          <div className="flex flex-col pr-8 md:p-0 md:flex-row gap-2 max-w-screen">
+            <UserPointsCards/>
           </div>
-          <div className="flex  gap-2 grow h-full">
-            <Card className="w-full">
+          <div className="flex flex-col lg:flex-row gap-2 grow">
+            <Card className="md:w-full md:min-w-[40rem] max-w-[90vw]">
               <CardHeader className="self-center gap-4">
                 <div>
                   <CardTitle>
@@ -87,49 +49,21 @@ export default function Dashboard() {
                     Solve fun coding challenges of varying difficulty
                   </CardDescription>
                 </div>
-                <Tabs defaultValue="all">
+                <Tabs defaultValue="Easy" onValueChange={(value) => setChallengeFilter(value)}>
                   <TabsList defaultValue="all">
-                    <TabsTrigger value="all">All</TabsTrigger>
-                    <TabsTrigger value="easy">Beginner</TabsTrigger>
-                    <TabsTrigger value="intermediate">Intermediate</TabsTrigger>
-                    <TabsTrigger value="advanced">Advanced</TabsTrigger>
-                    <TabsTrigger value="daily">Daily</TabsTrigger>
+                    <TabsTrigger value="Easy">Beginner</TabsTrigger>
+                    <TabsTrigger value="Medium">Intermediate</TabsTrigger>
+                    <TabsTrigger value="Hard">Advanced</TabsTrigger>
+                    <TabsTrigger value="Daily">Daily</TabsTrigger>
                   </TabsList>
                 </Tabs>
               </CardHeader>
-              <CardContent>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Challenge Name</TableHead>
-                      <TableHead>Points</TableHead>
-                      <TableHead>Difficulty</TableHead>
-                      <TableHead>Solves</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Play</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    <TableRow>
-                      <TableCell>Reversing Strings</TableCell>
-                      <TableCell>300</TableCell>
-                      <TableCell>Beginner</TableCell>
-                      <TableCell>32</TableCell>
-                      <TableCell>Completed</TableCell>
-                      <TableCell>
-                        <Link href="/">
-                          <Button>
-                            <ChevronRight />
-                          </Button>
-                        </Link>
-                      </TableCell>
-                    </TableRow>
-                  </TableBody>
-                </Table>
+              <CardContent className="relative md:min-w-[37rem]">
+                <ChallengeTable difficulty={challengeFilter} />
               </CardContent>
             </Card>
-            <Card>
-                <CardHeader className="gap-4">
+            <Card className="md:w-full  md:min-w-[30rem] max-w-[90vw]">
+              <CardHeader className="gap-4">
                 <div>
                   <CardTitle>
                     Code League Matches
@@ -146,7 +80,7 @@ export default function Dashboard() {
                 </Tabs>
               </CardHeader>
               <CardContent>
-                <Table className="flex flex-col items-center min-w-[30rem] grow">
+                <Table >
                   <TableHeader>
                     <TableRow>
                       <TableHead>Event Name</TableHead>
@@ -174,42 +108,210 @@ export default function Dashboard() {
             </Card>
           </div>
         </div>
-        <Card>
-          <CardHeader>
-            <div>
-              <CardTitle>
-                Leaderboard
-              </CardTitle>
-              <CardDescription>
-                See how you rank among the best of the best
-              </CardDescription>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Rank</TableHead>
-                  <TableHead>User</TableHead>
-                  <TableHead>Points</TableHead>
-                  <TableHead>Completion</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                <TableRow>
-                  <TableCell>#1</TableCell>
-                  <TableCell className="flex flex-row gap-x-3">
-                    <img src={session?.user?.image || ""} className="w-8 rounded-full" />
-                    <span className="my-auto">Kartteekeya Punyamurthy</span>
-                  </TableCell>
-                  <TableCell>500,000</TableCell>
-                  <TableCell>100%</TableCell>
-                </TableRow>
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
+        <div className="w-full lg:w-1/4 mt-2 lg:mt-0 ">
+          <Card className="min-h-[90vh]">
+            <CardHeader>
+              <div>
+                <CardTitle>
+                  Leaderboard
+                </CardTitle>
+                <CardDescription>
+                  See how you rank among the best of the best
+                </CardDescription>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Rank</TableHead>
+                    <TableHead>User</TableHead>
+                    <TableHead>Points</TableHead>
+                    <TableHead>Completion</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  <TableRow>
+                    <TableCell>#1</TableCell>
+                    <TableCell className="flex flex-row gap-x-3">
+                      <img src={session?.user?.image || ""} className="w-8 rounded-full" />
+                      <span className="my-auto">Kartteekeya Punyamurthy</span>
+                    </TableCell>
+                    <TableCell>500,000</TableCell>
+                    <TableCell>100%</TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </Sidebar>
   )
 }
+
+// Define a type for challenge data
+type Challenge = {
+  name: string;
+  points: number;
+  difficulty: string;
+  solves: number;
+  status: string;
+  challengeId: string;
+};
+
+function ChallengeTable({ difficulty }: { difficulty: string }) {
+  const [loading, setLoading] = useState(true);
+  const [challenges, setChallenges] = useState<Challenge[]>([]);
+
+  useEffect(() => {
+    const fetchChallenges = async () => {
+      try {
+        const response = await fetch('/api/getChallengeList', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ difficulty })
+        });
+
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+
+        const data: Challenge[] = await response.json();
+        setChallenges(data);
+        console.log(data);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchChallenges();
+  }, [difficulty]); // Run effect when `difficulty` changes
+
+
+  if (loading) {
+    return (
+      <div className="absolute top-0 right-0 left-0 bottom-0 flex justify-center items-center">
+        <ThreeDots />
+      </div>
+    );
+  }
+
+  if (challenges.length <= 0) {
+    return (
+      <div className="absolute top-0 right-0 left-0 bottom-0 flex justify-center items-center">
+        No {difficulty} Challenges have been yet...
+      </div>
+    );
+  }
+  return (
+    <Table>
+      <TableHeader>
+        <TableRow>
+          <TableHead>Challenge Name</TableHead>
+          <TableHead>Points</TableHead>
+          <TableHead>Difficulty</TableHead>
+          <TableHead>Solves</TableHead>
+          <TableHead>Status</TableHead>
+          <TableHead>Play</TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {challenges.map(challenge => (
+          <TableRow key={challenge.challengeId}>
+            <TableCell>{challenge.name}</TableCell>
+            <TableCell>{challenge.points}</TableCell>
+            <TableCell>{challenge.difficulty}</TableCell>
+            <TableCell>{challenge.solves}</TableCell>
+            <TableCell>{challenge.status}</TableCell>
+            <TableCell>
+              <Link href={`/challenge/${challenge.challengeId}`}>
+                <Button>
+                  <ChevronRight />
+                </Button>
+              </Link>
+            </TableCell>
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
+  );
+}
+
+type UserStats = {
+  points: number;
+  solves: number;
+  codeLeagueRank: number;
+};
+
+function UserPointsCards() {
+  const [userData, setUserData] = useState<UserStats | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchUserData() {
+      try {
+        const response = await fetch('/api/getUser');
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        const data = await response.json();
+        console.log(data)
+        setUserData(data);
+      } catch (error) {
+        console.error('Fetch error:', error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchUserData();
+  }, []);
+
+  const renderCardContent = (data: UserStats | null, placeholder: boolean) => (
+    <>
+      <CardHeader className="pb-2">
+        <CardDescription>Your points</CardDescription>
+        <CardTitle className="text-4xl">{placeholder ? '...' : data?.points}pts</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="text-xs text-muted-foreground">
+          {placeholder ? '...' : `+${1000} more to go`}
+        </div>
+      </CardContent>
+      <CardFooter>
+        <Progress  value={placeholder ? 0 : Math.min((data?.points || 0) / 3000, 1)}/>
+      </CardFooter>
+    </>
+  );
+
+  return (
+    <>
+      <Card className="md:w-full max-w-[90vw]">
+        {loading || !userData ? renderCardContent(null, true) : renderCardContent(userData, false)}
+      </Card>
+      <Card className="md:w-full max-w-[90vw]">
+        {loading || !userData ? renderCardContent(null, true) : renderCardContent(userData, false)}
+      </Card>
+      <Card className="md:w-full max-w-[90vw]">
+        <CardHeader className="pb-2">
+          <CardDescription>{loading || !userData ? '...' : 'Your Code League ranking'}</CardDescription>
+          <CardTitle className="text-4xl">{loading || !userData ? '...' : userData.codeLeagueRank}</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="text-xs text-muted-foreground">
+            {loading || !userData ? '...' : `You are 1/100`}
+          </div>
+        </CardContent>
+        <CardFooter>
+          <Progress value={loading || !userData ? 0 : 100} aria-label="Rank progress" />
+        </CardFooter>
+      </Card>
+    </>
+  );
+}
+

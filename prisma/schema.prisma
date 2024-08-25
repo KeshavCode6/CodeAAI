@@ -36,10 +36,10 @@ model TestCase {
 }
 
 model UserChallenges {
-  id         String                      @id @default(uuid())
-  challengeId         String             
-  userId              String              
-  solved              Boolean              @default(false)
+  id         String   @id @default(uuid())
+  challengeId String
+  userId      String
+  solved      Boolean @default(false)
   @@map("UserChallenges")
 }
 
@@ -50,7 +50,8 @@ model User {
   image               String?             @default("")
   emailVerified       DateTime?           // Adding this field to track email verification
   points              Int                 @default(0)
-  pointsOverTime      Json                @default("{}")
+  solves              Int                 @default(0)
+  codeLeagueRank      Int                 @default(0)
   favoritedChallenges String[]            @default([])
 
   createdAt           DateTime            @default(now())

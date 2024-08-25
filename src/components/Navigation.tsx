@@ -36,23 +36,25 @@ interface NavbarProps {
 
 export function UserDropdown({ session }: { session: any }) {
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="secondary" size="icon" className="rounded-full w-9 h-9">
-          <img src={session?.user?.image || "/assets/avatar/image.png"} className="rounded-full" />
-          <span className="sr-only">User menu</span>
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-fit p-4 shadow-lg">
-        <DropdownMenuItem onClick={() => signOut()}>Sign out</DropdownMenuItem>
-        <DropdownMenuItem>
-          <Link href="/settings">Settings</Link>
-        </DropdownMenuItem>
-        <DropdownMenuItem>
-          <Link href="/dashboard">Dashboard</Link>
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <div className="absolute top-3 right-5">
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="secondary" size="icon" className="rounded-full w-9 h-9">
+            <img src={session?.user?.image || "/assets/avatar/image.png"} className="rounded-full" />
+            <span className="sr-only">User menu</span>
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" className="w-fit p-4 shadow-lg">
+          <DropdownMenuItem onClick={() => signOut()}>Sign out</DropdownMenuItem>
+          <DropdownMenuItem>
+            <Link href="/settings">Settings</Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem>
+            <Link href="/dashboard">Dashboard</Link>
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </div>
   );
 }
 
@@ -136,7 +138,7 @@ export function Navbar({ children, path, marginTop = "4rem" }: NavbarProps) {
               <Button className="text-white">Login</Button>
             </DialogTrigger>
             <DialogContent className="w-96 h-72 flex flex-col justify-center gap-2">
-              <Button onClick={() => signIn("google", {callbackUrl:"/dashboard"})} className="text-lg flex gap-4 p-4 rounded-lg" size="lg" variant="outline">
+              <Button onClick={() => signIn("google", { callbackUrl: "/dashboard" })} className="text-lg flex gap-4 p-4 rounded-lg" size="lg" variant="outline">
                 <img src="/assets/login/google.png" className="w-6" />
                 Log in with Google
               </Button>
@@ -205,8 +207,8 @@ export function Sidebar({ children, path }: React.PropsWithChildren<SidebarProps
                   <Link
                     href={link.href}
                     className={`flex h-9 w-9 items-center justify-center rounded-lg transition-colors md:h-8 md:w-8 ${isActive
-                        ? "bg-accent text-accent-foreground"
-                        : "text-muted-foreground hover:text-foreground"
+                      ? "bg-accent text-accent-foreground"
+                      : "text-muted-foreground hover:text-foreground"
                       }`}
                   >
                     {link.icon}
@@ -224,8 +226,8 @@ export function Sidebar({ children, path }: React.PropsWithChildren<SidebarProps
               <Link
                 href="/settings"
                 className={`flex h-9 w-9 items-center justify-center rounded-lg transition-colors md:h-8 md:w-8 ${path === "/settings"
-                    ? "bg-accent text-accent-foreground"
-                    : "text-muted-foreground hover:text-foreground"
+                  ? "bg-accent text-accent-foreground"
+                  : "text-muted-foreground hover:text-foreground"
                   }`}
               >
                 <Settings className="h-5 w-5" />
@@ -236,12 +238,40 @@ export function Sidebar({ children, path }: React.PropsWithChildren<SidebarProps
           </Tooltip>
         </nav>
       </aside>
-
       <div className="flex flex-col sm:gap-4 sm:py-4 sm:pl-16">
+        <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background px-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6">
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button size="icon" variant="outline" className="sm:hidden">
+                <PanelLeft className="h-5 w-5" />
+                <span className="sr-only">Toggle Menu</span>
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="left" className="sm:max-w-xs">
+              <nav className="grid gap-6 text-lg font-medium">
+                {links.map((link) => (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    className={`flex items-center gap-4 px-2.5 ${path === link.href ? "text-foreground" : "text-muted-foreground"
+                      }`}
+                  >
+                    {link.icon}
+                    {link.label}
+                  </Link>
+                ))}
+              </nav>
+            </SheetContent>
+          </Sheet>
 
-        <main className="p-4">
-          {children}
-        </main>
+          <div className="relative ml-auto flex-1 md:grow-0" />
+          <UserDropdown session={session} />
+        </header>
+        <div className="flex flex-col">
+          <main className="p-4">
+            {children}
+          </main>
+        </div>
       </div>
     </div>
   );
