@@ -1,8 +1,6 @@
-import dbConnect from '@/lib/database/dbConnect';
-import { Challenge } from '@/lib/database/schemas/Challenge';
-import { User } from '@/lib/database/schemas/User';
 import { NextRequest, NextResponse } from 'next/server';
 import {getUserFromToken} from "@/lib/getUserFromToken"
+import {prismaClient} from "@/lib/prisma"; // Import the Prisma client
 
 interface PostData {
   challengeId: string;
@@ -10,20 +8,18 @@ interface PostData {
 
 export async function POST(request: NextRequest) {
   try {
-    await dbConnect(); // Connect to MongoDB
 
     const data: PostData = await request.json(); // getting challenge data
 
-    //@ts-ignore
-    const userId = (await getUserFromToken(request.cookies)).user.id;
-    // ensuring data has id fields
     if (!data.challengeId) {
       return NextResponse.json({ result: "Invalid Challenge Id" });
     }
 
     // checking if that challenge exists
     const challenge = await Challenge.findOne({ id: data.challengeId });
-    const user = await User.findOne({ id: userId });
+    const user = (await getUserFromToken(request.cookies));
+
+    const userDb = await prismaClient.user.findUnique({where:{email:user.email}})
 
     // if it exists, return challenge data
     if (challenge && user) {

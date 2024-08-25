@@ -12,12 +12,11 @@ export async function getUserFromToken(cookies:any) {
         }
 
         const decoded = await decode({ token: sessionToken, secret });
-
-        if (!decoded || !decoded.user) {
+        if (!decoded) {
             throw new Error('Invalid token or user data');
         }
 
-        return { user: decoded.user };
+        return decoded;
     } catch (error) {
         console.error("Error decoding token:", error);
         throw error; // Propagate error for handling in POST function

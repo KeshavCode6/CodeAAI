@@ -27,6 +27,13 @@ const authOptions: NextAuthOptions = {
     pages: {
         "signIn": "/login"    // setting up custom login page
     },
+    callbacks: {
+        async redirect({ url, baseUrl }) {
+          return url.startsWith(baseUrl)
+            ? url
+            : baseUrl;
+        },
+    },
     providers: [
         GoogleProvider({
             clientId: GOOGLE_CLIENT_ID,

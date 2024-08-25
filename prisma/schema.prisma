@@ -9,7 +9,7 @@ datasource db {
 
 model Challenge {
   id                  String              @id @default(uuid())
-  name                String
+  name                String              @unique
   description         String
   difficulty          String
   arguments           String[]            // Prisma supports arrays directly
@@ -20,9 +20,8 @@ model Challenge {
   authorId            String
   creationTimestamp   DateTime
 
-  users               UserChallenges[]    // Establish the relation via the join table
 
-  @@map("challenges")
+  @@map("challenge")
 }
 
 model TestCase {
@@ -40,31 +39,20 @@ model User {
   name                String
   email               String?             @unique
   image               String?             @default("")
+  emailVerified       DateTime?           // Adding this field to track email verification
   points              Int                 @default(0)
-  pointsOverTime      Json                @default("{}") // Using JSON for flexible key-value pairs
-  favoritedChallenges String[]            @default([])  // Can be represented as a String array
+  pointsOverTime      Json                @default("{}")
+  favoritedChallenges String[]            @default([])
 
   createdAt           DateTime            @default(now())
   updatedAt           DateTime            @updatedAt
 
   accounts            Account[]
   sessions            Session[]
-  challenges          UserChallenges[]    // Establish the relation via the join table
 
   @@map("users")
 }
 
-// This is the join table for the many-to-many relation between User and Challenge
-model UserChallenges {
-  userId       String
-  challengeId  String
-
-  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  challenge    Challenge  @relation(fields: [challengeId], references: [id], onDelete: Cascade)
-
-  @@id([userId, challengeId]) // Composite primary key for the join table
-  @@map("user_challenges")
-}
 
 model Account {
   id                 String    @id @default(cuid())

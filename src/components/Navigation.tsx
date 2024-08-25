@@ -11,6 +11,7 @@ import {
   PanelLeft,
   Settings,
   ShoppingCart,
+  Pen,
   Users2,
 } from "lucide-react"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
@@ -42,15 +43,7 @@ export function UserDropdown({ session }: { session: any }) {
           <span className="sr-only">User menu</span>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-60 p-4 shadow-lg">
-        <div className="flex flex-row gap-3 mb-4">
-          <img src={session?.user?.image || "/assets/avatar/image.png"} className="rounded-full w-12 h-12 aspect-square" />
-          <div className="flex flex-col">
-            <span className="text-lg">{session?.user?.name || "..."}</span>
-            <span className="text-xs">{session?.user?.email || "..."}</span>
-          </div>
-        </div>
-        <DropdownMenuSeparator />
+      <DropdownMenuContent align="end" className="w-fit p-4 shadow-lg">
         <DropdownMenuItem onClick={() => signOut()}>Sign out</DropdownMenuItem>
         <DropdownMenuItem>
           <Link href="/settings">Settings</Link>
@@ -139,7 +132,7 @@ export function Navbar({ children, path, marginTop = "4rem" }: NavbarProps) {
               <Button className="text-white">Login</Button>
             </DialogTrigger>
             <DialogContent className="w-96 h-72 flex flex-col justify-center gap-2">
-              <Button onClick={() => signIn("google", { callbackUrl: '/dashboard' })} className="text-lg flex gap-4 p-4 rounded-lg" size="lg" variant="outline">
+              <Button onClick={() => signIn("google", {callbackUrl:"/dashboard"})} className="text-lg flex gap-4 p-4 rounded-lg" size="lg" variant="outline">
                 <img src="/assets/login/google.png" className="w-6" />
                 Log in with Google
               </Button>
@@ -172,6 +165,7 @@ export function Sidebar({ children, path }: React.PropsWithChildren<SidebarProps
   const router = useRouter();
   const links = [
     { href: "/dashboard", label: "Dashboard", icon: <Home className="h-5 w-5" /> },
+    { href: "/create", label: "Create", icon: <Pen className="h-5 w-5" /> },
   ];
 
   if (status === "loading") {
@@ -240,35 +234,8 @@ export function Sidebar({ children, path }: React.PropsWithChildren<SidebarProps
       </aside>
 
       <div className="flex flex-col sm:gap-4 sm:py-4 sm:pl-16">
-        <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background px-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6">
-          <Sheet>
-            <SheetTrigger asChild>
-              <Button size="icon" variant="outline" className="sm:hidden">
-                <PanelLeft className="h-5 w-5" />
-                <span className="sr-only">Toggle Menu</span>
-              </Button>
-            </SheetTrigger>
-            <SheetContent side="left" className="sm:max-w-xs">
-              <nav className="grid gap-6 text-lg font-medium">
-                {links.map((link) => (
-                  <Link
-                    key={link.href}
-                    href={link.href}
-                    className={`flex items-center gap-4 px-2.5 ${path === link.href ? "text-foreground" : "text-muted-foreground"
-                      }`}
-                  >
-                    {link.icon}
-                    {link.label}
-                  </Link>
-                ))}
-              </nav>
-            </SheetContent>
-          </Sheet>
 
-          <div className="relative ml-auto flex-1 md:grow-0" />
-          <UserDropdown session={session} />
-        </header>
-        <main className="flex-1 p-4 sm:px-6 sm:py-0 md:gap-8 lg:grid-cols">
+        <main className="p-4">
           {children}
         </main>
       </div>
