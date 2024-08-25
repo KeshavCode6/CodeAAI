@@ -9,6 +9,7 @@ datasource db {
 
 model Challenge {
   id                  String              @id @default(uuid())
+  challengeId         String              @unique
   name                String              @unique
   description         String
   difficulty          String
@@ -21,7 +22,7 @@ model Challenge {
   creationTimestamp   DateTime
 
 
-  @@map("challenge")
+  @@map("challenges")
 }
 
 model TestCase {
@@ -32,6 +33,14 @@ model TestCase {
   challengeId String
 
   @@map("test_cases")
+}
+
+model UserChallenges {
+  id         String                      @id @default(uuid())
+  challengeId         String             
+  userId              String              
+  solved              Boolean              @default(false)
+  @@map("UserChallenges")
 }
 
 model User {

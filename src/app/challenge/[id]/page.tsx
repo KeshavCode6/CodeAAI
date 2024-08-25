@@ -1,14 +1,14 @@
 "use client";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import Navigation from "@/components/custom/navigation";
+import {Sidebar} from "@/components/Navigation";
 import { Editor, loader } from "@monaco-editor/react";
 import { useEffect, useState } from "react";
 import { RefreshCcw, PlayIcon, ArrowLeft } from "lucide-react";
-import { IChallenge } from "@/lib/database/schemas/Challenge";
 import { useToast } from "@/components/ui/use-toast";
 import { Separator } from "@/components/ui/separator";
-
+import { useSession } from "next-auth/react";
+import {ThreeDots} from "@/components/Threedots"
 // Define VisibleTestCase interface
 interface VisibleTestCase {
   input?: Record<string, any>;
@@ -21,13 +21,14 @@ interface VisibleTestCase {
 export default function Challenge({ params }: { params: { id: string } }) {
   const [code, setCode] = useState<string>(""); // code from the editor
   const [isDirty, setIsDirty] = useState<boolean>(false); // track unsaved changes
-  const { session, status } = useProtectedRoute(); // auth data
-  const [challengeData, setChallengeData] = useState<IChallenge | undefined>(undefined); // loaded challenge data
+  const { data:session, status } = useSession(); // auth data
+  const [challengeData, setChallengeData] = useState<any>(undefined); // loaded challenge data
   const [challengeDescription, setChallengeDescription] = useState<string>(""); // loaded challenge data
   const [challengeArguments, setChallengeArguments] = useState<string>(""); // loaded challenge data
   const [author, setAuthor] = useState<string>(""); // loaded challenge data
   const [visibleTestCases, setVisibleTestCases] = useState<VisibleTestCase[]>([]) // visible test cases
   const [totalCases, setTotalCases] = useState<number>(0) // total test cases
+  const [isClient, setIsClient] = useState(false); // Track if we are on the client side
 
   const { toast } = useToast();
   const defaultCode = `''' \nChallenge Description: \n ${challengeDescription}\n'''\nimport sys\n${challengeArguments}`;
@@ -124,9 +125,10 @@ export default function Challenge({ params }: { params: { id: string } }) {
         });
 
         const data = await response.json();
-        setChallengeData(data);
-
-        let desc = data.description;
+        setChallengeData(data.challengeData);
+        setAuthor(data.name.name)
+        
+        let desc = data.challengeData.description;
         let words = desc.split(/\s+/);
 
         let formattedDescription = ' ';
@@ -138,9 +140,10 @@ export default function Challenge({ params }: { params: { id: string } }) {
         }
 
         let args = "\n# <- Challenge Arguments Go Here (you might have to convert the types)-> \n";
-        data.arguments.forEach((element: string, index: number) => {
+        data.challengeData.arguments.forEach((element: string, index: number) => {
           args += `${element} = sys.argv[${index + 1}]\n`;
         });
+
         setChallengeArguments(args + "\n");
         setChallengeDescription(formattedDescription);
       } catch (error) {
@@ -151,52 +154,77 @@ export default function Challenge({ params }: { params: { id: string } }) {
     fetchChallengeData();
   }, [status]);
 
-  useEffect(() => {
-    const fetchAuthorData = async () => {
-      if (challengeData === undefined) return;
-      try {
-        const response = await fetch("/api/getUserById", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ id: challengeData.authorId }),
-          credentials: "include", // Include cookies in the request
-        });
-
-        const data = await response.json();
-        setAuthor(data.name || "");
-      } catch (error) {
-        console.error(error);
-      }
-    };
-
-    fetchAuthorData();
-  }, [challengeData]);
-
   const resetCode = () => {
     setCode(defaultCode);
     setIsDirty(false); // mark form as clean
   };
 
-  if (challengeDescription === "") { return null; }
+  useEffect(() => {
+    setIsClient(true);
+    loader.init().then((monaco) => {
+      monaco.editor.defineTheme("moon", {
+        base: "vs-dark",
+        inherit: true,
+        rules: [
+          { token: "", foreground: "D4D4D4" },
+          { token: "keyword", foreground: "569CD6" },
+          { token: "string", foreground: "CE9178" },
+          { token: "number", foreground: "9CDCFE" },
+          { token: "comment", foreground: "6A9955" },
+          { token: "delimiter", foreground: "B8D7A3" },
+          { token: "variable", foreground: "DCDCAA" },
+          { token: "type", foreground: "4EC9B0" },
+          { token: "constant", foreground: "B5CEA8" },
+          { token: "property", foreground: "D4D4D4" },
+          { token: "method", foreground: "9CDCFE" },
+          { token: "builtin", foreground: "D4D4D4" },
+          { token: "attribute", foreground: "DCDCAA" },
+          { token: "operator", foreground: "B5CEA8" },
+          { token: "function", foreground: "D8A3FF" },
+        ],
+        colors: {
+          "editor.background": "#020817",
+          "editorCursor.foreground": "#569CD6",
+          "editor.lineHighlightBackground": "#00000000",
+          "editorBracketMatch.background": "#00000000",
+          "editorBracketMatch.border": "#00000000",
+          "editorLineNumber.foreground": "#858585",
+          "editorLineNumber.activeForeground": "#FFFFFF",
+          "editor.lineHighlightBorder": "#00000000",
+          "editorOverviewRuler.border": "#00000000",
+        },
+      });
+    });
+  }, []);
+
+
+  if(!challengeDescription){
+    return (
+      <div className="w-screen h-screen flex justify-center items-center">
+        <ThreeDots />
+      </div>
+    ); // Customize your loading state
+  }
+
 
   // UI
   return (
-    <Navigation path={"/dashboard"} marginTop="0">
-      <div className="overflow-hidden h-screen">
+    <Sidebar path={"/dashboard"}>
+      <div className="overflow-hidden h-[90vh]">
         <div className="flex gap-2 w-screen items-center justify-center" style={{ marginTop: "80px" }}>
           {/* Editor Section */}
           <Card className="p-2 animate-flyBottom">
+            {isClient && (
             <Editor
-              height="85vh"
-              width="60vw"
-              theme="moon"
-              value={code}
-              onChange={handleEditorChange}
-              defaultLanguage="python"
-              defaultValue={defaultCode}
-            />
+            height="85vh"
+            width="60vw"
+            theme="moon"
+            value={code}
+            onChange={handleEditorChange}
+            defaultLanguage="python"
+            defaultValue={defaultCode}
+          />
+            )}
           </Card>
           {/* Challenge Info Section */}
           <Card className="w-[23vw] p-4 h-[87vh] animate-flyTop relative">
@@ -219,7 +247,7 @@ export default function Challenge({ params }: { params: { id: string } }) {
             </div>
             <div className="mt-4 flex flex-col h-fit items-center">
               <div className="w-5/6">
-                {visibleTestCases.map((value: VisibleTestCase, index: number) => {
+                {/* {visibleTestCases.map((value: VisibleTestCase, index: number) => {
                   let result = value.result ? "Passed" : "Failed";
                   let inputs = value.input ? Object.values(value.input).join(', ') : "None";
 
@@ -234,7 +262,7 @@ export default function Challenge({ params }: { params: { id: string } }) {
                       />
                     </Accordion>
                   );
-                })}
+                })} */}
               </div>
               {visibleTestCases.length > 0 ? (
                 <p className="w-full text-center font-normal text-xs mt-4">{`${visibleTestCases.length} out of ${totalCases} test cases shown. Rest hidden.`}</p>
@@ -253,6 +281,6 @@ export default function Challenge({ params }: { params: { id: string } }) {
           </Card>
         </div>
       </div>
-    </Navigation>
+    </Sidebar>
   );
 }

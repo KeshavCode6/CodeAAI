@@ -18,17 +18,23 @@ export async function POST(request: NextRequest) {
     const data = JSON.parse(reqData.challengeData);
     const user = await getUserFromToken(request.cookies);
 
-    const userID = (await prismaClient.user.findUnique({where:{email:user.email}}))?.id;
+    const userID = await prismaClient.user.findUnique({where:{email:user.email || ""}})
+
+    if(!userID){
+      return NextResponse.json({ status: 500, message: "Not logged in?" });
+
+    }
     // Adding initial challenge data
     const newChallenge = await prismaClient.challenge.create({
       data: {
         name: data.name,
+        challengeId:data.id,
         description: data.description,
         difficulty: data.difficulty,
         arguments: data.arguments || [],
         points: data.points || 0,
         isDaily: data.isDaily || false,
-        authorId: userID,
+        authorId: userID.id,
         creationTimestamp: new Date(data.creationTimestamp || Date.now()), // set creation timestamp
         // Assuming testCases is passed as an array
         testCases: {

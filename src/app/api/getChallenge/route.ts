@@ -16,24 +16,40 @@ export async function POST(request: NextRequest) {
     }
 
     // checking if that challenge exists
-    const challenge = await Challenge.findOne({ id: data.challengeId });
-    const user = (await getUserFromToken(request.cookies));
+    const challengeData = await prismaClient.challenge.findUnique({where:{ challengeId: data.challengeId }});
 
-    const userDb = await prismaClient.user.findUnique({where:{email:user.email}})
-
-    // if it exists, return challenge data
-    if (challenge && user) {
-      // Check if the challenge is not yet solved and update the status
-      if (!user.challenges.has(data.challengeId) || user.challenges.get(data.challengeId) !== "solved") {
-        user.challenges.set(data.challengeId, "open");
-        user.markModified('challenges'); // Mark the nested field as modified
-        await user.save();
-      }
-
-      return NextResponse.json(challenge);
-    } else {
-      return NextResponse.json({ result: "Invalid Challenge Id" });
+    if(!challengeData){
+      return NextResponse.json({ result: "Invalid Challenge" });
     }
+
+    const user = await getUserFromToken(request.cookies);
+    if(!user){
+      return NextResponse.json({ result: "Invalid user token?" });
+    }
+
+    const userDb = await prismaClient.user.findUnique({where:{email:user.email || ""}})
+    const userChallengeData = await prismaClient.userChallenges.findFirst({where:{challengeId:data.challengeId, userId:userDb?.id || ""}})
+
+    if(!challengeData){
+      return NextResponse.json({ result: "No challenge data?" });
+    }
+
+    if(!userChallengeData && userDb){
+      await prismaClient.userChallenges.create({data:{userId:userDb.id, challengeId:challengeData.id, solved:false}})
+    }
+
+    const author = await prismaClient.user.findUnique({where:{ id: challengeData.authorId}});
+    const name = {name:author?.name || "Unknown"}
+;
+
+    const response = {
+      challengeData,
+      userChallengeData,
+      name
+    };
+
+    return NextResponse.json(response);
+
   } catch (error: any) {
     console.error("Error:", error);
     return new Response(`Error processing request: ${error.message}`, { status: 500 });

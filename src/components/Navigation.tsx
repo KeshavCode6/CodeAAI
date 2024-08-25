@@ -75,7 +75,11 @@ export function Navbar({ children, path, marginTop = "4rem" }: NavbarProps) {
   }
 
   if (status === "loading") {
-    return <ThreeDots />;
+    return (
+      <div className="w-screen h-screen flex justify-center items-center">
+        <ThreeDots />
+      </div>
+    ); // Customize your loading state
   }
 
   const links = [
