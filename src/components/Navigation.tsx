@@ -186,7 +186,6 @@ export function Sidebar({ children, path }: React.PropsWithChildren<SidebarProps
     router.push("/");
   }
 
-
   return (
     <div className="flex min-h-screen w-full flex-col bg-muted/40">
       <aside className="fixed inset-y-0 left-0 z-10 hidden w-16 flex-col border-r bg-background sm:flex">
@@ -269,7 +268,7 @@ export function Sidebar({ children, path }: React.PropsWithChildren<SidebarProps
           <div className="relative ml-auto flex-1 md:grow-0" />
           <UserDropdown session={session} />
         </header>
-        <main className="flex-1 p-4 sm:px-6 sm:py-0 md:gap-8 lg:grid-cols...">
+        <main className="flex-1 p-4 sm:px-6 sm:py-0 md:gap-8 lg:grid-cols">
           {children}
         </main>
       </div>
