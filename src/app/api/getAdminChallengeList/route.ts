@@ -1,16 +1,11 @@
-import { getUserFromToken } from '@/lib/getUserFromToken';
+import { getAdminUser, getUserFromToken } from '@/lib/getUserFromToken';
 import { prismaClient } from '@/lib/prisma';
 import { NextRequest, NextResponse } from 'next/server';
 
-export async function POST(request: NextRequest) {
+export async function GET(request: NextRequest) {
   try {
-    // Parse the request body to get the difficulty level
-    const data = await request.json();
-    const { difficulty } = data;
-
-    console.log(data)
     // Get the user from the token in the cookies
-    const user = await getUserFromToken(request.cookies);
+    const user = await getAdminUser(request.cookies);
     if (!user) {
       // Return a 401 Unauthorized if the token is invalid
       return NextResponse.json({ error: "Invalid user token" }, { status: 401 });
@@ -26,14 +21,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    // Ensure that the difficulty parameter was provided
-    if (!difficulty) {
-      return NextResponse.json({ error: "Difficulty parameter is required" }, { status: 400 });
-    }
-
     // Fetch challenges based on the difficulty level
     const challenges = await prismaClient.challenge.findMany({
-      where: { difficulty }
     });
 
     // Extract challenge IDs to fetch the corresponding test cases
@@ -53,8 +42,6 @@ export async function POST(request: NextRequest) {
         testCases: challengeTestCases // Attach the test cases to the respective challenge
       };
     });
-
-    console.log(formattedChallenges)
 
     // Return the formatted challenges with their test cases
     return NextResponse.json(formattedChallenges);

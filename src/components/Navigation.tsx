@@ -170,8 +170,7 @@ export function Sidebar({ children, path }: React.PropsWithChildren<SidebarProps
   const { data: session, status } = useSession();
   const router = useRouter();
   const links = [
-    { href: "/dashboard", label: "Dashboard", icon: <Home className="h-5 w-5" /> },
-    { href: "/create", label: "Create", icon: <Pen className="h-5 w-5" /> },
+    { href: "/dashboard", label: "Dashboard", icon: <Home className="h-5 w-5" /> }
   ];
 
   if (status === "loading") {

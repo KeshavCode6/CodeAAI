@@ -14,6 +14,7 @@ import { ThreeDots } from "@/components/Threedots";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { ChallengeTable } from "@/components/ChallengeCard";
 
 
 export default function Dashboard() {
@@ -148,98 +149,6 @@ export default function Dashboard() {
       </div>
     </Sidebar>
   )
-}
-
-// Define a type for challenge data
-type Challenge = {
-  name: string;
-  points: number;
-  difficulty: string;
-  solves: number;
-  status: string;
-  challengeId: string;
-};
-
-function ChallengeTable({ difficulty }: { difficulty: string }) {
-  const [loading, setLoading] = useState(true);
-  const [challenges, setChallenges] = useState<Challenge[]>([]);
-
-  useEffect(() => {
-    const fetchChallenges = async () => {
-      try {
-        const response = await fetch('/api/getChallengeList', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ difficulty })
-        });
-
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-
-        const data: Challenge[] = await response.json();
-        setChallenges(data);
-        console.log(data);
-      } catch (error) {
-        console.error(error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchChallenges();
-  }, [difficulty]); // Run effect when `difficulty` changes
-
-
-  if (loading) {
-    return (
-      <div className="absolute top-0 right-0 left-0 bottom-0 flex justify-center items-center">
-        <ThreeDots />
-      </div>
-    );
-  }
-
-  if (challenges.length <= 0) {
-    return (
-      <div className="absolute top-0 right-0 left-0 bottom-0 flex justify-center items-center">
-        No {difficulty} Challenges have been yet...
-      </div>
-    );
-  }
-  return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>Challenge Name</TableHead>
-          <TableHead>Points</TableHead>
-          <TableHead>Difficulty</TableHead>
-          <TableHead>Solves</TableHead>
-          <TableHead>Status</TableHead>
-          <TableHead>Play</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {challenges.map(challenge => (
-          <TableRow key={challenge.challengeId}>
-            <TableCell>{challenge.name}</TableCell>
-            <TableCell>{challenge.points}</TableCell>
-            <TableCell>{challenge.difficulty}</TableCell>
-            <TableCell>{challenge.solves}</TableCell>
-            <TableCell>{challenge.status}</TableCell>
-            <TableCell>
-              <Link href={`/challenge/${challenge.challengeId}`}>
-                <Button>
-                  <ChevronRight />
-                </Button>
-              </Link>
-            </TableCell>
-          </TableRow>
-        ))}
-      </TableBody>
-    </Table>
-  );
 }
 
 type UserStats = {

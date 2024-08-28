@@ -1,23 +1,20 @@
 import {prismaClient} from "@/lib/prisma"; // Import the Prisma client
 import { NextRequest, NextResponse } from "next/server";
-import crypto from "crypto";
-import {getUserFromToken} from "@/lib/getUserFromToken"
+import {getAdminUser, getUserFromToken} from "@/lib/getUserFromToken"
+
 export async function POST(request: NextRequest) {
   try {
     const reqData = await request.json();
-
-    // Uncomment and adjust this section if you need secret key verification
-    // if (crypto.createHash('sha1').update(reqData.secretKey).digest('hex') !== process.env.CHALLENGE_CREATION_SECRET_KEY_HASH) {
-    //   return NextResponse.json({ status: 403 });
-    // }
 
     if (reqData.challengeData === undefined) {
       return NextResponse.json({ status: 403 });
     }
 
     const data = JSON.parse(reqData.challengeData);
-    const user = await getUserFromToken(request.cookies);
-
+    const user = await getAdminUser(request.cookies);
+    if(!user){
+      return NextResponse.json({ status: 401, message: "Not allowed?" });
+    }
     const userID = await prismaClient.user.findUnique({where:{email:user.email || ""}})
 
     if(!userID){
@@ -47,6 +44,35 @@ export async function POST(request: NextRequest) {
     });
 
     return NextResponse.json({ status: 200, newChallenge });
+  } catch (error: any) {
+    console.error(error);
+    return NextResponse.json({ status: 500, message: error.message });
+  }
+}
+
+export async function DELETE(request: NextRequest) {
+  try {
+    // Get the challengeId from the request body (or it could come from the query string)
+    const reqData = await request.json();
+
+    const { challengeId } = reqData;
+
+    if (!challengeId) {
+      return NextResponse.json({ status: 400, message: "Challenge ID is required" });
+    }
+
+    // Authenticate the admin user
+    const user = await getAdminUser(request.cookies);
+    if (!user) {
+      return NextResponse.json({ status: 401, message: "Not allowed" });
+    }
+
+    // Find the challenge by ID and delete it
+    const deletedChallenge = await prismaClient.challenge.delete({
+      where: { challengeId },
+    });
+
+    return NextResponse.json({ status: 200, message: "Challenge deleted", deletedChallenge });
   } catch (error: any) {
     console.error(error);
     return NextResponse.json({ status: 500, message: error.message });
