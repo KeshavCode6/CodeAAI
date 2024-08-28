@@ -190,7 +190,11 @@ export default function CreateChallenge() {
   }, []); // Empty dependency array means this effect runs once on mount
 
   if (!isClient || status=="loading" || adminName=="") {
-    return <ThreeDots />;
+    return (
+    <div className="w-screen h-screen flex justify-center items-center">
+      <ThreeDots />
+    </div>
+    )
   }
 
   return (
@@ -281,12 +285,12 @@ const defaultJson = `
   "isDaily": false,
   "testCases": [
     {
-      "args": {},
-      "output": 0
+      "args": {"arg1":10, "arg2":20},
+      "output": "30"
     },
     {
-      "args": {},
-      "output": 0
+      "args": {"arg1":40, "arg2":50},
+      "output": "90"
     }
   ]
 }

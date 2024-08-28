@@ -18,7 +18,7 @@ export async function getUserFromToken(cookies:any) {
 
         return decoded;
     } catch (error) {
-        console.error("Error decoding token:", error);
+        console.error("Error decoding token");
         throw error; // Propagate error for handling in POST function
     }
 }
@@ -45,7 +45,7 @@ export async function getAdminUser(cookies:any) {
 
         return false;
     } catch (error) {
-        console.error("Error decoding token:", error);
+        console.error("Error decoding token");
         throw error; // Propagate error for handling in POST function
     }
 }

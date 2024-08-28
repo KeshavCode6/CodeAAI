@@ -9,12 +9,36 @@ import { useToast } from "@/components/ui/use-toast";
 import { Separator } from "@/components/ui/separator";
 import { useSession } from "next-auth/react";
 import {ThreeDots} from "@/components/Threedots"
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 // Define VisibleTestCase interface
 interface VisibleTestCase {
   input?: Record<string, any>;
   expected: string;
   received: string;
   result: boolean;
+}
+
+interface TestCaseProps{
+  position:number,
+  inputs:string,
+  expectedOutput:string,
+  receivedOutput:string,
+  result:string;
+}
+function TestCase({position, inputs, expectedOutput, receivedOutput, result}:TestCaseProps) {
+  return (
+      <AccordionItem className="py-4" value={`item-${position}`}>
+          <AccordionTrigger className="text-sm py-1">Visible Test Case #{position}</AccordionTrigger>
+          <AccordionContent className="text-sm  bg-black rounded-lg">
+              <div className="flex flex-col p-4 w-full h-full">
+                  <span><span className="text-slate-400">Input:</span> {inputs}</span>
+                  <span><span className="text-slate-400">Expected Output:</span> {expectedOutput}</span>
+                  <span><span className="text-slate-400">Recieved Output:</span> {receivedOutput}</span>
+                  <span><span className="text-slate-400">Result:</span> {result}</span>
+              </div>
+          </AccordionContent>
+      </AccordionItem>
+  )
 }
 
 // challenge page, params.id is the id of the challenge
@@ -247,7 +271,7 @@ export default function Challenge({ params }: { params: { id: string } }) {
             </div>
             <div className="mt-4 flex flex-col h-fit items-center">
               <div className="w-5/6">
-                {/* {visibleTestCases.map((value: VisibleTestCase, index: number) => {
+                {visibleTestCases.map((value: VisibleTestCase, index: number) => {
                   let result = value.result ? "Passed" : "Failed";
                   let inputs = value.input ? Object.values(value.input).join(', ') : "None";
 
@@ -262,7 +286,7 @@ export default function Challenge({ params }: { params: { id: string } }) {
                       />
                     </Accordion>
                   );
-                })} */}
+                })}
               </div>
               {visibleTestCases.length > 0 ? (
                 <p className="w-full text-center font-normal text-xs mt-4">{`${visibleTestCases.length} out of ${totalCases} test cases shown. Rest hidden.`}</p>

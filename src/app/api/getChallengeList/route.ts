@@ -4,63 +4,62 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(request: NextRequest) {
   try {
-    // Parse the request body to get the difficulty level
     const data = await request.json();
-    const { difficulty } = data;
+    const difficulty = data.difficulty;
 
-    console.log(data)
-    // Get the user from the token in the cookies
     const user = await getUserFromToken(request.cookies);
     if (!user) {
-      // Return a 401 Unauthorized if the token is invalid
       return NextResponse.json({ error: "Invalid user token" }, { status: 401 });
     }
 
-    // Fetch the user from the database using their email
-    const userDb = await prismaClient.user.findUnique({
-      where: { email: user.email || "" }
-    });
-
+    const userDb = await prismaClient.user.findUnique({ where: { email: user.email || "" } });
     if (!userDb) {
-      // Return a 404 Not Found if the user does not exist in the database
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    // Ensure that the difficulty parameter was provided
     if (!difficulty) {
       return NextResponse.json({ error: "Difficulty parameter is required" }, { status: 400 });
     }
 
-    // Fetch challenges based on the difficulty level
+    // Fetch challenges based on difficulty
     const challenges = await prismaClient.challenge.findMany({
-      where: { difficulty }
+      where: { difficulty: difficulty },
+      select: {
+        id: true,
+        challengeId: true,
+        points: true,
+        difficulty: true,
+        solves: true,
+        name: true,
+      },
     });
 
-    // Extract challenge IDs to fetch the corresponding test cases
-    const challengeIds = challenges.map(challenge => challenge.id);
-
-    // Fetch test cases for the challenges
-    const testCases = await prismaClient.testCase.findMany({
-      where: { challengeId: { in: challengeIds } }
+    // Fetch user challenges for the current user
+    const userChallenges = await prismaClient.userChallenges.findMany({
+      where: {
+        userId: userDb.id,
+        challengeId: { in: challenges.map(c => c.id) }
+      }
     });
 
-    // Map the test cases to their respective challenges
+    // Map through challenges and determine status
     const formattedChallenges = challenges.map(challenge => {
-      const challengeTestCases = testCases.filter(testCase => testCase.challengeId === challenge.id);
+      const userChallenge = userChallenges.find(uc => uc.challengeId === challenge.id);
+      let status = 'Unopened'; 
+
+      if (userChallenge) {
+        status = userChallenge.solved ? 'Completed' : 'Opened'; 
+      }
 
       return {
         ...challenge,
-        testCases: challengeTestCases // Attach the test cases to the respective challenge
+        status
       };
     });
-
-    console.log(formattedChallenges)
-
-    // Return the formatted challenges with their test cases
+    
     return NextResponse.json(formattedChallenges);
 
   } catch (error: any) {
-    // Handle any errors that occur during the execution
     console.error("Error:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }

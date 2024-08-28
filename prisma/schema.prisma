@@ -28,7 +28,7 @@ model Challenge {
 model TestCase {
   id         String              @id @default(uuid())
   args       Json
-  output     Json
+  output     String
   challenge  Challenge           @relation(fields: [challengeId], references: [id], onDelete: Cascade)
   challengeId String
 

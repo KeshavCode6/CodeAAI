@@ -1,66 +1,56 @@
-import { getUserFromToken } from '@/lib/getUserFromToken';
-import { prismaClient } from '@/lib/prisma';
 import { NextRequest, NextResponse } from 'next/server';
+import {getUserFromToken} from "@/lib/getUserFromToken"
+import {prismaClient} from "@/lib/prisma"; // Import the Prisma client
+
+interface PostData {
+  challengeId: string;
+}
 
 export async function POST(request: NextRequest) {
   try {
-    const data = await request.json();
-    const difficulty = data.difficulty;
+
+    const data: PostData = await request.json(); // getting challenge data
+
+    if (!data.challengeId) {
+      return NextResponse.json({ result: "Invalid Challenge Id" });
+    }
+
+    // checking if that challenge exists
+    const challengeData = await prismaClient.challenge.findUnique({where:{ challengeId: data.challengeId }});
+
+    if(!challengeData){
+      return NextResponse.json({ result: "Invalid Challenge" });
+    }
 
     const user = await getUserFromToken(request.cookies);
-    if (!user) {
-      return NextResponse.json({ error: "Invalid user token" }, { status: 401 });
+    if(!user){
+      return NextResponse.json({ result: "Invalid user token?" });
     }
 
-    const userDb = await prismaClient.user.findUnique({ where: { email: user.email || "" } });
-    if (!userDb) {
-      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    const userDb = await prismaClient.user.findUnique({where:{email:user.email || ""}})
+    const userChallengeData = await prismaClient.userChallenges.findFirst({where:{challengeId:data.challengeId, userId:userDb?.id || ""}})
+
+    if(!challengeData){
+      return NextResponse.json({ result: "No challenge data?" });
     }
 
-    if (!difficulty) {
-      return NextResponse.json({ error: "Difficulty parameter is required" }, { status: 400 });
+    if(!userChallengeData && userDb){
+      await prismaClient.userChallenges.create({data:{userId:userDb.id, challengeId:challengeData.id, solved:false}})
     }
 
-    // Fetch challenges based on difficulty
-    const challenges = await prismaClient.challenge.findMany({
-      where: { difficulty: difficulty },
-      select: {
-        id: true,
-        challengeId: true,
-        points: true,
-        difficulty: true,
-        solves: true,
-        name: true,
-      },
-    });
+    const author = await prismaClient.user.findUnique({where:{ id: challengeData.authorId}});
+    const name = {name:author?.name || "Unknown"};
 
-    // Fetch user challenges for the current user
-    const userChallenges = await prismaClient.userChallenges.findMany({
-      where: {
-        userId: userDb.id,
-        challengeId: { in: challenges.map(c => c.id) }
-      }
-    });
+    const response = {
+      challengeData,
+      userChallengeData,
+      name
+    };
 
-    // Map through challenges and determine status
-    const formattedChallenges = challenges.map(challenge => {
-      const userChallenge = userChallenges.find(uc => uc.challengeId === challenge.id);
-      let status = 'Unopened'; 
-
-      if (userChallenge) {
-        status = userChallenge.solved ? 'Completed' : 'Opened'; 
-      }
-
-      return {
-        ...challenge,
-        status
-      };
-    });
-    
-    return NextResponse.json(formattedChallenges);
+    return NextResponse.json(response);
 
   } catch (error: any) {
     console.error("Error:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return new Response(`Error processing request: ${error.message}`, { status: 500 });
   }
 }
