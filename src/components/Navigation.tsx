@@ -13,6 +13,7 @@ import {
   ShoppingCart,
   Pen,
   Users2,
+  ListOrdered,
 } from "lucide-react"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import {
@@ -170,7 +171,8 @@ export function Sidebar({ children, path }: React.PropsWithChildren<SidebarProps
   const { data: session, status } = useSession();
   const router = useRouter();
   const links = [
-    { href: "/dashboard", label: "Dashboard", icon: <Home className="h-5 w-5" /> }
+    { href: "/dashboard", label: "Dashboard", icon: <Home className="h-5 w-5" /> },
+    { href: "/leaderboard", label: "Leaderboard", icon: <ListOrdered className="h-5 w-5" /> }
   ];
 
   if (status === "loading") {
