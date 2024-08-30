@@ -15,13 +15,14 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { ChallengeTable } from "@/components/ChallengeCard";
+import { useRouter } from "next/navigation";
 
 
 export default function Dashboard() {
   
   const { data: session, status } = useSession();
   const [challengeFilter, setChallengeFilter] = useState("");
-
+  const router = useRouter();
 
   if (status === "loading") {
     return (
@@ -29,6 +30,11 @@ export default function Dashboard() {
         <ThreeDots />
       </div>
     );
+  }
+
+  if(status==="unauthenticated"){
+    router.push('/?loggedIn=false');
+    return;
   }
 
   return (

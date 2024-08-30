@@ -62,11 +62,14 @@ export function UserDropdown({ session }: { session: any }) {
 
 interface NavbarProps {
   path?: string; // Active path
+  loginOpen?:boolean;
 }
-export function Navbar({ children, path, marginTop = "4rem" }: NavbarProps) {
+export function Navbar({ children, path, marginTop = "4rem", loginOpen=false }: NavbarProps) {
   const { data: session, status } = useSession();
   const [hydrated, setHydrated] = useState(false);
   const router = useRouter();
+
+  const [isLoginOpen, setLoginOpen] = useState(loginOpen)
 
   // Fixing hydration errors
   useEffect(() => {
@@ -134,9 +137,9 @@ export function Navbar({ children, path, marginTop = "4rem" }: NavbarProps) {
         {status === "authenticated" ? (
           <UserDropdown session={session} />
         ) : (
-          <Dialog>
-            <DialogTrigger asChild>
-              <Button className="text-white">Login</Button>
+          <Dialog open={isLoginOpen} onOpenChange={setLoginOpen}>
+            <DialogTrigger>
+              <Button className="text-white" onClick={()=>{setLoginOpen(true)}}>Login</Button>
             </DialogTrigger>
             <DialogContent className="w-96 h-72 flex flex-col justify-center gap-2">
               <Button onClick={() => signIn("google", { callbackUrl: "/dashboard" })} className="text-lg flex gap-4 p-4 rounded-lg" size="lg" variant="outline">
@@ -147,10 +150,7 @@ export function Navbar({ children, path, marginTop = "4rem" }: NavbarProps) {
                 <img src="/assets/login/github.png" className="w-6" />
                 Log in with Github
               </Button>
-              <Button onClick={() => signIn("facebook", { callbackUrl: '/dashboard' })} className="text-lg flex gap-4 p-4 rounded-lg" size="lg" variant="outline">
-                <img src="/assets/login/facebook.png" className="w-6" />
-                Log in with Facebook
-              </Button>
+              <p className="text-xs absolute left-24 right-24 bottom-5 text-center text-gray-500">As of now, we don't allow email and password login</p>
             </DialogContent>
           </Dialog>
         )}

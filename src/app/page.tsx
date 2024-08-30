@@ -5,17 +5,20 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { Card, CardTitle } from "@/components/ui/card"
 import { GlobeIcon } from "lucide-react"
 import { infoCards, teamMembers, faqs } from "@/lib/constants"
-
-// TODO: Fix?
 import Footer from "@/components/Footer" 
 import { Navbar } from "@/components/Navigation"
 import ScrollableSection from "@/components/ScrollableSection"
-// Landing page
-export default function Landing() {
+import { useState } from "react"
 
+// Landing page
+export default function Landing({ searchParams }:any) {
+  var { loggedIn } = searchParams;
+  if(!loggedIn){
+    loggedIn = false;
+  }
 
   return (
-    <Navbar path="/">
+    <Navbar path="/" loginOpen={loggedIn}>
       {/* Hero Section */}
       <div className="h-screen bg-cover flex justify-center flex-col bg-[url('/assets/background.png')]">
         <div className=" w-full h-full bg-gradient-to-r from-homeGradientStart backdrop-blur-sm" style={{ backgroundColor: "rgba(16, 12, 52, 0.8)" }}>
