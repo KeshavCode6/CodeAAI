@@ -33,6 +33,7 @@ import {
     SelectTrigger,
     SelectValue,
   } from "@/components/ui/select"
+import ScrollableSection from "@/components/ScrollableSection";
 
 const chartConfig = {
     player1: {
@@ -51,6 +52,45 @@ export default function Leaderboard() {
 
   const [chartData, setChartData] = useState<Array<Object>>([]);
 
+  const [leaderboardUsers, setLeaderboardUsers] = useState<Array<Object>>([]);
+  const [leaderboardFilter, setLeaderboardFilter] = useState<string>("all");
+
+  const getLeaderboard = async () => {
+    const response = await fetch('/api/getLeaderboard');
+    const json = await response.json();
+    json.push(json[0]);
+    json.push(json[0]);
+    json.push(json[0]);
+    json.push(json[0]);
+    json.push(json[0]);
+    json.push(json[0]);
+    json.push(json[0]);
+    json.push(json[0]);
+    json.push(json[0]);
+    json.push(json[0]);
+    json.push(json[0]);
+    json.push(json[0]);
+    json.push(json[0]);
+    json.push(json[0]);
+    json.push(json[0]);
+    json.push(json[0]);
+    json.push(json[0]);
+    json.push(json[0]);
+    json.push(json[0]);
+    json.push(json[0]);
+    json.push(json[0]);
+    json.push(json[0]);
+    json.push(json[0]);
+    json.push(json[0]);
+    json.push(json[0]);
+    json.push(json[0]);
+    json.push(json[0]);
+    json.push(json[0]);
+    json.push(json[0]);
+    json.push(json[0]);
+    setLeaderboardUsers(json.sort((a: any, b: any) => parseFloat(b.points) - parseFloat(a.points)));
+  }
+
   useEffect(() => {
 
     const lastSevenDays = getLastSevenDays();
@@ -61,7 +101,7 @@ export default function Leaderboard() {
         setChartData((o : any) => [...o, {day, player1: Math.random() * 200, player2: Math.random() * 200}])
     }
 
-    console.log(lastSevenDays);
+    getLeaderboard();
 
   }, [])
 
@@ -75,7 +115,7 @@ export default function Leaderboard() {
 
   return (
     <Sidebar path="/leaderboard">
-        <div className="flex flex-wrap justify-center mt-2 h-[90vh] gap-x-2 p-16">
+        <div className="flex flex-wrap justify-center mt-2 h-[90vh] gap-2 p-16">
         <Card className="w-[50rem]">
             <CardHeader>
                 <CardTitle>Points Over Time</CardTitle>
@@ -154,23 +194,24 @@ export default function Leaderboard() {
                         Leaderboard
                     </CardTitle>
                     <div className="w-full justify-end relative">
-                    <Select>
+                    <Select onValueChange={setLeaderboardFilter}>
                         <SelectTrigger className="w-[180px] float-right">
                             <SelectValue placeholder="Select a filter" />
                         </SelectTrigger>
                         <SelectContent>
                             <SelectGroup>
-                            <SelectLabel>Filters</SelectLabel>
-                            <SelectItem value="apple">Top 5</SelectItem>
-                            <SelectItem value="banana">Top 20</SelectItem>
-                            <SelectItem value="blueberry">Top 100</SelectItem>
-                            <SelectItem value="grapes">Around Me</SelectItem>
+                              <SelectLabel>Filters</SelectLabel>
+                              <SelectItem value="all">All</SelectItem>
+                              <SelectItem value="top5">Top 5</SelectItem>
+                              <SelectItem value="top20">Top 20</SelectItem>
+                              <SelectItem value="top100">Top 100</SelectItem>
+                              <SelectItem value="aroundMe">Around Me</SelectItem>
                             </SelectGroup>
                         </SelectContent>
                         </Select>
                     </div>
                 </CardHeader>
-                <CardContent className="h-full">
+                <CardContent className="overflow-y-scroll h-[40rem]">
                 <Table>
                     <TableHeader>
                     <TableRow>
@@ -182,16 +223,36 @@ export default function Leaderboard() {
                     </TableRow>
                     </TableHeader>
                     <TableBody>
-                    {[1, 1, 1, 1, 1, 1, 1, 1, 1, 1].map(i => <TableRow>
-                        <TableCell>#1</TableCell>
-                        <TableCell className="flex flex-row gap-x-3 justify-center">
-                        <img src={session?.user?.image || ""} className="w-8 rounded-full" />
-                        <span className="my-auto">Kartteekeya Punyamurthy</span>
-                        </TableCell>
-                        <TableCell>999</TableCell>
-                        <TableCell>500,000</TableCell>
-                        <TableCell>100%</TableCell>
-                    </TableRow>)}
+                      {leaderboardUsers.map((user, index) => {
+
+                          switch (leaderboardFilter) {
+                            case "top5":
+                              if (index >= 5) {
+                                return <></>
+                              }
+                            case "top20":
+                              if (index >= 20) {
+                                return <></>
+                              }
+                            case "top100":
+                              if (index >= 100) {
+                                return <></>
+                              }
+                            case "aroundMe":
+
+                          }
+
+                          return <TableRow key={index}>
+                            <TableCell>#{index + 1}</TableCell>
+                            <TableCell className="flex flex-row gap-x-3 justify-center">
+                              <img src={user.image || ""} className="w-8 rounded-full" />
+                              <span className="my-auto">{user.name}</span>
+                            </TableCell>
+                            <TableCell>{user.solves.toLocaleString()}</TableCell>
+                            <TableCell>{user.points.toLocaleString()}</TableCell>
+                            <TableCell>100%</TableCell>
+                        </TableRow>
+                      })}
                     </TableBody>
                 </Table>
                 </CardContent>

@@ -18,6 +18,7 @@ import { ChallengeTable } from "@/components/ChallengeCard";
 
 
 export default function Dashboard() {
+  
   const { data: session, status } = useSession();
   const [challengeFilter, setChallengeFilter] = useState("");
 
