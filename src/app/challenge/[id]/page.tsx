@@ -233,7 +233,7 @@ export default function Challenge({ params }: { params: { id: string } }) {
 
   // UI
   return (
-    <Sidebar path={"/dashboard"}>
+    <Sidebar path={"/play"}>
       <div className="overflow-hidden h-[90vh]">
         <div className="flex gap-2 w-screen items-center justify-center" style={{ marginTop: "80px" }}>
           {/* Editor Section */}

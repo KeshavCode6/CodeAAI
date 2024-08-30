@@ -6,7 +6,7 @@ import { prismaClient } from '@/lib/prisma';
 export async function GET(request: NextRequest) {
   try {
     const user = await getUserFromToken(request.cookies);
-    const dbUser = await prismaClient.user.findUnique({ where: { email: user?.email || "" }, select: { points: true, codeLeagueRank: true, solves: true } });
+    const dbUser = await prismaClient.user.findUnique({ where: { email: user?.email || "" }, select: { points: true, codeLeagueRank: true, solves: true, lastChallenge:true} });
     
     return NextResponse.json(dbUser);
   } catch (error: any) {

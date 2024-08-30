@@ -140,6 +140,7 @@ export async function POST(request: NextRequest) {
         data: {
           points: { increment: change },
           solves: { increment: 1 },
+          lastChallenge:""
         },
       });
 

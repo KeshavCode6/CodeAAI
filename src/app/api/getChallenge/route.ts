@@ -41,6 +41,15 @@ export async function POST(request: NextRequest) {
     const author = await prismaClient.user.findUnique({where:{ id: challengeData.authorId}});
     const name = {name:author?.name || "Unknown"};
 
+    if(!userChallengeData?.solved){
+      await prismaClient.user.update({
+        where: { id: userDb?.id },
+        data: {
+          lastChallenge:challengeData.challengeId
+        },
+      });
+    }
+
     const response = {
       challengeData,
       userChallengeData,

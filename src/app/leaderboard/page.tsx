@@ -58,36 +58,7 @@ export default function Leaderboard() {
   const getLeaderboard = async () => {
     const response = await fetch('/api/getLeaderboard');
     const json = await response.json();
-    json.push(json[0]);
-    json.push(json[0]);
-    json.push(json[0]);
-    json.push(json[0]);
-    json.push(json[0]);
-    json.push(json[0]);
-    json.push(json[0]);
-    json.push(json[0]);
-    json.push(json[0]);
-    json.push(json[0]);
-    json.push(json[0]);
-    json.push(json[0]);
-    json.push(json[0]);
-    json.push(json[0]);
-    json.push(json[0]);
-    json.push(json[0]);
-    json.push(json[0]);
-    json.push(json[0]);
-    json.push(json[0]);
-    json.push(json[0]);
-    json.push(json[0]);
-    json.push(json[0]);
-    json.push(json[0]);
-    json.push(json[0]);
-    json.push(json[0]);
-    json.push(json[0]);
-    json.push(json[0]);
-    json.push(json[0]);
-    json.push(json[0]);
-    json.push(json[0]);
+
     setLeaderboardUsers(json.sort((a: any, b: any) => parseFloat(b.points) - parseFloat(a.points)));
   }
 
@@ -211,7 +182,7 @@ export default function Leaderboard() {
                         </Select>
                     </div>
                 </CardHeader>
-                <CardContent className="overflow-y-scroll h-[40rem]">
+                <CardContent className="overflow-y-auto h-[40rem]">
                 <Table>
                     <TableHeader>
                     <TableRow>
@@ -223,7 +194,7 @@ export default function Leaderboard() {
                     </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {leaderboardUsers.map((user, index) => {
+                      {leaderboardUsers.map((user:any, index) => {
 
                           switch (leaderboardFilter) {
                             case "top5":
@@ -239,7 +210,6 @@ export default function Leaderboard() {
                                 return <></>
                               }
                             case "aroundMe":
-
                           }
 
                           return <TableRow key={index}>

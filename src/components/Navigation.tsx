@@ -5,15 +5,11 @@ import { Button } from "@/components/ui/button";
 import {
   GalleryThumbnailsIcon,
   Home,
-  LineChart,
-  Package,
   Package2,
   PanelLeft,
-  Settings,
-  ShoppingCart,
-  Pen,
-  Users2,
+  PlayIcon,
   ListOrdered,
+  CogIcon,
 } from "lucide-react"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import {
@@ -172,7 +168,9 @@ export function Sidebar({ children, path }: React.PropsWithChildren<SidebarProps
   const router = useRouter();
   const links = [
     { href: "/dashboard", label: "Dashboard", icon: <Home className="h-5 w-5" /> },
-    { href: "/leaderboard", label: "Leaderboard", icon: <ListOrdered className="h-5 w-5" /> }
+    { href: "/play", label: "Play", icon: <PlayIcon className="h-5 w-5" /> },
+    { href: "/leaderboard", label: "Leaderboard", icon: <ListOrdered className="h-5 w-5" /> },
+    { href: "/settings", label: "Settings", icon: <CogIcon className="h-5 w-5" /> }
   ];
 
   if (status === "loading") {
@@ -221,23 +219,7 @@ export function Sidebar({ children, path }: React.PropsWithChildren<SidebarProps
             );
           })}
         </nav>
-        <nav className="mt-auto flex flex-col items-center gap-4 px-2 sm:py-4">
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Link
-                href="/settings"
-                className={`flex h-9 w-9 items-center justify-center rounded-lg transition-colors md:h-8 md:w-8 ${path === "/settings"
-                  ? "bg-accent text-accent-foreground"
-                  : "text-muted-foreground hover:text-foreground"
-                  }`}
-              >
-                <Settings className="h-5 w-5" />
-                <span className="sr-only">Settings</span>
-              </Link>
-            </TooltipTrigger>
-            <TooltipContent side="right">Settings</TooltipContent>
-          </Tooltip>
-        </nav>
+
       </aside>
       <div className="flex flex-col sm:gap-4 sm:py-4 sm:pl-16">
         <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background px-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6">

@@ -162,7 +162,10 @@ type UserStats = {
   points: number;
   solves: number;
   codeLeagueRank: number;
+  lastChallenge:string;
 };
+
+export var globalUserData : UserStats | null = null;
 
 function UserPointsCards() {
   const [userData, setUserData] = useState<UserStats | null>(null);
@@ -176,7 +179,7 @@ function UserPointsCards() {
           throw new Error('Network response was not ok');
         }
         const data = await response.json();
-        console.log(data)
+        globalUserData = data;
         setUserData(data);
       } catch (error) {
         console.error('Fetch error:', error);
