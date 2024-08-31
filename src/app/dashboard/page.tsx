@@ -37,6 +37,19 @@ export default function Dashboard() {
     return;
   }
 
+  const [leaderboardUsers, setLeaderboardUsers] = useState<Array<Object>>([]);
+
+  const getLeaderboard = async () => {
+    const response = await fetch('/api/getLeaderboard');
+    const json = await response.json();
+
+    setLeaderboardUsers(json.sort((a: any, b: any) => parseFloat(b.points) - parseFloat(a.points)));
+  }
+
+  useEffect(() => {
+    getLeaderboard();
+  }, []);
+
   return (
     <Sidebar path="/dashboard">
       <div
@@ -139,15 +152,18 @@ export default function Dashboard() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  <TableRow>
-                    <TableCell>#1</TableCell>
-                    <TableCell className="flex flex-row gap-x-3">
-                      <img src={session?.user?.image || ""} className="w-8 rounded-full" />
-                      <span className="my-auto">Kartteekeya Punyamurthy</span>
-                    </TableCell>
-                    <TableCell>500,000</TableCell>
-                    <TableCell>100%</TableCell>
-                  </TableRow>
+                  {leaderboardUsers.map((user, index) => (
+                    <TableRow>
+                      <TableCell>#{index + 1}</TableCell>
+                      <TableCell className="flex flex-row gap-x-3">
+                        <img src={user.image} className="w-8 rounded-full" />
+                        <span className="my-auto">{user.name}</span>
+                      </TableCell>
+                      <TableCell>{user.points.toLocaleString()}</TableCell>
+                      <TableCell>100%</TableCell>
+                    </TableRow>
+                  ))}
+                  
                 </TableBody>
               </Table>
             </CardContent>
