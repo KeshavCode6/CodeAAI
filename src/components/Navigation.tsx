@@ -251,7 +251,7 @@ export function Sidebar({ children, path }: React.PropsWithChildren<SidebarProps
           <UserDropdown session={session} />
         </header>
         <div className="flex flex-col">
-          <main className="p-4">
+          <main className="mt-8">
             {children}
           </main>
         </div>

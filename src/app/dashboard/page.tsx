@@ -22,7 +22,21 @@ export default function Dashboard() {
   
   const { data: session, status } = useSession();
   const [challengeFilter, setChallengeFilter] = useState("");
+  const [leaderboardUsers, setLeaderboardUsers] = useState<Array<Object>>([]);
   const router = useRouter();
+
+
+  const getLeaderboard = async () => {
+    const response = await fetch('/api/getLeaderboard');
+    const json = await response.json();
+
+    setLeaderboardUsers(json.sort((a: any, b: any) => parseFloat(b.points) - parseFloat(a.points)));
+  }
+
+  useEffect(() => {
+    getLeaderboard();
+  }, []);
+
 
   if (status === "loading") {
     return (
@@ -37,30 +51,17 @@ export default function Dashboard() {
     return;
   }
 
-  const [leaderboardUsers, setLeaderboardUsers] = useState<Array<Object>>([]);
-
-  const getLeaderboard = async () => {
-    const response = await fetch('/api/getLeaderboard');
-    const json = await response.json();
-
-    setLeaderboardUsers(json.sort((a: any, b: any) => parseFloat(b.points) - parseFloat(a.points)));
-  }
-
-  useEffect(() => {
-    getLeaderboard();
-  }, []);
-
   return (
     <Sidebar path="/dashboard">
       <div
-        className="flex flex-col md:flex-row md:justify-center gap-2 h-[91vh] bg-fit bg-center"
+        className="flex flex-col 2xl:flex-row gap-2 justify-center 2xl:h-[90vh]"
       >
-        <div className="flex flex-col gap-2 opacity-90">
-          <div className="flex flex-col pr-8 md:p-0 md:flex-row gap-2 max-w-screen">
+        <div className="flex flex-col gap-2">
+          <div className="flex flex-col px-8 2xl:p-0 md:flex-row gap-2 max-w-screen">
             <UserPointsCards/>
           </div>
-          <div className="flex flex-col lg:flex-row gap-2 grow">
-            <Card className="md:w-full md:min-w-[40rem] max-w-[90vw]">
+          <div className="flex flex-col px-8 2xl:p-0 2xl:flex-row gap-2 grow">
+            <Card className="md:min-w-[40rem] 2xl:w-fit max-w-[90vw]">
               <CardHeader className="self-center gap-4">
                 <div>
                   <CardTitle>
@@ -79,7 +80,7 @@ export default function Dashboard() {
                   </TabsList>
                 </Tabs>
               </CardHeader>
-              <CardContent className="relative md:min-w-[37rem]">
+              <CardContent className="relative md:min-w-[37rem] min-h-72">
                 <ChallengeTable difficulty={challengeFilter} />
               </CardContent>
             </Card>
@@ -129,15 +130,15 @@ export default function Dashboard() {
             </Card>
           </div>
         </div>
-        <div className="w-full lg:w-1/4 mt-2 lg:mt-0 ">
-          <Card className="min-h-[90vh]">
+        <div className="w-full bg-[#101424] 2xl:max-w-md">
+          <Card className="h-full mx-8 2xl:m-0">
             <CardHeader>
               <div>
                 <CardTitle>
                   Leaderboard
                 </CardTitle>
                 <CardDescription>
-                  See how you rank among the best of the best
+                  See how you rank among the best!
                 </CardDescription>
               </div>
             </CardHeader>
@@ -152,11 +153,11 @@ export default function Dashboard() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {leaderboardUsers.map((user, index) => (
+                  {leaderboardUsers.map((user:any, index) => (
                     <TableRow>
                       <TableCell>#{index + 1}</TableCell>
-                      <TableCell className="flex flex-row gap-x-3">
-                        <img src={user.image} className="w-8 rounded-full" />
+                      <TableCell className="flex flex-row justify-center gap-x-3">
+                        <img src={user.image} className="w-8 h-8 rounded-full" />
                         <span className="my-auto">{user.name}</span>
                       </TableCell>
                       <TableCell>{user.points.toLocaleString()}</TableCell>
