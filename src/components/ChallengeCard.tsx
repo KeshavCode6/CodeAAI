@@ -206,7 +206,7 @@ export function ChallengeTable({ difficulty }: { difficulty: string }) {
                 </TableHeader>
                 <TableBody>
                     {challenges.map(challenge => (
-                        <TableRow key={challenge.challengeId}>
+                        <TableRow key={challenge.challengeId} >
                             <TableCell>{challenge.name}</TableCell>
                             <TableCell>{challenge.points}</TableCell>
                             <TableCell>{challenge.difficulty}</TableCell>

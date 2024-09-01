@@ -6,10 +6,10 @@ import {
   GalleryThumbnailsIcon,
   Home,
   Package2,
-  PanelLeft,
   PlayIcon,
   ListOrdered,
   CogIcon,
+  Menu,
 } from "lucide-react"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import {
@@ -108,10 +108,10 @@ export function Navbar({ children, path, marginTop = "4rem", loginOpen=false }: 
     <>
       <div className="fixed top-0 left-0 right-0 flex justify-between px-16 items-center bg-slate-950/[.85] backdrop-blur h-16 shadow-sm shadow-slate-900 z-[1]" suppressHydrationWarning>
         <div className="flex items-center">
-          <div className="flex gap-1 mr-9">
+          <a className="flex gap-1 mr-9" href="/">
             <GalleryThumbnailsIcon />
             Code AAI
-          </div>
+          </a>
           <NavigationMenu>
             {links.map((value, index) => {
               let eClass = navigationMenuTriggerStyle();
@@ -190,11 +190,11 @@ export function Sidebar({ children, path }: React.PropsWithChildren<SidebarProps
       <aside className="fixed inset-y-0 left-0 z-10 hidden w-16 flex-col border-r bg-background sm:flex">
         <nav className="flex flex-col items-center gap-4 px-2 sm:py-4">
           <Link
-            href="#"
+            href="/"
             className="group flex h-9 w-9 shrink-0 items-center justify-center gap-2 rounded-full bg-primary text-lg font-semibold text-primary-foreground"
           >
             <Package2 className="h-4 w-4 transition-all group-hover:scale-110" />
-            <span className="sr-only">Acme Inc</span>
+            <span className="sr-only">Code AAI</span>
           </Link>
 
           {links.map((link) => {
@@ -226,7 +226,7 @@ export function Sidebar({ children, path }: React.PropsWithChildren<SidebarProps
           <Sheet>
             <SheetTrigger asChild>
               <Button size="icon" variant="outline" className="sm:hidden">
-                <PanelLeft className="h-5 w-5" />
+                <Menu className="h-5 w-5" />
                 <span className="sr-only">Toggle Menu</span>
               </Button>
             </SheetTrigger>

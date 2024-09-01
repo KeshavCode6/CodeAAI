@@ -83,11 +83,41 @@ const config = {
             transform: "translateY(0)",
           },
         },
+        "flyInFromTop": {
+          '0%': { transform: 'translateY(-1000px)' },
+          '100%': { transform: 'translateY(0px)' },
+        },
+        "flyInFromBottom": {
+          '0%': { transform: 'translateY(1000px)' },
+          '100%': { transform: 'translateY(0px)' },
+        },
+        "flyInFromLeft": {
+          '0%': { transform: 'translateX(-1000px)' },
+          '100%': { transform: 'translateX(0px)' },
+        },
+        "flyInFromRight": {
+          '0%': { transform: 'translateX(1000px)' },
+          '100%': { transform: 'translateX(0px)' },
+        },
+        "flyInFromTopLeft": {
+          '0%': { transform: 'translateX(-1000px) translateY(-200px)' },
+          '100%': { transform: 'translateX(0px) translateY(0px)' },
+        },
+        "fadeIn":{
+          '0%':{opacity:"0"},
+          "100%":{opacity:"100"}
+        }
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
         "loading-dot": "loading-dots 1s infinite ease-in-out",
+        "flyTop": 'flyInFromBottom 0.55s',
+        "flyBottom": 'flyInFromTop 0.55s',
+        "flyRight": 'flyInFromLeft 0.55s',
+        "flyLeft": 'flyInFromRight 0.55s',
+        "flyTopLeft": "flyInFromTopLeft 0.75s",
+        "fade":"fadeIn 0.5s"
       },
     },
   },

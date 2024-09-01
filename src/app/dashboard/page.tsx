@@ -54,14 +54,14 @@ export default function Dashboard() {
   return (
     <Sidebar path="/dashboard">
       <div
-        className="flex flex-col 2xl:flex-row gap-2 justify-center 2xl:h-[90vh]"
+        className="flex flex-col 2xl:flex-row gap-2 justify-center 2xl:h-[90vh] 2xl:overflow-y-hidden"
       >
         <div className="flex flex-col gap-2">
-          <div className="flex flex-col px-8 2xl:p-0 md:flex-row gap-2 max-w-screen">
+          <div className="flex flex-col px-8 2xl:p-0 md:flex-row gap-2 max-w-screen animate-flyBottom">
             <UserPointsCards/>
           </div>
           <div className="flex flex-col px-8 2xl:p-0 2xl:flex-row gap-2 grow">
-            <Card className="md:min-w-[40rem] 2xl:w-fit max-w-[90vw]">
+            <Card className="md:min-w-[40rem] 2xl:w-fit 2xl:max-w-[30vw] animate-flyRight">
               <CardHeader className="self-center gap-4">
                 <div>
                   <CardTitle>
@@ -80,11 +80,11 @@ export default function Dashboard() {
                   </TabsList>
                 </Tabs>
               </CardHeader>
-              <CardContent className="relative md:min-w-[37rem] min-h-72">
+              <CardContent className="relative md:max-w-full flex justify-center items-center min-h-72">
                 <ChallengeTable difficulty={challengeFilter} />
               </CardContent>
             </Card>
-            <Card className="md:w-full  md:min-w-[30rem] max-w-[90vw]">
+            <Card className="md:w-full  md:min-w-[30rem] max-w-[90vw] animate-flyTop">
               <CardHeader className="gap-4">
                 <div>
                   <CardTitle>
@@ -101,8 +101,10 @@ export default function Dashboard() {
                   </TabsList>
                 </Tabs>
               </CardHeader>
-              <CardContent>
-                <Table >
+              <CardContent className="flex w-full py-32 justify-center items-center">
+                <p className="font-bold">This feature is coming soon...</p>
+
+                {/* <Table >
                   <TableHeader>
                     <TableRow>
                       <TableHead>Event Name</TableHead>
@@ -125,12 +127,12 @@ export default function Dashboard() {
                       </TableCell>
                     </TableRow>
                   </TableBody>
-                </Table>
+                </Table> */}
               </CardContent>
             </Card>
           </div>
         </div>
-        <div className="w-full bg-[#101424] 2xl:max-w-md">
+        <div className="w-full bg-[#101424] 2xl:max-w-lg animate-flyTop">
           <Card className="h-full mx-8 2xl:m-0">
             <CardHeader>
               <div>
@@ -233,8 +235,9 @@ function UserPointsCards() {
       <Card className="md:w-full max-w-[90vw]">
         {loading || !userData ? renderCardContent(null, true) : renderCardContent(userData, false)}
       </Card>
-      <Card className="md:w-full max-w-[90vw]">
-        <CardHeader className="pb-2">
+      <Card className="md:w-full max-w-[90vw] flex justify-center items-center">
+        <p className="font-bold">Code League is Coming Soon...</p>
+        {/* <CardHeader className="pb-2">
           <CardDescription>{loading || !userData ? '...' : 'Your Code League ranking'}</CardDescription>
           <CardTitle className="text-4xl">{loading || !userData ? '...' : userData.codeLeagueRank}</CardTitle>
         </CardHeader>
@@ -245,7 +248,7 @@ function UserPointsCards() {
         </CardContent>
         <CardFooter>
           <Progress value={loading || !userData ? 0 : 100} aria-label="Rank progress" />
-        </CardFooter>
+        </CardFooter> */}
       </Card>
     </>
   );

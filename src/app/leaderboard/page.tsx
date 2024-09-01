@@ -25,25 +25,25 @@ import { useEffect, useState } from "react";
 import { getLastSevenDays } from "@/lib/utils";
 
 import {
-    Select,
-    SelectContent,
-    SelectGroup,
-    SelectItem,
-    SelectLabel,
-    SelectTrigger,
-    SelectValue,
-  } from "@/components/ui/select"
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import ScrollableSection from "@/components/ScrollableSection";
 
 const chartConfig = {
-    player1: {
-      label: "Player 1",
-      color: "hsl(var(--chart-1))",
-    },
-    player2: {
-      label: "Player 2",
-      color: "hsl(var(--chart-2))",
-    },
+  player1: {
+    label: "Player 1",
+    color: "hsl(var(--chart-1))",
+  },
+  player2: {
+    label: "Player 2",
+    color: "hsl(var(--chart-2))",
+  },
 } satisfies ChartConfig
 
 export default function Leaderboard() {
@@ -69,7 +69,7 @@ export default function Leaderboard() {
     setChartData([]);
 
     for (const day of lastSevenDays) {
-        setChartData((o : any) => [...o, {day, player1: Math.random() * 200, player2: Math.random() * 200}])
+      setChartData((o: any) => [...o, { day, player1: Math.random() * 200, player2: Math.random() * 200 }])
     }
 
     getLeaderboard();
@@ -86,150 +86,190 @@ export default function Leaderboard() {
 
   return (
     <Sidebar path="/leaderboard">
-        <div className="flex flex-wrap justify-center mt-2 h-[90vh] gap-2 p-16">
-        <Card className="w-[50rem]">
+      <div className="flex flex-col m-4 mt-0 2xl:mt-4 2xl:mx-32 2xl:flex-row gap-2 justify-center items-stretch 2xl:overflow-hidden">
+        <div className="flex flex-col">
+          <Card className="flex-grow h-full animate-flyBottom">
             <CardHeader>
-                <CardTitle>Points Over Time</CardTitle>
-                <CardDescription>
+              <CardTitle>Points Over Time</CardTitle>
+              <CardDescription>
                 Showing player points over the past week
-                </CardDescription>
+              </CardDescription>
             </CardHeader>
             <CardContent>
-                <ChartContainer config={chartConfig}>
+              <ChartContainer config={chartConfig}>
                 <AreaChart
-                    accessibilityLayer
-                    data={chartData}
-                    margin={{
+                  accessibilityLayer
+                  data={chartData}
+                  margin={{
                     left: 12,
                     right: 12,
-                    }}
+                  }}
                 >
-                    <CartesianGrid vertical={false} />
-                    <XAxis
+                  <CartesianGrid vertical={false} />
+                  <XAxis
                     dataKey="day"
                     tickLine={false}
                     axisLine={false}
                     tickMargin={8}
                     tickFormatter={(value) => value.slice(0, 3)}
-                    />
-                    <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
-                    <defs>
+                  />
+                  <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
+                  <defs>
                     <linearGradient id="fillDesktop" x1="0" y1="0" x2="0" y2="1">
-                        <stop
+                      <stop
                         offset="5%"
                         stopColor="#ff0000"
                         stopOpacity={0.8}
-                        />
-                        <stop
+                      />
+                      <stop
                         offset="95%"
                         stopColor=""
                         stopOpacity={0.1}
-                        />
+                      />
                     </linearGradient>
                     <linearGradient id="fillMobile" x1="0" y1="0" x2="0" y2="1">
-                        <stop
+                      <stop
                         offset="5%"
                         stopColor="#8adeff"
                         stopOpacity={0.8}
-                        />
-                        <stop
+                      />
+                      <stop
                         offset="95%"
                         stopColor="#8adeff"
                         stopOpacity={0.1}
-                        />
+                      />
                     </linearGradient>
-                    </defs>
-                    <Area
+                  </defs>
+                  <Area
                     dataKey="player1"
                     type="natural"
                     fill="url(#fillDesktop)"
                     fillOpacity={0.4}
                     stroke="var(--color-mobile)"
                     stackId="a"
-                    />
-                    <Area
+                  />
+                  <Area
                     dataKey="player2"
                     type="natural"
                     fill="url(#fillMobile)"
                     fillOpacity={0.4}
                     stroke="var(--color-desktop)"
                     stackId="a"
-                    />
+                  />
                 </AreaChart>
-                </ChartContainer>
+              </ChartContainer>
             </CardContent>
+          </Card>
+          <div className="flex flex-col md:flex-row pt-2 gap-1 min-h-52 animate-flyTop">
+            <Card className="flex-grow">
+              <CardHeader>
+                <CardTitle>Card 1</CardTitle>
+              </CardHeader>
+              <CardContent>
+                Content for card 1.
+              </CardContent>
             </Card>
-            <Card className="w-[50rem]">
-                <CardHeader className="w-full flex flex-row">
-                    <CardTitle className="w-fit">
-                        Leaderboard
-                    </CardTitle>
-                    <div className="w-full justify-end relative">
-                    <Select onValueChange={setLeaderboardFilter}>
-                        <SelectTrigger className="w-[180px] float-right">
-                            <SelectValue placeholder="Select a filter" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectGroup>
-                              <SelectLabel>Filters</SelectLabel>
-                              <SelectItem value="all">All</SelectItem>
-                              <SelectItem value="top5">Top 5</SelectItem>
-                              <SelectItem value="top20">Top 20</SelectItem>
-                              <SelectItem value="top100">Top 100</SelectItem>
-                              <SelectItem value="aroundMe">Around Me</SelectItem>
-                            </SelectGroup>
-                        </SelectContent>
-                        </Select>
-                    </div>
-                </CardHeader>
-                <CardContent className="overflow-y-auto h-[40rem]">
-                <Table>
-                    <TableHeader>
-                    <TableRow>
-                        <TableHead>Rank</TableHead>
-                        <TableHead>User</TableHead>
-                        <TableHead>Solved Challenges</TableHead>
-                        <TableHead>Points</TableHead>
-                        <TableHead>Completion</TableHead>
-                    </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {leaderboardUsers.map((user:any, index) => {
-
-                          switch (leaderboardFilter) {
-                            case "top5":
-                              if (index >= 5) {
-                                return <></>
-                              }
-                            case "top20":
-                              if (index >= 20) {
-                                return <></>
-                              }
-                            case "top100":
-                              if (index >= 100) {
-                                return <></>
-                              }
-                            case "aroundMe":
-                          }
-
-                          return <TableRow key={index}>
-                            <TableCell>#{index + 1}</TableCell>
-                            <TableCell className="flex flex-row gap-x-3 justify-center">
-                              <img src={user.image || ""} className="w-8 rounded-full" />
-                              <span className="my-auto">{user.name}</span>
-                            </TableCell>
-                            <TableCell>{user.solves.toLocaleString()}</TableCell>
-                            <TableCell>{user.points.toLocaleString()}</TableCell>
-                            <TableCell>100%</TableCell>
-                        </TableRow>
-                      })}
-                    </TableBody>
-                </Table>
-                </CardContent>
-                </Card>
+            <Card className="flex-grow">
+              <CardHeader>
+                <CardTitle>Card 2</CardTitle>
+              </CardHeader>
+              <CardContent>
+                Content for card 2.
+              </CardContent>
+            </Card>
+            <Card className="flex-grow">
+              <CardHeader>
+                <CardTitle>Card 3</CardTitle>
+              </CardHeader>
+              <CardContent>
+                Content for card 3.
+              </CardContent>
+            </Card>
+            <Card className="flex-grow">
+              <CardHeader>
+                <CardTitle>Card 4</CardTitle>
+              </CardHeader>
+              <CardContent>
+                Content for card 4.
+              </CardContent>
+            </Card>
           </div>
+
+        </div>
+        <Card className="w-full flex-grow h-full 2xl:max-w-[30vw] animate-flyLeft">
+          <CardHeader className="w-full flex flex-row">
+            <div>
+            <CardTitle className="w-fit">
+              Leaderboard
+            </CardTitle>
+            <CardDescription>
+                Anaylze the competition
+            </CardDescription>
+            </div>
+            <div className="self-end ml-auto relative">
+              <Select onValueChange={setLeaderboardFilter}>
+                <SelectTrigger className="w-[180px] float-right">
+                  <SelectValue placeholder="Select a filter" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    <SelectLabel>Filters</SelectLabel>
+                    <SelectItem value="all">All</SelectItem>
+                    <SelectItem value="top5">Top 5</SelectItem>
+                    <SelectItem value="top20">Top 20</SelectItem>
+                    <SelectItem value="top100">Top 100</SelectItem>
+                    <SelectItem value="aroundMe">Around Me</SelectItem>
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+            </div>
+          </CardHeader>
+          <CardContent className="overflow-y-auto h-[40rem]">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Rank</TableHead>
+                  <TableHead>User</TableHead>
+                  <TableHead>Solved Challenges</TableHead>
+                  <TableHead>Points</TableHead>
+                  <TableHead>Completion</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {leaderboardUsers.map((user: any, index) => {
+
+                  switch (leaderboardFilter) {
+                    case "top5":
+                      if (index >= 5) {
+                        return <></>
+                      }
+                    case "top20":
+                      if (index >= 20) {
+                        return <></>
+                      }
+                    case "top100":
+                      if (index >= 100) {
+                        return <></>
+                      }
+                    case "aroundMe":
+                  }
+
+                  return <TableRow key={index}>
+                    <TableCell>#{index + 1}</TableCell>
+                    <TableCell className="flex flex-row gap-x-3 justify-center">
+                      <img src={user.image || ""} className="w-8 rounded-full" />
+                      <span className="my-auto">{user.name}</span>
+                    </TableCell>
+                    <TableCell>{user.solves.toLocaleString()}</TableCell>
+                    <TableCell>{user.points.toLocaleString()}</TableCell>
+                    <TableCell>100%</TableCell>
+                  </TableRow>
+                })}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+      </div>
     </Sidebar>
   )
 }
-
-// Define a type for challenge data
