@@ -20,8 +20,8 @@ export default function Landing({ searchParams }: any) {
     <Navbar path="/" loginOpen={loggedIn}>
       {/* Hero Section */}
       <div className="h-screen bg-cover  flex justify-center flex-col bg-[url('/assets/background.png')]">
-        <div className=" w-full h-full  bg-gradient-to-r from-homeGradientStart backdrop-blur-sm" style={{ backgroundColor: "rgba(16, 12, 52, 0.8)" }}>
-          <div className="flex flex-col absolute top-1/2 -translate-y-1/2 self-center mt-[-6rem] ml-40 gap-5">
+        <div className=" w-full h-full bg-gradient-to-r from-homeGradientStart backdrop-blur-sm" style={{ backgroundColor: "rgba(16, 12, 52, 0.8)" }}>
+          <div className="flex text-center md:text-left flex-col absolute top-1/2 -translate-y-1/2 self-center mt-[-6rem]  md:ml-40 gap-5">
             <span className="text-6xl mb-[-0.5rem] font-bold">
               <span> Learn </span>
               <span className="text-[#0083CD]"> code </span>
@@ -29,7 +29,7 @@ export default function Landing({ searchParams }: any) {
               <span className="text-[#0083CD]">code</span>
             </span>
             <span className="text-3xl font-light">Brought to you by AAI Coding Club</span>
-            <div className="flex flex-row gap-5">
+            <div className="flex flex-row justify-center md:justify-start gap-5">
               <Link href="/dashboard">
                 <Button className="w-48 rounded-xl text-white">Play now</Button>
               </Link>
