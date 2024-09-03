@@ -34,10 +34,10 @@ export default function Settings() {
     return (
         <Sidebar path="/settings">
             <div
-                className='absolute top-0 left-0 md:left-10 right-0 bottom-0 bg-no-repeat bg-cover flex justify-center items-center z-10'
+                className='absolute top-0 left-0 md:left-10 right-0 bottom-0 bg-no-repeat bg-cover flex justify-center items-center z-10 '
                 style={{ backgroundImage: "url('/assets/b2.svg')" }}
             >
-                <Card className="px-8  py-8">
+                <Card className="px-8 animate-flyBottom py-8">
                     <CardHeader>
                         <CardTitle>
                             User Settings

@@ -16,7 +16,6 @@ model Challenge {
   arguments           String[]            // Prisma supports arrays directly
   testCases           TestCase[]
   points              Int                 @default(0)
-  isDaily             Boolean             @default(false)
   solves              Int?                @default(0)
   authorId            String
   creationTimestamp   DateTime
@@ -51,19 +50,31 @@ model User {
   emailVerified       DateTime?           // Adding this field to track email verification
   points              Int                 @default(0)
   solves              Int                 @default(0)
+  easyChallenges Int @default(0)
+  hardChallenges Int @default(0)
+  mediumChallenges Int @default(0)
+  dailyChallenges Int @default(0)
   codeLeagueRank      Int                 @default(0)
   favoritedChallenges String[]            @default([])
-  lastChallenge       String               @default("")
-
+  lastChallenge       String              @default("")
+  pointsOverTime      Json                @default("{}")
   createdAt           DateTime            @default(now())
   updatedAt           DateTime            @updatedAt
-
   accounts            Account[]
   sessions            Session[]
 
   @@map("users")
 }
 
+model Stats {
+  id                  Int            @id @default(1)
+  totalChallenges      Int       @default(0)
+  totalPoints      Int        @default(0)
+  totalEasyChallenges Int @default(0)
+  totalHardChallenges Int @default(0)
+  totalMediumChallenges Int @default(0)
+  totalDailyChallenges Int @default(0)
+}
 
 model Account {
   id                 String    @id @default(cuid())

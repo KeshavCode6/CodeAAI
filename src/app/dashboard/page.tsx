@@ -16,10 +16,11 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { ChallengeTable } from "@/components/ChallengeCard";
 import { useRouter } from "next/navigation";
+import { getUserData, UserStats } from "@/lib/getUserData";
 
 
 export default function Dashboard() {
-  
+
   const { data: session, status } = useSession();
   const [challengeFilter, setChallengeFilter] = useState("");
   const [leaderboardUsers, setLeaderboardUsers] = useState<Array<Object>>([]);
@@ -46,7 +47,7 @@ export default function Dashboard() {
     );
   }
 
-  if(status==="unauthenticated"){
+  if (status === "unauthenticated") {
     router.push('/?loggedIn=false');
     return;
   }
@@ -58,7 +59,7 @@ export default function Dashboard() {
       >
         <div className="flex flex-col gap-2">
           <div className="flex flex-col px-8 2xl:p-0 md:flex-row gap-2 max-w-screen animate-flyBottom">
-            <UserPointsCards/>
+            <UserPointsCards />
           </div>
           <div className="flex flex-col px-8 2xl:p-0 2xl:flex-row gap-2 grow">
             <Card className="md:min-w-[40rem] 2xl:w-fit 2xl:max-w-[30vw] animate-flyRight">
@@ -155,18 +156,18 @@ export default function Dashboard() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {leaderboardUsers.map((user:any, index) => (
+                  {leaderboardUsers.map((user: any, index) => (
                     <TableRow>
                       <TableCell>#{index + 1}</TableCell>
                       <TableCell className="flex flex-row justify-center gap-x-3">
-                        <img src={user.image} className="w-8 h-8 rounded-full" />
+                        <img src={user.image} className="w-8 aspect-square rounded-full" />
                         <span className="my-auto">{user.name}</span>
                       </TableCell>
                       <TableCell>{user.points.toLocaleString()}</TableCell>
                       <TableCell>100%</TableCell>
                     </TableRow>
                   ))}
-                  
+
                 </TableBody>
               </Table>
             </CardContent>
@@ -177,66 +178,63 @@ export default function Dashboard() {
   )
 }
 
-type UserStats = {
-  points: number;
-  solves: number;
-  codeLeagueRank: number;
-  lastChallenge:string;
-};
 
-export var globalUserData : UserStats | null = null;
 
 function UserPointsCards() {
   const [userData, setUserData] = useState<UserStats | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    async function fetchUserData() {
-      try {
-        const response = await fetch('/api/getUser');
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        const data = await response.json();
-        globalUserData = data;
-        setUserData(data);
-      } catch (error) {
-        console.error('Fetch error:', error);
-      } finally {
-        setLoading(false);
-      }
-    }
+    setLoading(true)
+    getUserData().then((data) => { setUserData(data); setLoading(false) });
 
-    fetchUserData();
   }, []);
 
-  const renderCardContent = (data: UserStats | null, placeholder: boolean) => (
-    <>
-      <CardHeader className="pb-2">
-        <CardDescription>Your points</CardDescription>
-        <CardTitle className="text-4xl">{placeholder ? '...' : data?.points}pts</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="text-xs text-muted-foreground">
-          {placeholder ? '...' : `+${1000} more to go`}
-        </div>
-      </CardContent>
-      <CardFooter>
-        <Progress  value={placeholder ? 0 : Math.min((data?.points || 0) / 3000, 1)}/>
-      </CardFooter>
-    </>
-  );
+  if (userData?.points || userData?.totalChallenges) {
+    if (userData?.points <= 0 || userData?.totalChallenges <= 0) {
+      userData.points = 1
+      userData.totalChallenges = 1;
+    }
+  }
+
+  const pointsProgress = userData ? Math.min(userData.points / userData.totalPoints, 1) * 100 : 0;
+  const solvesProgress = userData ? Math.min(userData.solves / userData.totalChallenges, 1) * 100 : 0;
 
   return (
     <>
       <Card className="md:w-full max-w-[90vw]">
-        {loading || !userData ? renderCardContent(null, true) : renderCardContent(userData, false)}
+        <CardHeader className="pb-2">
+          <CardDescription>Your points</CardDescription>
+          <CardTitle className="text-4xl">{loading ? '...' : `${userData?.points || 0} pts`}</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="text-xs text-muted-foreground">
+            {loading ? '...' : `${(userData?.totalPoints || 0) - (userData?.points || 0)} more to go`}
+          </div>
+        </CardContent>
+        <CardFooter>
+          <Progress value={loading ? 0 : pointsProgress} aria-label="Points progress" />
+        </CardFooter>
       </Card>
+
       <Card className="md:w-full max-w-[90vw]">
-        {loading || !userData ? renderCardContent(null, true) : renderCardContent(userData, false)}
+        <CardHeader className="pb-2">
+          <CardDescription>Your solves</CardDescription>
+          <CardTitle className="text-4xl">{loading ? '...' : `${userData?.solves}`}</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="text-xs text-muted-foreground">
+            {loading ? '...' : `${userData?.solves || 0} challenges solved out of ${userData?.totalChallenges || 0}`}
+          </div>
+        </CardContent>
+        <CardFooter>
+          <Progress value={loading ? 0 : solvesProgress} aria-label="Solves progress" />
+        </CardFooter>
       </Card>
+
       <Card className="md:w-full max-w-[90vw] flex justify-center items-center">
         <p className="font-bold">Code League is Coming Soon...</p>
+        {/* Uncomment when Code League is available */}
         {/* <CardHeader className="pb-2">
           <CardDescription>{loading || !userData ? '...' : 'Your Code League ranking'}</CardDescription>
           <CardTitle className="text-4xl">{loading || !userData ? '...' : userData.codeLeagueRank}</CardTitle>
@@ -253,4 +251,3 @@ function UserPointsCards() {
     </>
   );
 }
-

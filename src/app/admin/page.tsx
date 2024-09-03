@@ -178,7 +178,6 @@ export default function CreateChallenge() {
         }
 
         const data = await response.json();
-        console.log(data)
         setAdminName(data.name)
         
       } catch (error) {

@@ -234,14 +234,14 @@ export default function Challenge({ params }: { params: { id: string } }) {
   // UI
   return (
     <Sidebar path={"/play"}>
-      <div className="overflow-hidden h-[90vh]">
-        <div className="flex gap-2 w-screen items-center justify-center" style={{ marginTop: "80px" }}>
+      <div className="overflow-x-hidden h-[90vh]">
+        <div className="flex flex-col lg:flex-row gap-2 w-screen items-center justify-center">
           {/* Editor Section */}
-          <Card className="p-2 animate-flyBottom">
+          <Card className="p-2 w-11/12 h-[30vh] 2xl:w-[60vw] md:h-[87vh] animate-flyBottom">
             {isClient && (
             <Editor
-            height="85vh"
-            width="60vw"
+            height="100%"
+            width="100%"
             theme="moon"
             value={code}
             onChange={handleEditorChange}
@@ -251,7 +251,7 @@ export default function Challenge({ params }: { params: { id: string } }) {
             )}
           </Card>
           {/* Challenge Info Section */}
-          <Card className="w-[23vw] p-4 h-[87vh] animate-flyTop relative">
+          <Card className="w-11/12 h-fit mb-12 2xl:mb-0 2xl:w-[23vw] p-4 md:h-[87vh] animate-flyTop relative">
             <div className="relative flex flex-col items-center gap-3 p-6">
               <Button className="absolute left-3 top-3 w-6 h-6" variant={"outline"} size={"icon"} onClick={() => window.history.back()}>
                 <ArrowLeft size={15} />

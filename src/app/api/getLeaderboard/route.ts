@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getAdminUser, getUserFromToken } from "@/lib/getUserFromToken";
 import { prismaClient } from '@/lib/prisma';
 
 // Handling GET request

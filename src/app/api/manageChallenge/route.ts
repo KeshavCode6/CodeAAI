@@ -1,6 +1,6 @@
-import {prismaClient} from "@/lib/prisma"; // Import the Prisma client
+import { prismaClient } from "@/lib/prisma"; // Import the Prisma client
 import { NextRequest, NextResponse } from "next/server";
-import {getAdminUser, getUserFromToken} from "@/lib/getUserFromToken"
+import { getAdminUser } from "@/lib/getUserFromToken";
 
 export async function POST(request: NextRequest) {
   try {
@@ -12,34 +12,46 @@ export async function POST(request: NextRequest) {
 
     const data = JSON.parse(reqData.challengeData);
     const user = await getAdminUser(request.cookies);
-    if(!user){
+    if (!user) {
       return NextResponse.json({ status: 401, message: "Not allowed?" });
     }
-    const userID = await prismaClient.user.findUnique({where:{email:user.email || ""}})
+    
+    const userID = await prismaClient.user.findUnique({ where: { email: user.email || "" } });
 
-    if(!userID){
+    if (!userID) {
       return NextResponse.json({ status: 500, message: "Not logged in?" });
-
     }
+
     // Adding initial challenge data
     const newChallenge = await prismaClient.challenge.create({
       data: {
         name: data.name,
-        challengeId:data.id,
+        challengeId: data.id,
         description: data.description,
         difficulty: data.difficulty,
         arguments: data.arguments || [],
         points: data.points || 0,
-        isDaily: data.isDaily || false,
         authorId: userID.id,
         creationTimestamp: new Date(data.creationTimestamp || Date.now()), // set creation timestamp
-        // Assuming testCases is passed as an array
         testCases: {
           create: data.testCases.map((testCase: any) => ({
             args: testCase.args,
             output: testCase.output,
           })),
         },
+      },
+    });
+
+    // Update stats based on the new challenge's difficulty
+    await prismaClient.stats.update({
+      where: { id: 1 },
+      data: {
+        totalPoints: { increment: newChallenge.points },
+        totalChallenges: { increment: 1 },
+        totalEasyChallenges: newChallenge.difficulty === 'Easy' ? { increment: 1 } : undefined,
+        totalMediumChallenges: newChallenge.difficulty === 'Medium' ? { increment: 1 } : undefined,
+        totalHardChallenges: newChallenge.difficulty === 'Hard' ? { increment: 1 } : undefined,
+        totalDailyChallenges: newChallenge.difficulty === 'Daily' ? { increment: 1 } : undefined,
       },
     });
 
@@ -52,9 +64,8 @@ export async function POST(request: NextRequest) {
 
 export async function DELETE(request: NextRequest) {
   try {
-    // Get the challengeId from the request body (or it could come from the query string)
+    // Get the challengeId from the request body
     const reqData = await request.json();
-
     const { challengeId } = reqData;
 
     if (!challengeId) {
@@ -67,9 +78,32 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ status: 401, message: "Not allowed" });
     }
 
-    // Find the challenge by ID and delete it
+    // Find the challenge by ID to determine its difficulty
+    const challenge = await prismaClient.challenge.findUnique({
+      where: { challengeId },
+      select: { difficulty: true, points: true }, // Only select the fields needed
+    });
+
+    if (!challenge) {
+      return NextResponse.json({ status: 404, message: "Challenge not found" });
+    }
+
+    // Delete the challenge
     const deletedChallenge = await prismaClient.challenge.delete({
       where: { challengeId },
+    });
+
+    // Update stats based on the challenge's difficulty
+    await prismaClient.stats.update({
+      where: { id: 1 },
+      data: {
+        totalPoints: { increment: -deletedChallenge.points },
+        totalChallenges: { increment: -1 },
+        totalEasyChallenges: challenge.difficulty === 'Easy' ? { increment: -1 } : undefined,
+        totalMediumChallenges: challenge.difficulty === 'Medium' ? { increment: -1 } : undefined,
+        totalHardChallenges: challenge.difficulty === 'Hard' ? { increment: -1 } : undefined,
+        totalDailyChallenges: challenge.difficulty === 'Daily' ? { increment: -1 } : undefined,
+      },
     });
 
     return NextResponse.json({ status: 200, message: "Challenge deleted", deletedChallenge });

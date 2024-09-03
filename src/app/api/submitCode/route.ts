@@ -56,16 +56,16 @@ export async function POST(request: NextRequest) {
     }
 
     
-    if (challenge.isDaily && wasInLastDay(challenge.creationTimestamp.getUTCDate())) {
+    if (challenge.difficulty == "Daily" && wasInLastDay(challenge.creationTimestamp.getUTCDate())) {
       return NextResponse.json({ result: "This challenge has expired." });
     }
 
 
     const userChallengeData = await prismaClient.userChallenges.findFirst({where:{challengeId:challenge?.id, userId:dbUser.id}})
 
-    // if (userChallengeData?.solved) {
-    //   return NextResponse.json({ result: "You solved this challenge already!" });
-    // }
+    if (userChallengeData?.solved) {
+      return NextResponse.json({ result: "You solved this challenge already!" });
+    }
 
     const testCases = await prismaClient.testCase.findMany({
       where: { challengeId: challenge.id }
@@ -135,12 +135,17 @@ export async function POST(request: NextRequest) {
       const currentDate = new Date();
       const formattedDate = currentDate.toISOString().split('T')[0]; // format as YYYY-MM-DD
 
+
       await prismaClient.user.update({
         where: { id: dbUser.id },
         data: {
           points: { increment: change },
           solves: { increment: 1 },
-          lastChallenge:""
+          lastChallenge:"",
+          easyChallenges: challenge.difficulty === 'Easy' ? { increment: -1 } : undefined,
+          mediumChallenges: challenge.difficulty === 'Medium' ? { increment: -1 } : undefined,
+          hardChallenges: challenge.difficulty === 'Hard' ? { increment: -1 } : undefined,
+          dailyChallenges: challenge.difficulty === 'Daily' ? { increment: -1 } : undefined,
         },
       });
 

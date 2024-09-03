@@ -6,9 +6,18 @@ import { prismaClient } from '@/lib/prisma';
 export async function GET(request: NextRequest) {
   try {
     const user = await getUserFromToken(request.cookies);
-    const dbUser = await prismaClient.user.findUnique({ where: { email: user?.email || "" }, select: { points: true, codeLeagueRank: true, solves: true, lastChallenge:true} });
-    
-    return NextResponse.json(dbUser);
+    const dbUser = await prismaClient.user.findUnique({ where: { email: user?.email || "" }, select: {
+       points: true, codeLeagueRank: true, solves: true, lastChallenge:true, easyChallenges:true, hardChallenges:true, mediumChallenges:true, dailyChallenges:true} 
+    });
+    const stats = await prismaClient.stats.findUnique({where:{id:1}})
+
+    const combinedResponse = {
+      ...dbUser, // Spread dbUser properties
+      ...stats   // Spread stats properties
+    };
+
+
+    return NextResponse.json(combinedResponse);
   } catch (error: any) {
     console.error("Error:", error);
     return new Response(`Error processing request: ${error.message}`, { status: 500 });

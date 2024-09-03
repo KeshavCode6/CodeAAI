@@ -1,80 +1,67 @@
 "use client"
+import { useEffect, useState } from "react";
 import { Sidebar } from "@/components/Navigation";
 import { useSession } from "next-auth/react";
 import { ThreeDots } from "@/components/Threedots";
-
-import { TrendingUp } from "lucide-react"
-import { Area, AreaChart, CartesianGrid, XAxis } from "recharts"
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
-import {
-  ChartConfig,
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-} from "@/components/ui/chart"
-
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectGroup, SelectItem, SelectLabel } from "@/components/ui/select";
 import { TableHeader, TableRow, TableHead, TableBody, TableCell, Table } from "@/components/ui/table";
-import { useEffect, useState } from "react";
 import { getLastSevenDays } from "@/lib/utils";
+import { getUserData, UserStats } from "@/lib/getUserData";
+import { Cell, Label, Pie, PieChart, Tooltip } from "recharts"
 
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
-import ScrollableSection from "@/components/ScrollableSection";
-
-const chartConfig = {
-  player1: {
-    label: "Player 1",
-    color: "hsl(var(--chart-1))",
-  },
-  player2: {
-    label: "Player 2",
-    color: "hsl(var(--chart-2))",
-  },
-} satisfies ChartConfig
+const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#FF6347', '#6A5ACD', '#FF1493', '#FF4500'];
 
 export default function Leaderboard() {
-
   const { data: session, status } = useSession();
-
-  const [chartData, setChartData] = useState<Array<Object>>([]);
-
-  const [leaderboardUsers, setLeaderboardUsers] = useState<Array<Object>>([]);
+  const [chartData, setChartData] = useState<Array<{ day: string; player1: number; player2: number }>>([]);
+  const [leaderboardUsers, setLeaderboardUsers] = useState<Array<{ image: string; name: string; solves: number; points: number }>>([]);
   const [leaderboardFilter, setLeaderboardFilter] = useState<string>("all");
+  const [userData, setUserData] = useState<UserStats | null>(null);
+  const [pieChartData, setPieChartData] = useState<any>([]);
+
 
   const getLeaderboard = async () => {
     const response = await fetch('/api/getLeaderboard');
     const json = await response.json();
-
     setLeaderboardUsers(json.sort((a: any, b: any) => parseFloat(b.points) - parseFloat(a.points)));
-  }
+  };
 
   useEffect(() => {
-
     const lastSevenDays = getLastSevenDays();
-
-    setChartData([]);
-
-    for (const day of lastSevenDays) {
-      setChartData((o: any) => [...o, { day, player1: Math.random() * 200, player2: Math.random() * 200 }])
-    }
-
+    setChartData(lastSevenDays.map(day => ({
+      day,
+      player1: Math.random() * 200,
+      player2: Math.random() * 200,
+    })));
     getLeaderboard();
+  }, []);
 
-  }, [])
+  useEffect(() => {
+    getUserData().then((data) => {
+      setUserData(data);
+      console.log(data)
+      if(!data){return;}
+      setPieChartData([
+        [
+          { name: 'Easy Challenges Solved', value: data.easyChallenges },
+          { name: 'Easy Challenges Not Solved', value: data.totalEasyChallenges-data.easyChallenges },
+        ],
+        [
+          { name: 'Easy Challenges Solved', value: data.mediumChallenges },
+          { name: 'Easy Challenges Not Solved', value: data.totalMediumChallenges-data.mediumChallenges },
+        ],
+        [
+          { name: 'Easy Challenges Solved', value: data.easyChallenges },
+          { name: 'Easy Challenges Not Solved', value: data.totalHardChallenges-data.hardChallenges },
+        ],
+        [
+          { name: 'Easy Challenges Solved', value: data.easyChallenges },
+          { name: 'Easy Challenges Not Solved', value: data.totalDailyChallenges-data.dailyChallenges },
+        ],
+      ]);    
+    });
+  }, []);
 
   if (status === "loading") {
     return (
@@ -84,127 +71,46 @@ export default function Leaderboard() {
     );
   }
 
+  const diff = ["Easy", "Medium", "Hard", "Daily"]
   return (
     <Sidebar path="/leaderboard">
-      <div className="flex flex-col m-4 mt-0 2xl:mt-4 2xl:mx-32 2xl:flex-row gap-2 justify-center items-stretch 2xl:overflow-hidden">
-        <div className="flex flex-col">
-          <Card className="flex-grow h-full animate-flyBottom">
-            <CardHeader>
-              <CardTitle>Points Over Time</CardTitle>
-              <CardDescription>
-                Showing player points over the past week
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ChartContainer config={chartConfig}>
-                <AreaChart
-                  accessibilityLayer
-                  data={chartData}
-                  margin={{
-                    left: 12,
-                    right: 12,
-                  }}
-                >
-                  <CartesianGrid vertical={false} />
-                  <XAxis
-                    dataKey="day"
-                    tickLine={false}
-                    axisLine={false}
-                    tickMargin={8}
-                    tickFormatter={(value) => value.slice(0, 3)}
-                  />
-                  <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
-                  <defs>
-                    <linearGradient id="fillDesktop" x1="0" y1="0" x2="0" y2="1">
-                      <stop
-                        offset="5%"
-                        stopColor="#ff0000"
-                        stopOpacity={0.8}
-                      />
-                      <stop
-                        offset="95%"
-                        stopColor=""
-                        stopOpacity={0.1}
-                      />
-                    </linearGradient>
-                    <linearGradient id="fillMobile" x1="0" y1="0" x2="0" y2="1">
-                      <stop
-                        offset="5%"
-                        stopColor="#8adeff"
-                        stopOpacity={0.8}
-                      />
-                      <stop
-                        offset="95%"
-                        stopColor="#8adeff"
-                        stopOpacity={0.1}
-                      />
-                    </linearGradient>
-                  </defs>
-                  <Area
-                    dataKey="player1"
-                    type="natural"
-                    fill="url(#fillDesktop)"
-                    fillOpacity={0.4}
-                    stroke="var(--color-mobile)"
-                    stackId="a"
-                  />
-                  <Area
-                    dataKey="player2"
-                    type="natural"
-                    fill="url(#fillMobile)"
-                    fillOpacity={0.4}
-                    stroke="var(--color-desktop)"
-                    stackId="a"
-                  />
-                </AreaChart>
-              </ChartContainer>
-            </CardContent>
-          </Card>
-          <div className="flex flex-col md:flex-row pt-2 gap-1 min-h-52 animate-flyTop">
-            <Card className="flex-grow">
-              <CardHeader>
-                <CardTitle>Card 1</CardTitle>
-              </CardHeader>
-              <CardContent>
-                Content for card 1.
-              </CardContent>
-            </Card>
-            <Card className="flex-grow">
-              <CardHeader>
-                <CardTitle>Card 2</CardTitle>
-              </CardHeader>
-              <CardContent>
-                Content for card 2.
-              </CardContent>
-            </Card>
-            <Card className="flex-grow">
-              <CardHeader>
-                <CardTitle>Card 3</CardTitle>
-              </CardHeader>
-              <CardContent>
-                Content for card 3.
-              </CardContent>
-            </Card>
-            <Card className="flex-grow">
-              <CardHeader>
-                <CardTitle>Card 4</CardTitle>
-              </CardHeader>
-              <CardContent>
-                Content for card 4.
-              </CardContent>
-            </Card>
-          </div>
+      <div className="flex h-[90vh] w-full justify-center items-center">
 
+      <div className="flex justify-center flex-col m-4 mt-0 2xl:flex-row 2xl:mt-4 2xl:mx-32 gap-2">
+        <div className="grid grid-cols-2 gap-1">
+          {pieChartData.map((data:any, index:number) => (
+            <Card key={index} className="w-full">
+              <CardContent className="flex justify-center items-center">
+                <PieChart width={350} height={250}>
+                  <Pie
+                    data={data}
+                    dataKey="value"
+                    nameKey="name"
+                    cx="50%"
+                    cy="50%"
+                    outerRadius={100}
+                    fill="#8884d8"
+                    paddingAngle={5}
+                  >
+                    {pieChartData.map((entry:any, index:number) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                </PieChart>
+              </CardContent>
+              <div className="flex justify-center flex-col w-full items-center p-4">
+                <p>% {diff[index]} Challenges</p>
+              </div>
+            </Card>
+          ))}
         </div>
-        <Card className="w-full flex-grow h-full 2xl:max-w-[30vw] animate-flyLeft">
+
+        <Card className="w-full max-w-lg flex-grow">
           <CardHeader className="w-full flex flex-row">
             <div>
-            <CardTitle className="w-fit">
-              Leaderboard
-            </CardTitle>
-            <CardDescription>
-                Anaylze the competition
-            </CardDescription>
+              <CardTitle className="w-fit">Leaderboard</CardTitle>
+              <CardDescription>Analyze the competition</CardDescription>
             </div>
             <div className="self-end ml-auto relative">
               <Select onValueChange={setLeaderboardFilter}>
@@ -213,63 +119,39 @@ export default function Leaderboard() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup>
-                    <SelectLabel>Filters</SelectLabel>
+                    <SelectLabel>Filter</SelectLabel>
                     <SelectItem value="all">All</SelectItem>
-                    <SelectItem value="top5">Top 5</SelectItem>
-                    <SelectItem value="top20">Top 20</SelectItem>
-                    <SelectItem value="top100">Top 100</SelectItem>
-                    <SelectItem value="aroundMe">Around Me</SelectItem>
+                    <SelectItem value="month">Last Month</SelectItem>
+                    <SelectItem value="year">Last Year</SelectItem>
                   </SelectGroup>
                 </SelectContent>
               </Select>
             </div>
           </CardHeader>
-          <CardContent className="overflow-y-auto h-[40rem]">
+          <CardContent>
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Rank</TableHead>
-                  <TableHead>User</TableHead>
-                  <TableHead>Solved Challenges</TableHead>
+                  <TableHead>Name</TableHead>
                   <TableHead>Points</TableHead>
-                  <TableHead>Completion</TableHead>
+                  <TableHead>Solved</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {leaderboardUsers.map((user: any, index) => {
-
-                  switch (leaderboardFilter) {
-                    case "top5":
-                      if (index >= 5) {
-                        return <></>
-                      }
-                    case "top20":
-                      if (index >= 20) {
-                        return <></>
-                      }
-                    case "top100":
-                      if (index >= 100) {
-                        return <></>
-                      }
-                    case "aroundMe":
-                  }
-
-                  return <TableRow key={index}>
-                    <TableCell>#{index + 1}</TableCell>
-                    <TableCell className="flex flex-row gap-x-3 justify-center">
-                      <img src={user.image || ""} className="w-8 rounded-full" />
-                      <span className="my-auto">{user.name}</span>
-                    </TableCell>
-                    <TableCell>{user.solves.toLocaleString()}</TableCell>
-                    <TableCell>{user.points.toLocaleString()}</TableCell>
-                    <TableCell>100%</TableCell>
+                {leaderboardUsers.map((user, index:number) => (
+                  <TableRow key={index}>
+                    <TableCell>{user.name}</TableCell>
+                    <TableCell>{user.points} / {userData?.totalPoints}</TableCell>
+                    <TableCell>{user.solves} / {userData?.totalChallenges}</TableCell>
                   </TableRow>
-                })}
+                ))}
               </TableBody>
             </Table>
           </CardContent>
         </Card>
       </div>
+      
+      </div>
     </Sidebar>
-  )
+  );
 }
