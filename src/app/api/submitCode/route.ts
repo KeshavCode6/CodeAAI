@@ -63,9 +63,9 @@ export async function POST(request: NextRequest) {
 
     const userChallengeData = await prismaClient.userChallenges.findFirst({where:{challengeId:challenge?.id, userId:dbUser.id}})
 
-    if (userChallengeData?.solved) {
-      return NextResponse.json({ result: "You solved this challenge already!" });
-    }
+    // if (userChallengeData?.solved) {
+    //   return NextResponse.json({ result: "You solved this challenge already!" });
+    // }
 
     const testCases = await prismaClient.testCase.findMany({
       where: { challengeId: challenge.id }
@@ -130,7 +130,8 @@ export async function POST(request: NextRequest) {
 
     let finalResult = failed === 0 ? "Passed" : "Failed";
 
-    if (finalResult === "Passed") {
+    // club rush
+    if (finalResult === "Passed" && !userChallengeData?.solved) {
       const change = challenge.points;
       const currentDate = new Date();
       const formattedDate = currentDate.toISOString().split('T')[0]; // format as YYYY-MM-DD

@@ -233,9 +233,7 @@ export default function Challenge({ params }: { params: { id: string } }) {
 
   if (status === "unauthenticated") {
     redirect('/?loggedIn=false');
-    return;
   }
-
 
   // UI
   return (
