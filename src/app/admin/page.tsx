@@ -278,7 +278,7 @@ const defaultJson = `
   "name": "Example Challenge",
   "id": "example_challenge_1",
   "description": "This is an example challenge description.",
-  "arguments": ["arg1", "arg2"],
+  "arguments": {"arg1":"Int", "arg2":"Int"},
   "difficulty": "Medium",
   "points": 100,
   "isDaily": false,

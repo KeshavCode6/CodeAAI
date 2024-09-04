@@ -13,7 +13,7 @@ model Challenge {
   name                String              @unique
   description         String
   difficulty          String
-  arguments           String[]            // Prisma supports arrays directly
+  arguments           Json            // Prisma supports arrays directly
   testCases           TestCase[]
   points              Int                 @default(0)
   solves              Int?                @default(0)

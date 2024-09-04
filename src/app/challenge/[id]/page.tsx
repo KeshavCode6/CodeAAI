@@ -164,9 +164,27 @@ export default function Challenge({ params }: { params: { id: string } }) {
           }
         }
 
-        let args = "\n# <- Challenge Arguments Go Here (you might have to convert the types)-> \n";
-        data.challengeData.arguments.forEach((element: string, index: number) => {
-          args += `${element} = sys.argv[${index + 1}]\n`;
+        let args = "\n# <- Challenge Arguments\n";
+        Object.keys(data.challengeData.arguments).forEach((element, index: number) => {
+          const type = data.challengeData.arguments[element] 
+          var typeFunction = ""
+
+          if(type=="Int"){
+            typeFunction = "int"
+          }
+          if(type=="Str"){
+            typeFunction = "str"
+          }
+          if(type=="Float"){
+            typeFunction = "float"
+          }
+
+          if(type=="Bool"){
+            args += `${element} = (sys.argv[${index + 1}]\n`;
+          }
+          else{
+            args += `${element} = ${typeFunction}(sys.argv[${index + 1}])\n`;
+          }
         });
 
         setChallengeArguments(args + "\n");

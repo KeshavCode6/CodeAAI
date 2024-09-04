@@ -13,13 +13,18 @@ export async function POST(request: NextRequest) {
     const data = JSON.parse(reqData.challengeData);
     const user = await getAdminUser(request.cookies);
     if (!user) {
-      return NextResponse.json({ status: 401, message: "Not allowed?" });
+      return NextResponse.json({ status: 401, message: "Not allowed" });
     }
     
     const userID = await prismaClient.user.findUnique({ where: { email: user.email || "" } });
 
     if (!userID) {
-      return NextResponse.json({ status: 500, message: "Not logged in?" });
+      return NextResponse.json({ status: 500, message: "Not logged in" });
+    }
+
+    // Validate the structure of test cases
+    if (!data.testCases || !Array.isArray(data.testCases)) {
+      return NextResponse.json({ status: 400, message: "Invalid test cases format" });
     }
 
     // Adding initial challenge data
@@ -29,14 +34,14 @@ export async function POST(request: NextRequest) {
         challengeId: data.id,
         description: data.description,
         difficulty: data.difficulty,
-        arguments: data.arguments || [],
+        arguments: data.arguments || {},
         points: data.points || 0,
         authorId: userID.id,
-        creationTimestamp: new Date(data.creationTimestamp || Date.now()), // set creation timestamp
+        creationTimestamp: new Date(data.creationTimestamp || Date.now()), 
         testCases: {
           create: data.testCases.map((testCase: any) => ({
-            args: testCase.args,
-            output: testCase.output,
+            args: testCase?.args || [],
+            output: testCase?.output || "",
           })),
         },
       },
@@ -56,8 +61,8 @@ export async function POST(request: NextRequest) {
     });
 
     return NextResponse.json({ status: 200, newChallenge });
-  } catch (error: any) {
-    console.error(error);
+  } catch (error:any) {
+    console.error("Error in managing challenge:", error);
     return NextResponse.json({ status: 500, message: error.message });
   }
 }

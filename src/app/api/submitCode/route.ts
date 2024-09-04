@@ -89,7 +89,7 @@ export async function POST(request: NextRequest) {
       const argsJson = value.args;
 
       let args = "";
-      challenge.arguments.forEach((argument: string) => {
+      Object.keys(challenge.arguments).forEach((argument: string) => {
         if(argsJson!==null ){
           //@ts-ignore
           args += `${argsJson[argument]} `;

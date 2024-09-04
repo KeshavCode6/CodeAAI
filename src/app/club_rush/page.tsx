@@ -33,8 +33,8 @@ export default function Play() {
           This site is still underdevelopment and we have big plans for the future, inlcuding a county wide competition that will begin at this year!</h1>
           <img className="w-[45vw] aspect-video mb-4" src={"/assets/demo.gif"}/>
           <div className='flex gap-1 animate-flyTop'>
-          <Button onClick={()=>{router.push("/")}}     className='text-white px-4' size={"lg"}>Try it out for yourself for candy!</Button>
-          <Button  onClick={()=>{router.push(`/challenge/${getRandomChallenge()}`)}} className='text-white px-4' size={"lg"}> Check out the rest of the site!</Button>
+          <Button    onClick={()=>{router.push(`/challenge/${getRandomChallenge()}`)}}  className='text-white px-4' size={"lg"}>Try it out for yourself for candy!</Button>
+          <Button  onClick={()=>{router.push("/")}}  className='text-white px-4' size={"lg"}> Check out the rest of the site!</Button>
           </div>
         </div>
       </div>
