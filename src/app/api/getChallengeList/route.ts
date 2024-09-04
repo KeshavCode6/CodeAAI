@@ -2,6 +2,15 @@ import { getUserFromToken } from '@/lib/getUserFromToken';
 import { prismaClient } from '@/lib/prisma';
 import { NextRequest, NextResponse } from 'next/server';
 
+export async function GET(request: NextRequest){
+  const data = await prismaClient.challenge.findMany({
+    select: { challengeId: true }
+  });
+
+  const ids = data.map(item => item.challengeId);
+  return NextResponse.json({ ids });
+}
+
 export async function POST(request: NextRequest) {
   try {
     const data = await request.json();

@@ -1,15 +1,13 @@
 //@ts-nocheck
 import { NextRequest, NextResponse } from 'next/server';
-import dbConnect from '@/lib/database/dbConnect';
-import { User } from '@/lib/database/schemas/User';
 import { getUserFromToken } from '@/lib/getUserFromToken';
 import { promises as fs } from 'fs';
 import path from 'path';
+import { prismaClient } from '@/lib/prisma';
 
 
 export async function POST(request: NextRequest) {
   try {
-    await dbConnect(); // Connect to MongoDB
     const formData = await request.formData(); // Parse form data
 
     if (!formData) {
@@ -20,9 +18,8 @@ export async function POST(request: NextRequest) {
     const avatarFile = formData.get('avatar'); // Get avatar file
     const name = formData.get('name') as string; // Get name
 
-    const userToken = await getUserFromToken(request.cookies); // Get user info from token
-    //@ts-ignore
-    const userId = userToken.user.id; // Extract user ID
+    const user = await getUserFromToken(request.cookies); // Get user info from token
+
 
     if (avatarFile instanceof File) {
       if (!(["image/png", "image/jpeg", "image/jpg"].includes(avatarFile.type))) {
@@ -32,9 +29,11 @@ export async function POST(request: NextRequest) {
       // Prepare file storage path
       const uploadDir = path.join(process.cwd(), 'public', 'uploads');
       await fs.mkdir(uploadDir, { recursive: true }); // Ensure upload directory exists
+      
+      const userDb = await prismaClient.user.findUnique({where:{email:user.email}})
 
       // Generate a unique file name using user ID and original file name
-      const fileName = `${userId}.png`;
+      const fileName = `${userDb.id}.png`;
       const filePath = path.join(uploadDir, fileName);
 
       // Read file buffer
@@ -45,13 +44,13 @@ export async function POST(request: NextRequest) {
 
       // Update user document in MongoDB with new avatar path
       const avatarPath = `/uploads/${fileName}`;
-
-      await User.findOneAndUpdate({ id: userId }, { image: avatarPath });
+      console.log(avatarPath)
+      await prismaClient.user.update({where:{email:user.email}, data:{image:avatarPath}})
 
     } 
 
     if (name !== "") {
-      await User.findOneAndUpdate({ id: userId }, { name });
+      await prismaClient.user.update({where:{email:user.email}, data:{name:name}})
     }
 
     return NextResponse.json({ status: "ok" });

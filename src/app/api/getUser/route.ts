@@ -7,7 +7,7 @@ export async function GET(request: NextRequest) {
   try {
     const user = await getUserFromToken(request.cookies);
     const dbUser = await prismaClient.user.findUnique({ where: { email: user?.email || "" }, select: {
-       points: true, codeLeagueRank: true, solves: true, lastChallenge:true, easyChallenges:true, hardChallenges:true, mediumChallenges:true, dailyChallenges:true} 
+       points: true, codeLeagueRank: true, name:true, solves: true, image:true, lastChallenge:true, easyChallenges:true, hardChallenges:true, mediumChallenges:true, dailyChallenges:true} 
     });
     const stats = await prismaClient.stats.findUnique({where:{id:1}})
 

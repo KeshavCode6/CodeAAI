@@ -3,17 +3,23 @@
 import { Sidebar } from "@/components/Navigation";
 import { ThreeDots } from "@/components/Threedots";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { getUserData, UserStats } from "@/lib/getUserData";
 import { useSession } from "next-auth/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function Settings() {
-
     const { data: session, status } = useSession();
+    const [editedName, setEditedName] = useState<string>(session?.user?.name || "");
+    const [profileImage, setProfileImage] = useState<File | null>(null);
+    const [userData, setUserData] = useState<UserStats | null>(null);
 
-    const [editedName, setEditedName] = useState<String>("");
-
+    useEffect(()=>{
+        getUserData().then(data=>{
+            setUserData(data);
+        })
+    })
     if (status === "loading") {
         return (
             <div className="w-screen h-screen flex justify-center items-center">
@@ -23,13 +29,19 @@ export default function Settings() {
     }
 
     const editUserSettings = async () => {
-        await fetch('/api/editUserSettings', {
+        const formData = new FormData();
+        formData.append("name", editedName);
+        if (profileImage) {
+            formData.append("avatar", profileImage);
+        }
+
+        const response = await fetch('/api/updateUserProfile', {
             method: "POST",
-            body: JSON.stringify({
-                name: editedName
-            })
+            body: formData
         });
-    }
+
+        location.reload();
+    };
 
     return (
         <Sidebar path="/settings">
@@ -51,20 +63,29 @@ export default function Settings() {
                             <div className="flex flex-col mb-4">
                                 <span className="font-bold">Profile Picture</span>
                                 <div className="flex flex-row gap-x-4">
-                                    <img src={session?.user?.image || ""} alt="Profile Picture" className="w-16 h-16 rounded-full" />
-                                    <Input type="file" className="my-auto w-56" />
+                                    <img src={userData?.image || ""} alt="Profile Picture" className="w-16 h-16 rounded-full" />
+                                    <Input
+                                        type="file"
+                                        className="my-auto w-56"
+                                        onChange={event => setProfileImage(event.target.files?.[0] || null)}
+                                    />
                                 </div>
                             </div>
                             <div className="flex flex-col gap-y-2">
                                 <span className="my-auto font-bold">Name</span>
-                                <Input defaultValue={session?.user?.name || ""} className="w-96" onChange={event => setEditedName(event.target.value)} />
+                                <Input
+                                    defaultValue={userData?.name || ""}
+                                    className="w-96"
+                                    onChange={event => setEditedName(event.target.value)}
+                                />
                             </div>
-                            <Button className="mt-4 text-white">Save</Button>
+                            <Button className="mt-4 text-white" onClick={editUserSettings}>
+                                Save
+                            </Button>
                         </div>
                     </CardContent>
                 </Card>
             </div>
         </Sidebar>
-    )
-
+    );
 }

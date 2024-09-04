@@ -23,6 +23,7 @@ import { useRouter } from "next/navigation";
 import { ThreeDots } from "./Threedots";
 import { NavigationMenu, NavigationMenuLink, navigationMenuTriggerStyle } from "./ui/navigation-menu";
 import { Dialog, DialogContent, DialogTrigger } from "./ui/dialog";
+import { getUserData, UserStats } from "@/lib/getUserData";
 
 
 interface NavbarProps {
@@ -32,12 +33,20 @@ interface NavbarProps {
 }
 
 export function UserDropdown({ session }: { session: any }) {
+  const [userData, setUserData] = useState<UserStats | null>(null);
+
+  useEffect(()=>{
+      getUserData().then(data=>{
+          setUserData(data);
+      })
+  })
+  
   return (
     <div className="absolute top-3 right-5">
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="secondary" size="icon" className="rounded-full w-9 h-9">
-            <img src={session?.user?.image || "/assets/avatar/image.png"} className="rounded-full" />
+            <img src={userData?.image|| "/assets/avatar/image.png"} className="rounded-full" />
             <span className="sr-only">User menu</span>
           </Button>
         </DropdownMenuTrigger>

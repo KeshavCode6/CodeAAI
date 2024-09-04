@@ -10,6 +10,7 @@ import { Separator } from "@/components/ui/separator";
 import { useSession } from "next-auth/react";
 import {ThreeDots} from "@/components/Threedots"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { redirect } from "next/navigation";
 // Define VisibleTestCase interface
 interface VisibleTestCase {
   input?: Record<string, any>;
@@ -228,6 +229,11 @@ export default function Challenge({ params }: { params: { id: string } }) {
         <ThreeDots />
       </div>
     ); // Customize your loading state
+  }
+
+  if (status === "unauthenticated") {
+    redirect('/?loggedIn=false');
+    return;
   }
 
 

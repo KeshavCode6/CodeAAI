@@ -55,7 +55,7 @@ export default function Dashboard() {
   return (
     <Sidebar path="/dashboard">
       <div
-        className="flex flex-col 2xl:flex-row gap-2 justify-center 2xl:h-[90vh] 2xl:overflow-y-hidden"
+        className="flex flex-col md:px-4 2xl:flex-row gap-2 justify-center 2xl:h-[90vh] 2xl:overflow-y-hidden"
       >
         <div className="flex flex-col gap-2">
           <div className="flex flex-col px-8 2xl:p-0 md:flex-row gap-2 max-w-screen animate-flyBottom">

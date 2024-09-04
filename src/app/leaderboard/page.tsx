@@ -9,6 +9,7 @@ import { TableHeader, TableRow, TableHead, TableBody, TableCell, Table } from "@
 import { getLastSevenDays } from "@/lib/utils";
 import { getUserData, UserStats } from "@/lib/getUserData";
 import { Cell, Label, Pie, PieChart, Tooltip } from "recharts"
+import { redirect } from "next/navigation";
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#FF6347', '#6A5ACD', '#FF1493', '#FF4500'];
 
@@ -69,6 +70,11 @@ export default function Leaderboard() {
         <ThreeDots />
       </div>
     );
+  }
+
+  if (status === "unauthenticated") {
+    redirect('/?loggedIn=false');
+    return;
   }
 
   const diff = ["Easy", "Medium", "Hard", "Daily"]

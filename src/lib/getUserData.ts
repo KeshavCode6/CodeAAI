@@ -1,6 +1,8 @@
 export type UserStats = {
   points: number;
   solves: number;
+  image:string;
+  name:string;
   codeLeagueRank: number;
   lastChallenge: string;
   totalPoints: number;
