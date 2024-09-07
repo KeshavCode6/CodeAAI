@@ -15,14 +15,14 @@ export async function POST(request: NextRequest) {
     }
 
     // Extract form data
-    const avatarFile = formData.get('avatar'); // Get avatar file
-    const name = formData.get('name') as string; // Get name
+    const editedUserProfilePicture = formData.get('editedUserProfilePicture'); // Get avatar file
+    const editedUserName = formData.get('editedUserName') as string; // Get name
 
     const user = await getUserFromToken(request.cookies); // Get user info from token
 
 
-    if (avatarFile instanceof File) {
-      if (!(["image/png", "image/jpeg", "image/jpg"].includes(avatarFile.type))) {
+    if (editedUserProfilePicture instanceof File) {
+      if (!(["image/png", "image/jpeg", "image/jpg"].includes(editedUserProfilePicture.type))) {
         return new Response("Invalid filetype for avatar!", { status: 500 });
       }
 
@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
       const filePath = path.join(uploadDir, fileName);
 
       // Read file buffer
-      const fileBuffer = await avatarFile.arrayBuffer();
+      const fileBuffer = await editedUserProfilePicture.arrayBuffer();
 
       // Write file to server
       await fs.writeFile(filePath, Buffer.from(fileBuffer));

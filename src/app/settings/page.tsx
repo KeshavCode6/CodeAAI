@@ -1,47 +1,59 @@
 "use client"
-
-import { Sidebar } from "@/components/Navigation";
-import { ThreeDots } from "@/components/Threedots";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { getUserData, UserStats } from "@/lib/getUserData";
+import { Sidebar } from "@/components/utils/Navigation";
+import { LoadingPage } from "@/components/utils/ThreeDots";
+import { getMyUserData, UserStats } from "@/lib/getUserData";
 import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export default function Settings() {
+    const router = useRouter();
     const { data: session, status } = useSession();
-    const [editedName, setEditedName] = useState<string>(session?.user?.name || "");
-    const [profileImage, setProfileImage] = useState<File | null>(null);
-    const [userData, setUserData] = useState<UserStats | null>(null);
 
-    useEffect(()=>{
-        getUserData().then(data=>{
-            setUserData(data);
-        })
-    })
-    if (status === "loading") {
-        return (
-            <div className="w-screen h-screen flex justify-center items-center">
-                <ThreeDots />
-            </div>
-        );
-    }
+    const [editedUserName, setEditedUserName] = useState<string>(session?.user?.name || "");
+    const [editedUserProfilePicture, setEditedUserProfilePicture] = useState<File | null>(null);
+    const [myUser, setMyUser] = useState<UserStats | null>(null);
 
-    const editUserSettings = async () => {
+    // sending post request to update settings in backend
+    const updateUserProfile = async () => {
+
         const formData = new FormData();
-        formData.append("name", editedName);
-        if (profileImage) {
-            formData.append("avatar", profileImage);
+
+        formData.append("editedUserName", editedUserName);
+
+        if (editedUserProfilePicture) {
+            formData.append("editedUserProfilePicture", editedUserProfilePicture);
         }
 
-        const response = await fetch('/api/updateUserProfile', {
+        await fetch('/api/updateUserProfile', {
             method: "POST",
             body: formData
         });
 
-        location.reload();
+        router.refresh();
     };
+
+    // fetching active user's data
+    useEffect(() => {
+        (async () => {
+            const myUserData = await getMyUserData();
+            setMyUser(myUserData);
+        })();
+    }, [])
+
+    // if the user auth status is loading
+    if (status === "loading" || !myUser) {
+        return <LoadingPage />
+    }
+
+    // if the user is not logged in, redirect them to the home page
+    if (status === "unauthenticated") {
+        router.push('/?loggedIn=false');
+        return;
+    }
 
     return (
         <Sidebar path="/settings">
@@ -63,23 +75,23 @@ export default function Settings() {
                             <div className="flex flex-col mb-4">
                                 <span className="font-bold">Profile Picture</span>
                                 <div className="flex flex-row gap-x-4">
-                                    <img src={userData?.image || ""} alt="Profile Picture" className="w-16 h-16 rounded-full" />
+                                    <img src={myUser?.image || ""} alt="Profile Picture" className="w-16 h-16 rounded-full object-cover" />
                                     <Input
                                         type="file"
                                         className="my-auto w-56"
-                                        onChange={event => setProfileImage(event.target.files?.[0] || null)}
+                                        onChange={e => setEditedUserProfilePicture(e.target.files?.[0] || null)}
                                     />
                                 </div>
                             </div>
                             <div className="flex flex-col gap-y-2">
                                 <span className="my-auto font-bold">Name</span>
                                 <Input
-                                    defaultValue={userData?.name || ""}
+                                    defaultValue={myUser?.name || ""}
                                     className="w-96"
-                                    onChange={event => setEditedName(event.target.value)}
+                                    onChange={e => setEditedUserName(e.target.value)}
                                 />
                             </div>
-                            <Button className="mt-4 text-white" onClick={editUserSettings}>
+                            <Button className="mt-4 text-white" onClick={updateUserProfile}>
                                 Save
                             </Button>
                         </div>

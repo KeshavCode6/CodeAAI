@@ -1,6 +1,5 @@
 "use client"
-
-import { Navbar } from '@/components/Navigation';
+import { Navbar } from '@/components/utils/Navigation';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
 import React from 'react';

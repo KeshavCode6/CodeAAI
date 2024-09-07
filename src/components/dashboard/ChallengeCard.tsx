@@ -1,15 +1,15 @@
 "use client"
 import { Button } from "@/components/ui/button";
 import { TableHeader, TableRow, TableHead, TableBody, TableCell, Table } from "@/components/ui/table";
-import { ThreeDots } from "@/components/ThreeDots";
-import Link from "next/link";
+import { ThreeDots } from "@/components/utils/ThreeDots";
 import { useEffect, useState } from "react";
 import { ChevronDown, ChevronRight, X } from "lucide-react";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../ui/dropdown-menu";
 import { useRouter } from "next/navigation";
-import { Tabs, TabsList, TabsTrigger } from "@radix-ui/react-tabs";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "./ui/card";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "../ui/card";
 import { ChallengeFilter } from "@/lib/utils";
+import Link from "next/link";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 // Define a type for challenge data
 export type Challenge = {

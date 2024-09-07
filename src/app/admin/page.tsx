@@ -9,7 +9,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { Label } from "@/components/ui/label";
 import { useSession } from "next-auth/react";
 import { Sidebar } from "@/components/Navigation";
-import { ThreeDots } from "@/components/Threedots";
+import { ThreeDots } from "@/components/ThreeDots";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AdminChallengeTable } from "@/components/ChallengeCard";
 import { useRouter } from "next/navigation";

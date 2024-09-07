@@ -7,7 +7,6 @@ import {
   Home,
   Package2,
   PlayIcon,
-  ListOrdered,
   CogIcon,
   Menu,
 } from "lucide-react"
@@ -20,10 +19,10 @@ import {
 import { signIn, signOut, useSession } from "next-auth/react";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuSeparator, DropdownMenuItem, DropdownMenuLabel } from "@/components/ui/dropdown-menu";
 import { useRouter } from "next/navigation";
-import { ThreeDots } from "./Threedots";
-import { NavigationMenu, NavigationMenuLink, navigationMenuTriggerStyle } from "./ui/navigation-menu";
-import { Dialog, DialogContent, DialogTrigger } from "./ui/dialog";
-import { getUserData, UserStats } from "@/lib/getUserData";
+import { LoadingPage, ThreeDots } from "@/components/utils/ThreeDots";
+import { NavigationMenu, NavigationMenuLink, navigationMenuTriggerStyle } from "@/components/ui/navigation-menu";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { getMyUserData, UserStats } from "@/lib/getUserData";
 
 
 interface NavbarProps {
@@ -32,27 +31,39 @@ interface NavbarProps {
   children?: React.ReactNode;
 }
 
+// user profile quick actions
 export function UserDropdown({ session }: { session: any }) {
-  const [userData, setUserData] = useState<UserStats | null>(null);
+  // getting and showing active user's data
+  const [myUser, setMyUser] = useState<UserStats | null>(null);
+  const router = useRouter();
 
-  useEffect(()=>{
-      getUserData().then(data=>{
-          setUserData(data);
-      })
-  })
-  
+  useEffect(() => {
+    (async () => {
+        const myUserData = await getMyUserData();
+        setMyUser(myUserData)
+    })();
+  }, [])
+
+  const userSignOut = () => {
+    signOut();
+  }
+
+  if(!myUser){
+    return <ThreeDots/>
+  }
+
   return (
     <div className="absolute top-3 right-5">
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="secondary" size="icon" className="rounded-full w-9 h-9">
-            <img src={userData?.image|| "/assets/avatar/image.png"} className="rounded-full" />
+            <img src={myUser.image|| ""} className="rounded-full" />
             <span className="sr-only">User menu</span>
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-fit p-4 shadow-lg">
-          <DropdownMenuItem onClick={() => signOut()}>Sign out</DropdownMenuItem>
-          <DropdownMenuItem>
+          <DropdownMenuItem onClick={userSignOut}>Sign out</DropdownMenuItem>
+          <DropdownMenuItem>  
             <Link href="/settings">Settings</Link>
           </DropdownMenuItem>
           <DropdownMenuItem>
@@ -85,13 +96,6 @@ export function Navbar({ children, path, marginTop = "4rem", loginOpen=false }: 
     return null;
   }
 
-  if (status === "loading") {
-    return (
-      <div className="w-screen h-screen flex justify-center items-center">
-        <ThreeDots />
-      </div>
-    ); // Customize your loading state
-  }
 
   const links = [
     { route: "/dashboard", title: "Dashboard" },
@@ -112,6 +116,15 @@ export function Navbar({ children, path, marginTop = "4rem", loginOpen=false }: 
       router.push(route);
     }
   };
+  
+  if (status === "loading") {
+    return <LoadingPage/>
+  }
+  
+  if (status === "unauthenticated") {
+    router.push("/")
+  }
+
 
   return (
     <>
@@ -178,7 +191,6 @@ export function Sidebar({ children, path }: React.PropsWithChildren<SidebarProps
   const links = [
     { href: "/dashboard", label: "Dashboard", icon: <Home className="h-5 w-5" /> },
     { href: "/play", label: "Play", icon: <PlayIcon className="h-5 w-5" /> },
-    { href: "/leaderboard", label: "Leaderboard", icon: <ListOrdered className="h-5 w-5" /> },
     { href: "/settings", label: "Settings", icon: <CogIcon className="h-5 w-5" /> }
   ];
 

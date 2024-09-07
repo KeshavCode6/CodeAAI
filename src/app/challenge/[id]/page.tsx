@@ -1,330 +1,212 @@
 "use client";
+import { useEffect, useState } from "react";
+import { Editor, loader } from "@monaco-editor/react";
+import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import {Sidebar} from "@/components/Navigation";
-import { Editor, loader } from "@monaco-editor/react";
-import { useEffect, useState } from "react";
 import { RefreshCcw, PlayIcon, ArrowLeft } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { Separator } from "@/components/ui/separator";
-import { useSession } from "next-auth/react";
-import {ThreeDots} from "@/components/Threedots"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { redirect } from "next/navigation";
-// Define VisibleTestCase interface
-interface VisibleTestCase {
-  input?: Record<string, any>;
-  expected: string;
-  received: string;
-  result: boolean;
-}
+import { LoadingPage } from "@/components/utils/ThreeDots";
+import { Sidebar } from "@/components/utils/Navigation";
+import { ChallengeTestCaseProps, ChallengeVisibleTestCaseProps, codeEditorTheme } from "@/lib/utils";
+import { ChallengeTestCase } from "@/components/challenge/ChallengeTestCase";
 
-interface TestCaseProps{
-  position:number,
-  inputs:string,
-  expectedOutput:string,
-  receivedOutput:string,
-  result:string;
-}
-function TestCase({position, inputs, expectedOutput, receivedOutput, result}:TestCaseProps) {
-  return (
-      <AccordionItem className="py-4" value={`item-${position}`}>
-          <AccordionTrigger className="text-sm py-1">Visible Test Case #{position}</AccordionTrigger>
-          <AccordionContent className="text-sm  bg-black rounded-lg">
-              <div className="flex flex-col p-4 w-full h-full">
-                  <span><span className="text-slate-400">Input:</span> {inputs}</span>
-                  <span><span className="text-slate-400">Expected Output:</span> {expectedOutput}</span>
-                  <span><span className="text-slate-400">Recieved Output:</span> {receivedOutput}</span>
-                  <span><span className="text-slate-400">Result:</span> {result}</span>
-              </div>
-          </AccordionContent>
-      </AccordionItem>
-  )
-}
 
-// challenge page, params.id is the id of the challenge
+// Challenge page
 export default function Challenge({ params }: { params: { id: string } }) {
-  const [code, setCode] = useState<string>(""); // code from the editor
-  const [isDirty, setIsDirty] = useState<boolean>(false); // track unsaved changes
-  const { data:session, status } = useSession(); // auth data
-  const [challengeData, setChallengeData] = useState<any>(undefined); // loaded challenge data
-  const [challengeDescription, setChallengeDescription] = useState<string>(""); // loaded challenge data
-  const [challengeArguments, setChallengeArguments] = useState<string>(""); // loaded challenge data
-  const [author, setAuthor] = useState<string>(""); // loaded challenge data
-  const [visibleTestCases, setVisibleTestCases] = useState<VisibleTestCase[]>([]) // visible test cases
-  const [totalCases, setTotalCases] = useState<number>(0) // total test cases
-  const [isClient, setIsClient] = useState(false); // Track if we are on the client side
-
+  const router = useRouter();
+  const { data: session, status } = useSession();
   const { toast } = useToast();
-  const defaultCode = `''' \nChallenge Description: \n ${challengeDescription}\n'''\nimport sys\n${challengeArguments}`;
 
-  // updating code state variable has text
-  function handleEditorChange(value: string | undefined) {
-    if (typeof value === "string") {
-      setCode(value);
-      setIsDirty(true); // mark form as dirty
-    } else {
-      console.error("Editor value is not a string:", value);
+  const [userCode, setUserCode] = useState<string>(""); // all the code in the editor
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState<boolean>(false); // if the user has not submitted their code 
+  const [challengeData, setChallengeData] = useState<any>(undefined); // data fetched about the challenge
+  const [formattedDescription, setFormattedDescription] = useState<string>(""); // challenge description
+  const [challengeArgs, setChallengeArgs] = useState<string>(""); // each input for the challenge
+  const [visibleTestCases, setVisibleTestCases] = useState<ChallengeVisibleTestCaseProps[]>([]);
+  const [totalTestCases, setTotalTestCases] = useState<number>(0);
+
+  const defaultCodeTemplate = `
+  '''
+  Challenge Description: 
+  ${formattedDescription}
+  '''
+  
+  import sys
+  ${challengeArgs}
+  `;
+
+  // Handle code editor value change
+  const handleCodeChange = (value: string | undefined) => {
+    if (value) {
+      setUserCode(value);
+      setHasUnsavedChanges(true);
     }
-  }
+  };
 
-  // submitting code via post request
-  const submitCode = async () => {
-    toast({
-      variant: "default",
-      title: `Testing code...`,
-      description: "Your code is being run at this moment. Please wait",
-    });
+  // Fetch challenge data from the API
+  const fetchChallengeData = async () => {
+    try {
+      const response = await fetch("/api/getChallenge", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ challengeId: params.id }),
+        credentials: "include",
+      });
+
+      const { challengeData, name } = await response.json();
+      challengeData.name = name;
+      setChallengeData(challengeData);
+
+      formatChallengeData(challengeData);
+    } catch (error) {
+      console.error("Error fetching challenge data:", error);
+    }
+  };
+
+  // Format challenge description and arguments
+  const formatChallengeData = (data: any) => {
+    const formattedDesc = formatText(data.description, 10);
+    const args = formatArguments(data.arguments);
+
+    setFormattedDescription(formattedDesc);
+    setChallengeArgs(args);
+  };
+
+  // Helper to format text into multiple lines
+  const formatText = (text: string, wordsPerLine: number) => {
+    const words = text.split(/\s+/);
+    return words.reduce((formatted, word, index) => {
+      return formatted + word + (index % wordsPerLine === wordsPerLine - 1 ? '\n  ' : ' ');
+    }, "");
+  };
+
+  // Helper to format challenge arguments
+  const formatArguments = (args: any) => {
+    return Object.keys(args).reduce((result, arg, index) => {
+      const typeFunc = mapTypeToFunction(args[arg]);
+      return result + `${arg} = ${typeFunc}(sys.argv[${index + 1}])\n`;
+    }, "\n# <- Challenge Arguments\n");
+  };
+
+  const mapTypeToFunction = (type: string) => {
+    const typeMap: { [key: string]: string } = { Int: "int", Str: "str", Float: "float", Bool: "bool" };
+    return typeMap[type] || "str";
+  };
+
+  // Handle code submission
+  const attemptChallenge = async () => {
+    toast({ variant: "default", title: "Testing Your Code...", description: "Please wait..." });
 
     try {
-      const response = await fetch("/api/submitCode", {
+      const response = await fetch("/api/attemptChallenge", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ code: code, challengeId: params.id }),
-        credentials: "include", // Include cookies in the request
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code: userCode, challengeId: params.id }),
+        credentials: "include",
       });
 
-      const data = await response.json();
+      const { result, failed, total, visibleTestCases } = await response.json();
 
-      let execResult = data.result;
-      let failed = data.failed;
-      let total = data.total;
+      if (visibleTestCases) setVisibleTestCases(visibleTestCases);
+      setTotalTestCases(total);
 
-      if (data.visibleTestCases !== undefined) {
-        setVisibleTestCases(data.visibleTestCases);
-      }
-      setTotalCases(total);
+      toast({ variant: result.toLowerCase() === "passed" ? "success" : "default", title: result, description: getResultDescription(result) });
 
-      let variant: "default" | "destructive" | "success" = "destructive";
-
-      if (typeof execResult == "string") {
-        let description = `Your code failed ${failed}/${total} test cases, try again`;
-
-        if (execResult.toLocaleLowerCase() == "passed") {
-          description = "Your code passed all test cases, well done!";
-          variant = "success";
-        } else if (execResult.toLocaleLowerCase() !== "failed") {
-          description = "Try another challenge!";
-          variant = "success";
-          setVisibleTestCases([]);
-        }
-
-        toast({
-          variant: variant,
-          title: `${execResult}`,
-          description: description,
-        });
-
-        setIsDirty(false); // mark form as clean
-      } else {
-        console.error("[challenge/[id]/page.tsx] Code execution is not a string..");
-      }
+      setHasUnsavedChanges(false);
     } catch (error) {
-      console.error("Error:", error);
-      toast({
-        variant: "destructive",
-        title: `Something went wrong!`,
-        description: "Your code caused an error or it was an internal issue",
-      });
+      console.error("Error submitting code:", error);
+      toast({ variant: "destructive", title: "Something went wrong!", description: "An error occurred during code execution." });
     }
   };
 
-  // getting challenge data
+  const getResultDescription = (result: string) => {
+    return result.toLowerCase() === "passed" ? "Your code passed all test cases!" : "Keep trying!";
+  };
+
+  // Load challenge data on component mount
   useEffect(() => {
-    // ensuring authentication has loaded
-    if (status === "loading") {
-      return;
-    }
-
-    const fetchChallengeData = async () => {
-      try {
-        const response = await fetch("/api/getChallenge", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ challengeId: params.id }),
-          credentials: "include", // Include cookies in the request
-        });
-
-        const data = await response.json();
-        setChallengeData(data.challengeData);
-        setAuthor(data.name.name)
-        
-        let desc = data.challengeData.description;
-        let words = desc.split(/\s+/);
-
-        let formattedDescription = ' ';
-        for (let i = 0; i < words.length; i++) {
-          formattedDescription += words[i] + ' ';
-          if ((i + 1) % 10 === 0) {
-            formattedDescription += '\n  ';
-          }
-        }
-
-        let args = "\n# <- Challenge Arguments\n";
-        Object.keys(data.challengeData.arguments).forEach((element, index: number) => {
-          const type = data.challengeData.arguments[element] 
-          var typeFunction = ""
-
-          if(type=="Int"){
-            typeFunction = "int"
-          }
-          if(type=="Str"){
-            typeFunction = "str"
-          }
-          if(type=="Float"){
-            typeFunction = "float"
-          }
-
-          if(type=="Bool"){
-            args += `${element} = (sys.argv[${index + 1}]\n`;
-          }
-          else{
-            args += `${element} = ${typeFunction}(sys.argv[${index + 1}])\n`;
-          }
-        });
-
-        setChallengeArguments(args + "\n");
-        setChallengeDescription(formattedDescription);
-      } catch (error) {
-        console.error("Error:", error);
-      }
-    };
-
-    fetchChallengeData();
+    if (status !== "loading") fetchChallengeData();
+    loader.init().then(codeEditorTheme);
   }, [status]);
 
-  const resetCode = () => {
-    setCode(defaultCode);
-    setIsDirty(false); // mark form as clean
-  };
 
-  useEffect(() => {
-    setIsClient(true);
-    loader.init().then((monaco) => {
-      monaco.editor.defineTheme("moon", {
-        base: "vs-dark",
-        inherit: true,
-        rules: [
-          { token: "", foreground: "D4D4D4" },
-          { token: "keyword", foreground: "569CD6" },
-          { token: "string", foreground: "CE9178" },
-          { token: "number", foreground: "9CDCFE" },
-          { token: "comment", foreground: "6A9955" },
-          { token: "delimiter", foreground: "B8D7A3" },
-          { token: "variable", foreground: "DCDCAA" },
-          { token: "type", foreground: "4EC9B0" },
-          { token: "constant", foreground: "B5CEA8" },
-          { token: "property", foreground: "D4D4D4" },
-          { token: "method", foreground: "9CDCFE" },
-          { token: "builtin", foreground: "D4D4D4" },
-          { token: "attribute", foreground: "DCDCAA" },
-          { token: "operator", foreground: "B5CEA8" },
-          { token: "function", foreground: "D8A3FF" },
-        ],
-        colors: {
-          "editor.background": "#020817",
-          "editorCursor.foreground": "#569CD6",
-          "editor.lineHighlightBackground": "#00000000",
-          "editorBracketMatch.background": "#00000000",
-          "editorBracketMatch.border": "#00000000",
-          "editorLineNumber.foreground": "#858585",
-          "editorLineNumber.activeForeground": "#FFFFFF",
-          "editor.lineHighlightBorder": "#00000000",
-          "editorOverviewRuler.border": "#00000000",
-        },
-      });
-    });
-  }, []);
-
-
-  if(!challengeDescription){
-    return (
-      <div className="w-screen h-screen flex justify-center items-center">
-        <ThreeDots />
-      </div>
-    ); // Customize your loading state
+  // if the user auth status is loading
+  if (status === "loading" || !challengeData) {
+    return <LoadingPage />
   }
 
+  // if the user is not logged in, redirect them to the home page
   if (status === "unauthenticated") {
-    redirect('/?loggedIn=false');
+    router.push('/?loggedIn=false');
+    return;
   }
 
-  // UI
   return (
-    <Sidebar path={"/play"}>
+    <Sidebar path="/play">
       <div className="overflow-x-hidden h-[90vh]">
         <div className="flex flex-col lg:flex-row gap-2 w-screen items-center justify-center">
-          {/* Editor Section */}
+          {/* Code Editor */}
           <Card className="p-2 w-11/12 h-[30vh] 2xl:w-[60vw] md:h-[87vh] animate-flyBottom">
-            {isClient && (
             <Editor
-            height="100%"
-            width="100%"
-            theme="moon"
-            value={code}
-            onChange={handleEditorChange}
-            defaultLanguage="python"
-            defaultValue={defaultCode}
-          />
-            )}
+              height="100%"
+              width="100%"
+              theme="moon"
+              value={userCode}
+              onChange={handleCodeChange}
+              defaultLanguage="python"
+              defaultValue={defaultCodeTemplate}
+            />
           </Card>
-          {/* Challenge Info Section */}
+
+          {/* Challenge Info */}
           <Card className="w-11/12 h-fit mb-12 2xl:mb-0 2xl:w-[23vw] p-4 md:h-[87vh] animate-flyTop relative">
             <div className="relative flex flex-col items-center gap-3 p-6">
-              <Button className="absolute left-3 top-3 w-6 h-6" variant={"outline"} size={"icon"} onClick={() => window.history.back()}>
+              <Button className="absolute left-3 top-3 w-6 h-6" variant="outline" size="icon" onClick={() => router.back()}>
                 <ArrowLeft size={15} />
               </Button>
-              <h1 className="text-xl font-extrabold text-white">
-                {challengeData?.name}
-              </h1>
+              <h1 className="text-xl font-extrabold text-white">{challengeData.name}</h1>
               <div className="mt-[-15px] font-light text-gray-400 space-y-1 w-full">
                 <Separator className="my-2" />
-                <p><span className="font-semibold text-white">Author:</span> {author || ""}</p>
+                <p><span className="font-semibold text-white">Author:</span> {challengeData.author}</p>
                 <Separator className="my-2" />
-                <p><span className="font-semibold text-white">Difficulty:</span> {challengeData?.difficulty}</p>
+                <p><span className="font-semibold text-white">Difficulty:</span> {challengeData.difficulty}</p>
                 <Separator className="my-2" />
-                <p><span className="font-semibold text-white">Points:</span> {challengeData?.points}</p>
+                <p><span className="font-semibold text-white">Points:</span> {challengeData.points}</p>
                 <Separator className="my-2" />
               </div>
             </div>
+
+            {/* Test Cases */}
             <div className="mt-4 flex flex-col h-fit items-center">
               <div className="w-5/6">
-                {visibleTestCases.map((value: VisibleTestCase, index: number) => {
-                  let result = value.result ? "Passed" : "Failed";
-                  let inputs = value.input ? Object.values(value.input).join(', ') : "None";
-
-                  return (
-                    <Accordion type="single" collapsible key={index}>
-                      <TestCase
-                        position={index + 1}
-                        inputs={inputs}
-                        expectedOutput={value.expected}
-                        receivedOutput={value.received}
-                        result={result}
-                      />
-                    </Accordion>
-                  );
-                })}
+                {visibleTestCases.map((testCase, index) => (
+                  <Accordion type="single" collapsible key={index}>
+                    <ChallengeTestCase
+                      position={index + 1}
+                      inputs={Object.values(testCase.input || {}).join(', ') || "None"}
+                      expectedOutput={testCase.expected}
+                      receivedOutput={testCase.received}
+                      result={testCase.result ? "Passed" : "Failed"}
+                    />
+                  </Accordion>
+                ))}
               </div>
-              {visibleTestCases.length > 0 ? (
-                <p className="w-full text-center font-normal text-xs mt-4">{`${visibleTestCases.length} out of ${totalCases} test cases shown. Rest hidden.`}</p>
-              ) : (
-                <p className="w-full text-center font-normal text-xs mt-4">{`No test cases to show.`}</p>
-              )}
-              <Button variant="outline" className="w-1/2 mt-6" onClick={resetCode} disabled={!isDirty}>
-                <RefreshCcw size={16} />
-                <span className="ml-2">Reset</span>
-              </Button>
-              <Button className="w-1/2 mt-4" onClick={submitCode}>
-                <PlayIcon size={16} />
-                <span className="ml-2">Run</span>
-              </Button>
             </div>
           </Card>
+        </div>
+
+        {/* Submit and Reset Buttons */}
+        <div className="absolute flex gap-2 bottom-8 left-0 right-0 justify-center animate-fadeIn">
+          <Button onClick={() => setUserCode(defaultCodeTemplate)} variant="secondary" size="sm" disabled={!hasUnsavedChanges}>
+            <RefreshCcw size={15} /> Reset
+          </Button>
+          <Button onClick={attemptChallenge} variant="default" size="sm">
+            <PlayIcon size={15} /> Submit
+          </Button>
         </div>
       </div>
     </Sidebar>

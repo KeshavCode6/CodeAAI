@@ -5,9 +5,8 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { Card, CardTitle } from "@/components/ui/card"
 import { GithubIcon, GlobeIcon, InstagramIcon, WebhookIcon } from "lucide-react"
 import { infoCards, teamMembers, faqs } from "@/lib/constants"
-import { Navbar } from "@/components/Navigation"
-import ScrollableSection from "@/components/ScrollableSection"
-import { useState } from "react"
+import { Navbar } from "@/components/utils/Navigation"
+import ScrollableSection from "@/components//utils/ScrollableSection"
 
 // Landing page
 export default function Landing({ searchParams }: any) {

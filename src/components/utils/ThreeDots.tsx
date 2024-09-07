@@ -8,3 +8,11 @@ export function ThreeDots() {
         </div>
     );
 }
+
+export function LoadingPage(){
+    return (
+        <div className="w-screen h-screen flex justify-center items-center">
+        <ThreeDots />
+      </div>
+    );
+}
