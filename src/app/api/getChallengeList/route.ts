@@ -1,38 +1,31 @@
 import { getUserFromToken } from '@/lib/getUserFromToken';
 import { prismaClient } from '@/lib/prisma';
 import { NextRequest, NextResponse } from 'next/server';
-
-export async function GET(request: NextRequest){
-  const data = await prismaClient.challenge.findMany({
-    select: { challengeId: true }
-  });
-
-  const ids = data.map(item => item.challengeId);
-  return NextResponse.json({ ids });
-}
+import {ApiErrors} from "@/lib/apiErrors";
 
 export async function POST(request: NextRequest) {
   try {
-    const data = await request.json();
-    const difficulty = data.difficulty;
+    const requestData = await request.json();
+    const challengeDifficulty = requestData.difficulty;
 
+    // checking if the user is logged in
     const user = await getUserFromToken(request.cookies);
     if (!user) {
-      return NextResponse.json({ error: "Invalid user token" }, { status: 401 });
+      return NextResponse.json(...ApiErrors.REQUEST_USER_NOT_LOGGED_IN);
     }
 
     const userDb = await prismaClient.user.findUnique({ where: { email: user.email || "" } });
     if (!userDb) {
-      return NextResponse.json({ error: "User not found" }, { status: 404 });
+      return NextResponse.json(...ApiErrors.INVALID_USER_DATA);
     }
 
-    if (!difficulty) {
-      return NextResponse.json({ error: "Difficulty parameter is required" }, { status: 400 });
+    if (!challengeDifficulty) {
+      return NextResponse.json(...ApiErrors.MISSING_REQUEST_PARAMETERS);
     }
 
     // Fetch challenges based on difficulty
     const challenges = await prismaClient.challenge.findMany({
-      where: { difficulty: difficulty },
+      where: { difficulty: challengeDifficulty },
       select: {
         id: true,
         challengeId: true,
@@ -68,8 +61,8 @@ export async function POST(request: NextRequest) {
     
     return NextResponse.json(formattedChallenges);
 
-  } catch (error: any) {
-    console.error("Error:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+  } catch (err: Exception) {
+    console.error("Error: ", err);
+    return new Response(...ApiErrors.ERROR_PROCESSING_REQUEST(err));
   }
 }

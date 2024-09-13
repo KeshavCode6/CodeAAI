@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAdminUser, getUserFromToken } from "@/lib/getUserFromToken";
 import { prismaClient } from '@/lib/prisma';
+import {ApiErrors} from "@/lib/apiErrors";
 
 // Handling GET request
 export async function GET(request: NextRequest) {
@@ -18,9 +19,9 @@ export async function GET(request: NextRequest) {
 
 
     return NextResponse.json(combinedResponse);
-  } catch (error: any) {
-    console.error("Error:", error);
-    return new Response(`Error processing request: ${error.message}`, { status: 500 });
+  } catch (err: Exception) {
+    console.error("Error: ", err);
+    return new Response(...ApiErrors.ERROR_PROCESSING_REQUEST(err));
   }
 }
 
@@ -31,11 +32,11 @@ export async function POST(request: NextRequest) {
     const data = await request.json();
     
     if (!user) {
-      return new Response("Not admin!", { status: 400 });
+      return new Response(...ApiErrors.UNAUTHORIZED_ACTION);
     }
 
     if (!data.email) {
-      return new Response("User email is required", { status: 400 });
+      return new Response(...ApiErrors.MISSING_REQUEST_PARAMETERS);
     }
 
     // Query all fields from the User model
@@ -44,13 +45,13 @@ export async function POST(request: NextRequest) {
     });
 
     if (!dbUser) {
-      return new Response("User not found", { status: 404 });
+      return new Response(...ApiErrors.INVALID_USER_DATA);
     }
 
     return NextResponse.json(dbUser);
-  } catch (error: any) {
-    console.error("Error:", error);
-    return new Response(`Error processing request: ${error.message}`, { status: 500 });
+  } catch (err: Exception) {
+    console.error("Error: ", err);
+    return new Response(...ApiErrors.ERROR_PROCESSING_REQUEST(err));
   }
 }
 
@@ -61,11 +62,11 @@ export async function PUT(request: NextRequest) {
     const jData = await request.json();
     
     if (!user) {
-      return new Response("Not admin!", { status: 400 });
+      return new Response(...ApiErrors.UNAUTHORIZED_ACTION);
     }
 
     if (!jData.email) {
-      return new Response("User email is required", { status: 400 });
+      return new Response(...ApiErrors.MISSING_REQUEST_PARAMETERS);
     }
 
     const { email, data } = jData;
@@ -78,8 +79,8 @@ export async function PUT(request: NextRequest) {
     });
 
     return NextResponse.json(updatedUser);
-  } catch (error: any) {
-    console.error("Error:", error);
-    return new Response(`Error processing request: ${error.message}`, { status: 500 });
+  } catch (err: Exception) {
+    console.error("Error: ", err);
+    return new Response(...ApiErrors.ERROR_PROCESSING_REQUEST(err));
   }
 }

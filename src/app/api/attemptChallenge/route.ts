@@ -2,172 +2,163 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import { execSync } from 'child_process';
 import { NextRequest, NextResponse } from 'next/server';
-import {prismaClient} from '@/lib/prisma'; // Adjust the import based on your structure
+import { prismaClient } from '@/lib/prisma'; // Adjust the import based on your structure
 import { getUserFromToken } from '@/lib/getUserFromToken';
 import { v4 as uuidv4 } from 'uuid';
+import { ApiErrors } from "@/lib/apiErrors";
 
-interface PostData {
+interface ChallengeSubmission {
   challengeId: string;
   code: string;
 }
 
-export interface VisibleTestCase {
+export interface TestCaseResult {
   input: any;
   expected: string;
   received: string;
   result: boolean;
 }
 
-function wasInLastDay(timestamp: number) {
-
-  const currentTime = Date.now();
-
-  const difference = currentTime - timestamp;
-  const twentyFourHoursInMs = 24 * 60 * 60 * 1000;
-
-  return difference > twentyFourHoursInMs;
-
-}
-
 export async function POST(request: NextRequest) {
   try {
-    const data: PostData = await request.json();
+    const submissionData: ChallengeSubmission = await request.json();
 
-    const user = await getUserFromToken(request.cookies);
-
-    if(!user){
-      return NextResponse.json({ result: "Not logged in!" });
+    // Check if user is logged in
+    const userAuthData = await getUserFromToken(request.cookies);
+    if (!userAuthData) {
+      return NextResponse.json(...ApiErrors.REQUEST_USER_NOT_LOGGED_IN);
     }
 
-    const dbUser =await prismaClient.user.findUnique({
-      where: { email: user?.email || ""},
+    // Get user data from the database
+    const user = await prismaClient.user.findUnique({
+      where: { email: userAuthData.email || "" },
     });
 
-    if(!dbUser){
-      return NextResponse.json({ result: "Doesn't exist in db?" });
+    // Ensure the user exists
+    if (!user) {
+      return NextResponse.json(...ApiErrors.INVALID_USER_DATA);
     }
 
+    // Find the challenge data
     const challenge = await prismaClient.challenge.findUnique({
-      where: { challengeId: data.challengeId },
+      where: { challengeId: submissionData.challengeId },
     });
 
+    // Ensure the challenge exists
     if (!challenge) {
-      return NextResponse.json({ result: "Invalid Challenge!" });
+      return NextResponse.json(...ApiErrors.INVALID_CHALLENGE_DATA);
     }
 
-    
-    if (challenge.difficulty == "Daily" && wasInLastDay(challenge.creationTimestamp.getUTCDate())) {
-      return NextResponse.json({ result: "This challenge has expired." });
+    // Get the user's challenge status
+    const userChallengeStatus = await prismaClient.userChallenges.findFirst({
+      where: { challengeId: challenge.id, userId: user.id }
+    });
+
+    // If the user has solved the challenge already, do not run the code again
+    if (userChallengeStatus?.solved) {
+      return NextResponse.json(...ApiErrors.CHALLENGE_ALREADY_SOLVED);
     }
 
-
-    const userChallengeData = await prismaClient.userChallenges.findFirst({where:{challengeId:challenge?.id, userId:dbUser.id}})
-
-    // if (userChallengeData?.solved) {
-    //   return NextResponse.json({ result: "You solved this challenge already!" });
-    // }
-
+    // Get all test cases associated with the challenge
     const testCases = await prismaClient.testCase.findMany({
       where: { challengeId: challenge.id }
     });
-    
 
-    let visibleTestCases: VisibleTestCase[] = [];
-    let passed = 0;
-    let failed = 0;
+    // Test case results to return to the user
+    let visibleTestCases: TestCaseResult[] = [];
+    let passedCount = 0;
+    let failedCount = 0;
     let index = 0;
 
-    for (const value of testCases) {
+    // Create a directory for the user's code
+    const tempDir = path.join(process.cwd(), 'temp');
+    const userDir = path.join(tempDir, uuidv4());
+    await fs.mkdir(userDir, { recursive: true });
+    const codeFilePath = path.join(userDir, 'user_code.py');
+    await fs.writeFile(codeFilePath, submissionData.code);
 
-      const tmpDir = path.join(process.cwd(), 'tmp');
-      const userDir = path.join(tmpDir, uuidv4());
-      await fs.mkdir(userDir, { recursive: true });
-
-      const filePath = path.join(userDir, 'user_code.py');
-      await fs.writeFile(filePath, data.code);
-
-      const argsJson = value.args;
-
+    // Run the user's code for each test case
+    for (const testCase of testCases) {
+      // Prepare arguments for the test case
+      const argsJson = testCase.args;
       let args = "";
-      //@ts-ignore
       Object.keys(challenge.arguments).forEach((argument: string) => {
-        if(argsJson!==null ){
-          //@ts-ignore
+        if (argsJson !== null) {
           args += `${argsJson[argument]} `;
         }
       });
 
-      const command = `docker run --rm -v ${userDir}:/code python:3.9 python /code/user_code.py ${args}`;
       let output: string;
       try {
+        // Run the command inside the Docker container
+        const command = `docker run --rm -v ${userDir}:/code python:3.9 python /code/user_code.py ${args}`;
         output = execSync(command, { encoding: 'utf-8', timeout: 5000 });
       } catch (error: any) {
         output = error.stdout ? error.stdout.toString() : error.message;
       }
 
-      console.log(output)
 
-      await fs.rm(userDir, { recursive: true, force: true });
+      // Determine if the output is correct
+      const expectedOutput = testCase.output.toString().trim();
+      const isPassed = output.trim() === expectedOutput;
 
-      const check = value.output.toString().trim();
-      const fail = output.trim() !== check.trim();
-
-      if (!fail) {
-        passed += 1;
+      // Update submission stats
+      if (isPassed) {
+        passedCount += 1;
       } else {
-        failed += 1;
+        failedCount += 1;
       }
 
+      // Make the first 2 test cases visible to the user
       if (index < 2) {
         visibleTestCases.push({
-          input: value.args,
-          expected: value.output,
+          input: testCase.args,
+          expected: testCase.output,
           received: output.trim(),
-          result: !fail,
+          result: isPassed,
         });
       }
       index += 1;
     }
 
-    let finalResult = failed === 0 ? "Passed" : "Failed";
+    // Determine final result
+    const finalResult = failedCount === 0 ? "Passed" : "Failed";
 
-    // club rush
-    if (finalResult === "Passed" && !userChallengeData?.solved) {
-      const change = challenge.points;
-      const currentDate = new Date();
-      const formattedDate = currentDate.toISOString().split('T')[0]; // format as YYYY-MM-DD
+    // Reward the user if the challenge was solved successfully
+    if (finalResult === "Passed" && !userChallengeStatus?.solved) {
+      const challengePoints = challenge.points;
 
-
+      // Update user statistics
       await prismaClient.user.update({
-        where: { id: dbUser.id },
+        where: { id: user.id },
         data: {
-          points: { increment: change },
+          points: { increment: challengePoints },
           solves: { increment: 1 },
-          lastChallenge:"",
-          easyChallenges: challenge.difficulty === 'Easy' ? { increment: -1 } : undefined,
-          mediumChallenges: challenge.difficulty === 'Medium' ? { increment: -1 } : undefined,
-          hardChallenges: challenge.difficulty === 'Hard' ? { increment: -1 } : undefined,
-          dailyChallenges: challenge.difficulty === 'Daily' ? { increment: -1 } : undefined,
+          lastChallenge: "",
+          easyChallenges: challenge.difficulty === 'Easy' ? { increment: 1 } : undefined,
+          mediumChallenges: challenge.difficulty === 'Medium' ? { increment: 1 } : undefined,
+          hardChallenges: challenge.difficulty === 'Hard' ? { increment: 1 } : undefined,
+          dailyChallenges: challenge.difficulty === 'Daily' ? { increment: 1 } : undefined,
         },
       });
 
+      // Mark the challenge as solved for the user
       await prismaClient.userChallenges.updateMany({
-        where: { userId: dbUser.id, challengeId:challenge.id },
-        data: {
-           solved:true
-        },
+        where: { userId: user.id, challengeId: challenge.id },
+        data: { solved: true },
       });
 
+      // Update challenge-specific statistics
       await prismaClient.challenge.update({
-        where: { challengeId: data.challengeId },
+        where: { challengeId: submissionData.challengeId },
         data: { solves: { increment: 1 } },
       });
     }
 
-    return NextResponse.json({ result: finalResult, failed, total: passed + failed, visibleTestCases });
-
-  } catch (error: any) {
-    console.error("Error:", error);
-    return new Response(`Error processing request: ${error.message}`, { status: 500 });
+    // Send back the result to the user
+    return NextResponse.json({ result: finalResult, failed: failedCount, total: passedCount + failedCount, status:"success", visibleTestCases });
+  } catch (err: any) {
+    console.error("Error: ", err);
+    return new Response(...ApiErrors.ERROR_PROCESSING_REQUEST(err));
   }
 }

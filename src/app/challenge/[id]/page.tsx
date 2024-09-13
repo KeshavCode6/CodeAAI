@@ -50,15 +50,15 @@ export default function Challenge({ params }: { params: { id: string } }) {
   // Fetch challenge data from the API
   const fetchChallengeData = async () => {
     try {
-      const response = await fetch("/api/getChallenge", {
+      const response = await fetch("/api/getChallengeData", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ challengeId: params.id }),
         credentials: "include",
       });
 
-      const { challengeData, name } = await response.json();
-      challengeData.name = name;
+      const data = await response.json();
+      var challengeData = data.challengeData;
       setChallengeData(challengeData);
 
       formatChallengeData(challengeData);
@@ -108,8 +108,15 @@ export default function Challenge({ params }: { params: { id: string } }) {
         body: JSON.stringify({ code: userCode, challengeId: params.id }),
         credentials: "include",
       });
+      const data = await response.json();
 
-      const { result, failed, total, visibleTestCases } = await response.json();
+      const { status, result, failed, total, visibleTestCases } = data;
+
+      console.log(data.status=="error")
+      if(status=="error"){
+        toast({ variant: "default", title: "Your code could not be executed!", description: data.message });
+        return;
+      }
 
       if (visibleTestCases) setVisibleTestCases(visibleTestCases);
       setTotalTestCases(total);
@@ -171,7 +178,7 @@ export default function Challenge({ params }: { params: { id: string } }) {
               <h1 className="text-xl font-extrabold text-white">{challengeData.name}</h1>
               <div className="mt-[-15px] font-light text-gray-400 space-y-1 w-full">
                 <Separator className="my-2" />
-                <p><span className="font-semibold text-white">Author:</span> {challengeData.author}</p>
+                <p><span className="font-semibold text-white">Author:</span> {challengeData.authorName}</p>
                 <Separator className="my-2" />
                 <p><span className="font-semibold text-white">Difficulty:</span> {challengeData.difficulty}</p>
                 <Separator className="my-2" />
@@ -196,17 +203,16 @@ export default function Challenge({ params }: { params: { id: string } }) {
                 ))}
               </div>
             </div>
+            {/* Submit and Reset Buttons */}
+            <div className="absolute flex gap-2 bottom-16 left-0 right-0 justify-center animate-fadeIn">
+              <Button onClick={() => setUserCode(defaultCodeTemplate)} variant="secondary" size="sm" disabled={!hasUnsavedChanges}>
+                <RefreshCcw size={15} /> Reset
+              </Button>
+              <Button onClick={attemptChallenge} variant="default" size="sm">
+                <PlayIcon size={15} /> Submit
+              </Button>
+            </div>
           </Card>
-        </div>
-
-        {/* Submit and Reset Buttons */}
-        <div className="absolute flex gap-2 bottom-8 left-0 right-0 justify-center animate-fadeIn">
-          <Button onClick={() => setUserCode(defaultCodeTemplate)} variant="secondary" size="sm" disabled={!hasUnsavedChanges}>
-            <RefreshCcw size={15} /> Reset
-          </Button>
-          <Button onClick={attemptChallenge} variant="default" size="sm">
-            <PlayIcon size={15} /> Submit
-          </Button>
         </div>
       </div>
     </Sidebar>

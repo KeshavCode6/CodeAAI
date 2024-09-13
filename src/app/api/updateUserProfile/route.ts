@@ -4,6 +4,7 @@ import { getUserFromToken } from '@/lib/getUserFromToken';
 import { promises as fs } from 'fs';
 import path from 'path';
 import { prismaClient } from '@/lib/prisma';
+import {ApiErrors} from "@/lib/apiErrors";
 
 
 export async function POST(request: NextRequest) {
@@ -20,10 +21,9 @@ export async function POST(request: NextRequest) {
 
     const user = await getUserFromToken(request.cookies); // Get user info from token
 
-
     if (editedUserProfilePicture instanceof File) {
       if (!(["image/png", "image/jpeg", "image/jpg"].includes(editedUserProfilePicture.type))) {
-        return new Response("Invalid filetype for avatar!", { status: 500 });
+        return new Response(...ApiErrors.INVALID_PARAMETERS_FORMAT);
       }
 
       // Prepare file storage path
@@ -49,13 +49,13 @@ export async function POST(request: NextRequest) {
 
     } 
 
-    if (name !== "") {
-      await prismaClient.user.update({where:{email:user.email}, data:{name:name}})
+    if (editedUserName !== "") {
+      await prismaClient.user.update({where:{email:user.email}, data:{name:editedUserName}})
     }
 
     return NextResponse.json({ status: "ok" });
-  } catch (error: any) {
-    console.error("Error:", error);
-    return new Response(`Error processing request: ${error.message}`, { status: 500 });
+  } catch (err: Exception) {
+    console.error("Error: ", err);
+    return new Response(...ApiErrors.ERROR_PROCESSING_REQUEST(err));
   }
 }

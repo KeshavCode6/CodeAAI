@@ -1,30 +1,34 @@
 import { prismaClient } from "@/lib/prisma"; // Import the Prisma client
 import { NextRequest, NextResponse } from "next/server";
 import { getAdminUser } from "@/lib/getUserFromToken";
+import {ApiErrors} from "@/lib/apiErrors";
 
 export async function POST(request: NextRequest) {
   try {
     const reqData = await request.json();
 
+    // making sure challenge data was sent over
     if (reqData.challengeData === undefined) {
       return NextResponse.json({ status: 403 });
     }
 
     const data = JSON.parse(reqData.challengeData);
-    const user = await getAdminUser(request.cookies);
-    if (!user) {
-      return NextResponse.json({ status: 401, message: "Not allowed" });
+
+    // checking if the user is an admin
+    const requestUser = await getAdminUser(request.cookies);
+    if (!requestUser) {
+      return NextResponse.json(...ApiErrors.UNAUTHORIZED_ACTION);
     }
     
-    const userID = await prismaClient.user.findUnique({ where: { email: user.email || "" } });
-
-    if (!userID) {
-      return NextResponse.json({ status: 500, message: "Not logged in" });
+    // getting the user's data from the database
+    const user = await prismaClient.user.findUnique({ where: { email: requestUser.email || "" } });
+    if (!user) {
+      return NextResponse.json(...ApiErrors.REQUEST_USER_NOT_LOGGED_IN);
     }
 
     // Validate the structure of test cases
     if (!data.testCases || !Array.isArray(data.testCases)) {
-      return NextResponse.json({ status: 400, message: "Invalid test cases format" });
+      return NextResponse.json(...ApiErrors.INVALID_PARAMETERS_FORMAT);
     }
 
     // Adding initial challenge data
@@ -36,7 +40,7 @@ export async function POST(request: NextRequest) {
         difficulty: data.difficulty,
         arguments: data.arguments || {},
         points: data.points || 0,
-        authorId: userID.id,
+        authorId: user.id,
         creationTimestamp: new Date(data.creationTimestamp || Date.now()), 
         testCases: {
           create: data.testCases.map((testCase: any) => ({
@@ -61,9 +65,9 @@ export async function POST(request: NextRequest) {
     });
 
     return NextResponse.json({ status: 200, newChallenge });
-  } catch (error:any) {
-    console.error("Error in managing challenge:", error);
-    return NextResponse.json({ status: 500, message: error.message });
+  } catch (err: Exception) {
+    console.error("Error: ", err);
+    return new Response(...ApiErrors.ERROR_PROCESSING_REQUEST(err));
   }
 }
 
@@ -74,13 +78,13 @@ export async function DELETE(request: NextRequest) {
     const { challengeId } = reqData;
 
     if (!challengeId) {
-      return NextResponse.json({ status: 400, message: "Challenge ID is required" });
+      return NextResponse.json(...ApiErrors.MISSING_REQUEST_PARAMETERS);
     }
 
     // Authenticate the admin user
     const user = await getAdminUser(request.cookies);
     if (!user) {
-      return NextResponse.json({ status: 401, message: "Not allowed" });
+      return NextResponse.json(...ApiErrors.UNAUTHORIZED_ACTION);
     }
 
     // Find the challenge by ID to determine its difficulty
@@ -90,7 +94,7 @@ export async function DELETE(request: NextRequest) {
     });
 
     if (!challenge) {
-      return NextResponse.json({ status: 404, message: "Challenge not found" });
+      return NextResponse.json(...ApiErrors.INVALID_CHALLENGE_DATA);
     }
 
     // Delete the challenge
@@ -112,8 +116,8 @@ export async function DELETE(request: NextRequest) {
     });
 
     return NextResponse.json({ status: 200, message: "Challenge deleted", deletedChallenge });
-  } catch (error: any) {
-    console.error(error);
-    return NextResponse.json({ status: 500, message: error.message });
+  } catch (err: Exception) {
+    console.error("Error: ", err);
+    return new Response(...ApiErrors.ERROR_PROCESSING_REQUEST(err));
   }
 }

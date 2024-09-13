@@ -21,7 +21,7 @@ export type UserStats = {
 // Function to fetch user data
 export async function getMyUserData(): Promise<UserStats | null> {
   try {
-    const response = await fetch('/api/getUser');
+    const response = await fetch('/api/getUserData');
     if (!response.ok) {
       throw new Error('Network response was not ok');
     }

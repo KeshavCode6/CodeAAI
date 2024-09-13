@@ -1,6 +1,8 @@
 import { getAdminUser, getUserFromToken } from '@/lib/getUserFromToken';
 import { prismaClient } from '@/lib/prisma';
 import { NextRequest, NextResponse } from 'next/server';
+import {ApiErrors} from "@/lib/apiErrors";
+
 
 export async function GET(request: NextRequest) {
   try {
@@ -22,8 +24,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Fetch challenges based on the difficulty level
-    const challenges = await prismaClient.challenge.findMany({
-    });
+    const challenges = await prismaClient.challenge.findMany({});
 
     // Extract challenge IDs to fetch the corresponding test cases
     const challengeIds = challenges.map(challenge => challenge.id);
@@ -46,9 +47,8 @@ export async function GET(request: NextRequest) {
     // Return the formatted challenges with their test cases
     return NextResponse.json(formattedChallenges);
 
-  } catch (error: any) {
-    // Handle any errors that occur during the execution
-    console.error("Error:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+  } catch (err: Exception) {
+    console.error("Error: ", err);
+    return new Response(...ApiErrors.ERROR_PROCESSING_REQUEST(err));
   }
 }

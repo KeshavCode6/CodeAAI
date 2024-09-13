@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prismaClient } from '@/lib/prisma';
+import {ApiErrors} from "@/lib/apiErrors";
 
 // Handling GET request
 export async function GET(request: NextRequest) {
@@ -7,8 +8,8 @@ export async function GET(request: NextRequest) {
     const dbUsers = await prismaClient.user.findMany({});
     
     return NextResponse.json(dbUsers);
-  } catch (error: any) {
-    console.error("Error:", error);
-    return new Response(`Error processing request: ${error.message}`, { status: 500 });
+  } catch (err: Exception) {
+    console.error("Error: ", err);
+    return new Response(...ApiErrors.ERROR_PROCESSING_REQUEST(err));
   }
 }
