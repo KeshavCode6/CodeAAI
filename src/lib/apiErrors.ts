@@ -6,6 +6,6 @@ export const ApiErrors = {
     INVALID_USER_DATA: [{ status: "error", message: "User not logged in!" }, { status: 500 }], 
     MISSING_REQUEST_PARAMETERS: [{ status: "error", message: "Missing request parameters!" }, { status: 500 }], 
     REQUEST_USER_NOT_LOGGED_IN: [{ status: "error", message: "User not logged in!" }, { status: 500 }], 
-    ERROR_PROCESSING_REQUEST: (err) => [`Error processing request: ${err.message}`, { status: 500 }], 
+    ERROR_PROCESSING_REQUEST: (err:any) => [`Error processing request: ${err.message}`, { status: 500 }], 
     UNAUTHORIZED_ACTION: [{ status: "error", message: "You are not authorized to perform this action!" }, { status: 500 }]
 }
